@@ -1,0 +1,51 @@
+@use "../../../global.scss" as *;
+
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  border-bottom: #e5e8eb solid 1px;
+  height: 52.8px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  padding: 13.2px 44px;
+  .leftHalf {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 13.2px;
+    .logo {
+      height: 100%;
+      width: fit-content;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      img {
+        height: 18px;
+      }
+    }
+    .title {
+      font-size: 20px;
+      font-family: $titleFont;
+      font-weight: 700;
+    }
+  }
+  .rightHalf {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    a {
+      text-decoration: none;
+      color: white;
+      font-family: $titleFont;
+      font-weight: 500;
+      font-size: 18px;
+      &:hover {
+        color: #e5e8eb;
+      }
+    }
+  }
+}
