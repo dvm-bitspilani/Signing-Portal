@@ -1,0 +1,56 @@
+@use '../../global.scss' as *;
+
+.homeContent {
+    margin: auto;
+    margin-top: 72px;
+    padding: 54px $minContentPaddingX;
+    width: $pageContentWidth;
+
+    @media (max-width: $mobileBreakpointWidth) {
+        width: calc(100vw - 2*$minContentPaddingX);
+    }
+
+    .eventListContainer {
+        padding: 54px 0px;
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+
+        .eventItem {
+            display: flex;
+            gap: 18px;
+
+            .eventLeft {
+                flex: 1;
+
+                .eventTitle {
+                    font-size: 1.2em;
+                    color: $fgColor;
+                    font-family: $titleFont;
+                }
+                .eventDesc {
+                    @extend .pageDesc;
+                }
+            }
+
+            .eventRight {
+                display: flex;
+                align-items: center;
+
+                .eventLink {
+                    font-size: 1em;
+                    font-weight: 600;
+                    color: $fgColor;
+                    font-family: $titleFont;
+                    text-decoration: none;
+                    background-color: $fadedBgColor;
+                    padding: 9px 18px;
+                    border-radius: 27px;
+                    &:hover {
+                        opacity: 0.8;
+                    }
+                }
+            }
+        }
+    }
+}

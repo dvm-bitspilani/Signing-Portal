@@ -6,11 +6,10 @@ nav {
   left: 0;
   width: 100%;
   border-bottom: #e5e8eb solid 1px;
-  height: 52.8px;
   color: white;
   display: flex;
   justify-content: space-between;
-  padding: 13.2px 44px;
+  padding: 18px 44px;
   .leftHalf {
     height: 100%;
     display: flex;
@@ -32,12 +31,12 @@ nav {
       font-weight: 700;
     }
   }
-  .rightHalf {
+  .rightHalf > div {
     height: 100%;
     display: flex;
     align-items: center;
-    gap: 20px;
-    a {
+    gap: 27px;
+    .navlink {
       text-decoration: none;
       color: white;
       font-family: $titleFont;
@@ -46,6 +45,12 @@ nav {
       &:hover {
         color: #e5e8eb;
       }
+    }
+    .logoutBtn {
+      @extend .navlink;
+      background-color: $fadedBgColor;
+      padding: 6px 21px;
+      border-radius: 18px;
     }
   }
 }
