@@ -1,3 +1,4 @@
+import { googleLogout } from "@react-oauth/google";
 import { useContext, createContext, useState } from "react";
 
 const SignInContext = createContext();
@@ -15,6 +16,7 @@ export const SignInProvider = ({ children }) => {
   };
   const signOut = () => {
     setIsSignIn(false);
+    googleLogout();
   };
 
   return (
