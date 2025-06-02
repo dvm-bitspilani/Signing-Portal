@@ -7,6 +7,8 @@ import SignInContext from "../../../assets/store/SignInContext";
 import ProfileOverlay from "./ProfileOverlay";
 import { AppContext } from "../../../App";
 
+//* Add path to your pages to both links in desktop view (line 52-53) and mobile view (line 75-76)
+
 const Navbar = () => {
   const mobileBreakpoint = 720;
   const { globalAppStates } = useContext(AppContext);
@@ -51,7 +53,7 @@ const Navbar = () => {
                 <Link className={styles.navlink} to=".">Contact</Link>
                 <button className={styles.profileBtn} onClick={() => setIsMenuOpened(true)}>
                   <img className={styles.navProfileImg} src={globalAppStates.credentials.picture} />
-                </button> {/*? Will change it later to show user profile (name) & logout btn instead */}
+                </button> 
               </>
             }
           </div>
