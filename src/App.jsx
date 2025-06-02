@@ -10,7 +10,7 @@ export const AppContext = createContext({});
 
 const App = () => {
   const { isSignIn } = useContext(SignInContext);
-  //? Use this for all other uses of contexts
+  //* Use this for all other uses of contexts
   const [ globalAppStates, setGlobalAppStates ] = useState({});
 
   return (
@@ -19,7 +19,7 @@ const App = () => {
         <div className={styles.app}>
           <Routes>
             <Route path="/" element={isSignIn ? <Home /> : <SignIn />} />
-            //? Add Routes linked to other pages here
+            //* Add Routes linked to other pages here
           </Routes>
         </div>
       </AppContext.Provider>
