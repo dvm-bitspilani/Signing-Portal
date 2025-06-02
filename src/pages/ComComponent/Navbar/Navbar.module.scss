@@ -12,9 +12,13 @@ nav {
   padding: 18px 44px;
   .leftHalf {
     height: 100%;
-    display: flex;
-    align-items: center;
-    gap: 13.2px;
+    .logoLink {
+      color: $fgColor;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 13.2px;
+    }
     .logo {
       height: 100%;
       width: fit-content;
@@ -30,27 +34,176 @@ nav {
       font-family: $titleFont;
       font-weight: 700;
     }
+    :hover {opacity: 0.9;}
   }
   .rightHalf > div {
     height: 100%;
     display: flex;
     align-items: center;
     gap: 27px;
-    .navlink {
-      text-decoration: none;
-      color: white;
-      font-family: $titleFont;
-      font-weight: 500;
-      font-size: 18px;
-      &:hover {
-        color: #e5e8eb;
+    .profileBtn {
+      display: flex;
+      align-items: center;
+      background-color: transparent;
+      border-radius: 100%;
+      border: none;
+      .navProfileImg {
+        height: 30px;
+        border-radius: 100%;
+      }
+      :hover {
+        opacity: 0.9;
       }
     }
-    .logoutBtn {
-      @extend .navlink;
-      background-color: $fadedBgColor;
-      padding: 6px 21px;
-      border-radius: 18px;
+    .menuBtn {
+      background-color: transparent;
+      border: none;
+      height: 13px;
+      width: 21px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      .menuBar {
+        width: 100%;
+        border-top: 2px solid $fgColor;
+      }
     }
+    &:hover .menuBar{
+      opacity: 0.8;
+    }
+  }
+  
+  .navlink {
+    text-decoration: none;
+    color: white;
+    font-family: $titleFont;
+    font-weight: 500;
+    font-size: 18px;
+    &:hover {
+      color: #e5e8eb;
+    }
+  }
+  .profileOverlay {
+    display: none;
+    position: absolute;
+    right: 30px;
+    top: calc(100% - 9px);
+    max-width: 210px;
+    min-width: 120px;
+  }
+  .profileOverlayShow {
+    @extend .profileOverlay;
+    display: block;
+    
+  }
+  @keyframes profileFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-9px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0px);
+    }
+  }
+  .profileContent {
+    background-color: $fadedBgColor;
+    position: relative;
+    z-index: 100;
+    padding: 15px 9px;
+    border-radius: 12px;
+    animation: profileFadeIn 0.5s normal;
+    .profileContentDivider {
+      border-color: $fadedBgColor;
+    }
+    .profilePicWrapper {
+      display: flex;
+      justify-content: center;
+      padding-bottom: 15px;
+      .profileImage {
+        height: 36px;
+        border-radius: 100%;
+      }
+    }
+    .profileContentBottom {
+      padding: 3px;
+      .profileGreeting {
+        color: $fadedFgColor;
+        font-family: $titleFont;
+      }
+      .profileUsername {
+        color: $fgColor;
+        font-family: $titleFont;
+        line-height: 1.2rem;
+      }
+    }
+    .logoutWrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-top: 9px;
+      .logoutBtn {
+        font: $titleFont;
+        font-size: 0.9rem;
+        color: $fgColor;
+        background-color: $bgColor;
+        border: 1px solid $fadedBgColor;
+        border-radius: 18px;
+        padding: 6px 12px;
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+    }
+  }
+  .profileOverlayBg {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    height: 100vh;
+    width: 100vw;
+    opacity: 0.3;
+  }
+  .sideMenu {
+    min-width: 200px;
+    max-width: 80%;
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    height: 100vh;
+    background-color: $fadedBgColor;
+    animation: menuFadeIn 0.2s;
+    padding: 9px;
+    overflow-y: auto;
+    &::-webkit-scrollbar {display: none;}
+    .profileContent {
+      animation: none;
+      .profileImage {height: 54px;}
+      .profileContentBottom {
+        padding: 9px 3px;
+        gap: 4px;
+        display: flex;
+        flex-direction: column;
+        .profileGreeting {font-size: 1.2rem;}
+        .profileUsername {font-size: 1.8rem;}
+      }
+      .logoutBtn {
+        font-size: 1.5rem;
+        padding: 7px 18px;
+        margin: 9px 0px;
+      }
+    }
+    .menuNavlinkContainer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 12px;
+      .navlink {font-size: 1.8rem;}
+    }
+  }
+  @keyframes menuFadeIn {
+    from {transform: translateX(100%);}
+    to {transform: translateX(0%);}
   }
 }
