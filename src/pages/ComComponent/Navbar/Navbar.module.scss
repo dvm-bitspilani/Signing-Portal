@@ -10,6 +10,7 @@ nav {
   display: flex;
   justify-content: space-between;
   padding: 18px 44px;
+  background-color: $bgColor;
   .leftHalf {
     height: 100%;
     .logoLink {
