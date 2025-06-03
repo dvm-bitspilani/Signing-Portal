@@ -48,8 +48,8 @@ const Navbar = () => {
               </button>
               : 
               <>
-                <Link className={styles.navlink} to=".">Home</Link>
-                <Link className={styles.navlink} to=".">Your Signings</Link>
+                <Link className={styles.navlink} to="/">Home</Link>
+                <Link className={styles.navlink} to="/yoursignings">Your Signings</Link>
                 <Link className={styles.navlink} to=".">Contact</Link>
                 <button className={styles.profileBtn} onClick={() => setIsMenuOpened(true)}>
                   <img className={styles.navProfileImg} src={globalAppStates.credentials.picture} />
@@ -71,8 +71,8 @@ const Navbar = () => {
               <div className={styles.sideMenu}>
                 <ProfileOverlay />
                 <div className={styles.menuNavlinkContainer}>
-                  <Link to="." className={styles.navlink}>Home</Link>
-                  <Link to="." className={styles.navlink}>Your Signings</Link>
+                  <Link to="/" className={styles.navlink}>Home</Link>
+                  <Link to="/yoursignings" className={styles.navlink}>Your Signings</Link>
                   <Link to="." className={styles.navlink}>Contact</Link>
                 </div>
               </div>
