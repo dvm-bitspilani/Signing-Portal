@@ -6,14 +6,14 @@ import Navbar from '../ComComponent/Navbar/Navbar';
 export const eventList = [
     {
         name: "Tech Innovatiors Summit",
-        description: "Explre the latest trends in technology with incudtry leaders and innovators.",
+        description: "Explore the latest trends in technology with industry leaders and innovators.",
         price: "Rs. 500",
         dateAndTime: "Sat, 30 May 2025, 10:00 AM", 
         redirectLink: "./EventDetails/0"
     },
     {
         name: "Tech Innovatiors Summit",
-        description: "Explre the latest trends in technology with incudtry leaders and innovators.",
+        description: "Explore the latest trends in technology with industry leaders and innovators.",
         price: "Rs. 500",
         dateAndTime: "Sat, 31 May 2025, 10:00 AM", 
         redirectLink: "./EventDetails/1"
