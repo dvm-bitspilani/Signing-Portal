@@ -1,16 +1,21 @@
-import React from "react";
+import { React, useContext } from "react";
 import styles from "./SignIn.module.scss";
 import Navbar from "../ComComponent/Navbar/Navbar";
 import googleLogo from "/googleLogo.svg";
+import { jwtDecode } from "jwt-decode";
 import { GoogleLogin } from "@react-oauth/google";
 import { useSignIn } from "../../assets/store/SignInContext";
 import { useNavigate } from "react-router-dom";
+import { AppContext } from "../../App";
+import { setStateItem } from "../../global";
 
 const SignIn = () => {
+  const { globalAppStates, setGlobalAppStates } = useContext(AppContext);
   const { signIn } = useSignIn();
   const navigate = useNavigate();
   const handleLoginSuccess = (credentialResponse) => {
-    console.log("Login Success: currentUser:", credentialResponse);
+    //console.log("Login Success: currentUser:", credentialResponse);
+    setGlobalAppStates(setStateItem(globalAppStates, 'credentials', jwtDecode(credentialResponse.credential)))
     localStorage.setItem("isLoggedIn", true);
     signIn();
     navigate("/"); // Redirect to home page after successful login
