@@ -14,7 +14,6 @@ export const AppContext = createContext({});
 
 const App = () => {
   const { isSignIn } = useContext(SignInContext);
-  //* Use this for all other uses of contexts
   const [globalAppStates, setGlobalAppStates] = useState({});
 
   return (
@@ -23,12 +22,8 @@ const App = () => {
         <div className={styles.app}>
           <Routes>
             <Route path="/" element={isSignIn ? <Home /> : <SignIn />} />
-            <Route
-              path="/yoursignings"
-              element={isSignIn ? <YourSignings /> : <SignIn />}
-            />
-            <Route path = "/EventDetails/:eventIndex" element={<EventDetails />}/> 
-            {/* Add Routes linked to other pages here */}
+            <Route path="/yoursignings" element={isSignIn ? <YourSignings /> : <SignIn />} />
+            <Route path="/EventDetails/:eventIndex" element={<EventDetails />} />
           </Routes>
         </div>
       </AppContext.Provider>
