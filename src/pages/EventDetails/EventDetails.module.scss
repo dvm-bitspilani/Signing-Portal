@@ -1,4 +1,6 @@
 @use '../../global.scss' as *;
+@use "sass:color";
+
 
 .eventDetailsContent {
   display: flex;
@@ -109,7 +111,7 @@
               font-size: 1rem; 
               transition: background-color 0.3s, transform 0.2s; 
               &:hover {
-                background-color: lighten($fadedBgColor, 10%); 
+                background-color: color.adjust($fadedBgColor, $lightness: 10%); 
               }
               &:active {
                 transform: scale(0.9);
