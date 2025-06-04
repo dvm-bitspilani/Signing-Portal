@@ -2,22 +2,26 @@ import { Link } from 'react-router-dom';
 import styles from "./Home.module.scss";
 import Navbar from '../ComComponent/Navbar/Navbar';
 
+export const eventList = [
+    {
+        name: "Tech Innovatiors Summit",
+        description: "Explore the latest trends in technology with industry leaders and innovators.",
+        price: "Rs. 500",
+        dateAndTime: "Sat, 30 May 2025, 10:00 AM", 
+        redirectLink: "./EventDetails/0"
+    },
+    {
+        name: "Tech Innovatiors Summit",
+        description: "Explore the latest trends in technology with industry leaders and innovators.",
+        price: "Rs. 500",
+        dateAndTime: "Sat, 31 May 2025, 10:00 AM", 
+        redirectLink: "./EventDetails/1"
+    }
+]
+
 function Home() {
     //? To be recieved via api upon signin
-    const eventList = [
-        {
-            name: "Tech Innovatiors Summit",
-            description: "Explre the latest trends in technology with incudtry leaders and innovators.",
-            price: "Rs. 500",
-            redirectLink: "./"
-        },
-        {
-            name: "Tech Innovatiors Summit",
-            description: "Explre the latest trends in technology with incudtry leaders and innovators.",
-            price: "Rs. 500",
-            redirectLink: "./"
-        }
-    ]
+    
 
     return (
         <div>
