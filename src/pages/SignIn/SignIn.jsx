@@ -5,7 +5,7 @@ import googleLogo from "/googleLogo.svg";
 import { jwtDecode } from "jwt-decode";
 import { GoogleLogin } from "@react-oauth/google";
 import { useSignIn } from "../../assets/store/SignInContext";
-import { useNavigate } from "react-router-dom";
+import { redirect, useNavigate, useSubmit } from "react-router-dom";
 import { AppContext } from "../../App";
 import { setStateItem, apiBaseURL, setStateItems } from "../../global";
 import axios from "axios";
@@ -16,23 +16,43 @@ const SignIn = () => {
   const navigate = useNavigate();
   const handleLoginSuccess = (credentialResponse) => {
     //console.log("Login Success: currentUser:", credentialResponse, jwtDecode(credentialResponse.credential));
-    axios.post(`${apiBaseURL}/api/auth/`, {
-        token: credentialResponse.credential
-      }, {
-        headers: {
-          accept: 'application/json'
+    axios
+      .post(
+        `${apiBaseURL}/api/auth/`,
+        {
+          token: credentialResponse.credential,
+        },
+        {
+          headers: {
+            accept: "application/json",
+          },
         }
-    }).then((response) => {
-      //* `tokens` is object containing `access` and `refresh` tokens
-      setGlobalAppStates(setStateItems(globalAppStates, {
-        credentials: jwtDecode(credentialResponse.credential),
-        tokens: response.data.tokens
-      }))
+      )
+      .then((response) => {
+        //* `tokens` is object containing `access` and `refresh` tokens
+        setGlobalAppStates(
+          setStateItems(globalAppStates, {
+            credentials: jwtDecode(credentialResponse.credential),
+            tokens: response.data.tokens,
+          })
+        );
 
-      localStorage.setItem("isLoggedIn", true);
-      signIn();
-      navigate("/"); // Redirect to home page after successful login
-    })
+        localStorage.setItem("accessToken", response.data.tokens.access);
+        localStorage.setItem("refreshToken", response.data.tokens.refresh);
+        const accessTokenExpiry = new Date();
+        accessTokenExpiry.setDate(accessTokenExpiry.getDate() + 1);
+        localStorage.setItem(
+          "accessTokenExpiry",
+          accessTokenExpiry.toISOString()
+        );
+        const refreshTokenExpiry = new Date();
+        refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 30);
+        localStorage.setItem(
+          "refreshTokenExpiry",
+          refreshTokenExpiry.toISOString()
+        );
+        navigate("/"); // Redirect to home page after successful login
+      });
   };
   return (
     <div className={styles.signInContainer}>
@@ -47,12 +67,6 @@ const SignIn = () => {
           text="Continue With Google"
           size="large"
         />
-        {/* <button>
-          <div className={styles.googleLogo}>
-            <img src={googleLogo} alt="" />
-          </div>
-          <div>Continue with Google</div>
-        </button> */}
       </div>
       <footer>Made with &#x2764;&#xfe0f; by DVM, BITS Pilani</footer>
     </div>
@@ -60,3 +74,45 @@ const SignIn = () => {
 };
 
 export default SignIn;
+
+// export async function loginAction({ request }) {
+//   const formData = await request.formData();
+//   console.log("Form Data:", formData);
+//   const credentialResponse = formData.get("c");
+//   console.log("Credential Response:", credentialResponse);
+
+//   axios
+//     .post(
+//       `${apiBaseURL}/api/auth/`,
+//       {
+//         token: credentialResponse,
+//       },
+//       {
+//         headers: {
+//           accept: "application/json",
+//         },
+//       }
+//     )
+//     .then((response) => {
+//       console.log("Login successful:", response.data);
+//       localStorage.setItem("accessToken", response.data.tokens.access);
+//       localStorage.setItem("refreshToken", response.data.tokens.refresh);
+//       const accessTokenExpiry = new Date();
+//       accessTokenExpiry.setDate(accessTokenExpiry.getDate() + 1);
+//       localStorage.setItem(
+//         "accessTokenExpiry",
+//         accessTokenExpiry.toISOString()
+//       );
+//       const refreshTokenExpiry = new Date();
+//       refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 30);
+//       localStorage.setItem(
+//         "refreshTokenExpiry",
+//         refreshTokenExpiry.toISOString()
+//       );
+//       return redirect("/");
+//     })
+//     .catch((error) => {
+//       return redirect("/signin");
+//     });
+//   return redirect("/");
+// }
