@@ -7,18 +7,32 @@ import { GoogleLogin } from "@react-oauth/google";
 import { useSignIn } from "../../assets/store/SignInContext";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../../App";
-import { setStateItem } from "../../global";
+import { setStateItem, apiBaseURL, setStateItems } from "../../global";
+import axios from "axios";
 
 const SignIn = () => {
   const { globalAppStates, setGlobalAppStates } = useContext(AppContext);
   const { signIn } = useSignIn();
   const navigate = useNavigate();
   const handleLoginSuccess = (credentialResponse) => {
-    //console.log("Login Success: currentUser:", credentialResponse);
-    setGlobalAppStates(setStateItem(globalAppStates, 'credentials', jwtDecode(credentialResponse.credential)))
-    localStorage.setItem("isLoggedIn", true);
-    signIn();
-    navigate("/"); // Redirect to home page after successful login
+    //console.log("Login Success: currentUser:", credentialResponse, jwtDecode(credentialResponse.credential));
+    axios.post(`${apiBaseURL}/api/auth/`, {
+        token: credentialResponse.credential
+      }, {
+        headers: {
+          accept: 'application/json'
+        }
+    }).then((response) => {
+      //* `tokens` is object containing `access` and `refresh` tokens
+      setGlobalAppStates(setStateItems(globalAppStates, {
+        credentials: jwtDecode(credentialResponse.credential),
+        tokens: response.data.tokens
+      }))
+
+      localStorage.setItem("isLoggedIn", true);
+      signIn();
+      navigate("/"); // Redirect to home page after successful login
+    })
   };
   return (
     <div className={styles.signInContainer}>
