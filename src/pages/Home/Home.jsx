@@ -1,6 +1,10 @@
 import { Link } from 'react-router-dom';
 import styles from "./Home.module.scss";
 import Navbar from '../ComComponent/Navbar/Navbar';
+import axios from 'axios';
+import { AppContext } from '../../App';
+import { useContext, useEffect, useState } from 'react';
+import { apiBaseURL } from '../../global';
 
 export const eventList = [
     {
@@ -20,8 +24,22 @@ export const eventList = [
 ]
 
 function Home() {
-    //? To be recieved via api upon signin
-    
+
+    const {globalAppStates, setGlobalAppStates} = useContext(AppContext);
+    const accessToken = globalAppStates.tokens.access;
+    const [eventList, setEventList] = useState([]);
+
+    useEffect(() => {
+        return;
+        axios.get(`${apiBaseURL}/api/tickets`, {
+            headers: {
+                accept: 'application/json',
+                Authorization: `Bearer ${accessToken}`
+            }}
+        ).then((response) => {
+            console.log(response);
+        })
+    }, [])
 
     return (
         <div>
