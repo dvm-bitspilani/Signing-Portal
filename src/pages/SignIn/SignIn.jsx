@@ -13,18 +13,46 @@ import axios from "axios";
 const SignIn = () => {
   const { globalAppStates, setGlobalAppStates } = useContext(AppContext);
   const { signIn } = useSignIn();
-  const submit = useSubmit();
+  const navigate = useNavigate();
   const handleLoginSuccess = (credentialResponse) => {
-    console.log("Login Success:", credentialResponse);
+    //console.log("Login Success: currentUser:", credentialResponse, jwtDecode(credentialResponse.credential));
+    axios
+      .post(
+        `${apiBaseURL}/api/auth/`,
+        {
+          token: credentialResponse.credential,
+        },
+        {
+          headers: {
+            accept: "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        //* `tokens` is object containing `access` and `refresh` tokens
+        setGlobalAppStates(
+          setStateItems(globalAppStates, {
+            credentials: jwtDecode(credentialResponse.credential),
+            tokens: response.data.tokens,
+          })
+        );
 
-    setGlobalAppStates({
-      credentials: jwtDecode(credentialResponse.credential),
-    });
-
-    submit(
-      { c: credentialResponse.credential },
-      { method: "post", action: "/signin" }
-    );
+        localStorage.setItem("accessToken", response.data.tokens.access);
+        localStorage.setItem("refreshToken", response.data.tokens.refresh);
+        const accessTokenExpiry = new Date();
+        accessTokenExpiry.setDate(accessTokenExpiry.getDate() + 1);
+        localStorage.setItem(
+          "accessTokenExpiry",
+          accessTokenExpiry.toISOString()
+        );
+        const refreshTokenExpiry = new Date();
+        refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 30);
+        localStorage.setItem(
+          "refreshTokenExpiry",
+          refreshTokenExpiry.toISOString()
+        );
+        navigate("/"); // Redirect to home page after successful login
+      });
   };
   return (
     <div className={styles.signInContainer}>
