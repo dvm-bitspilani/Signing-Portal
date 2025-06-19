@@ -19,9 +19,6 @@ import { jwtDecode } from "jwt-decode";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { loginAction } from "./pages/SignIn/SignIn.jsx";
 import {
-  getAccessToken,
-  getRefreshToken,
-  UpdateAccessToken,
   logoutAction,
   checkauth,
 } from "./assets/utils/auth.js";
@@ -29,7 +26,7 @@ import {
 export const AppContext = createContext({});
 
 const App = () => {
-  const [globalAppStates, setGlobalAppStates] = useState({});
+  const [globalAppStates, setGlobalAppStates] = useState({ Credentials: null });
 
   const router = createBrowserRouter([
     {
@@ -41,7 +38,7 @@ const App = () => {
     {
       path: "/signin",
       element: <SignIn />,
-      action: loginAction,
+      // action: loginAction,
     },
     {
       path: "/yoursignings",

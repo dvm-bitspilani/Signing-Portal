@@ -16,9 +16,10 @@ const SignIn = () => {
   const submit = useSubmit();
   const handleLoginSuccess = (credentialResponse) => {
     console.log("Login Success:", credentialResponse);
-    const userData = jwtDecode(credentialResponse.credential);
-    globalAppStates.user = userData;
-    setStateItems(globalAppStates, setGlobalAppStates);
+
+    setGlobalAppStates({
+      credentials: jwtDecode(credentialResponse.credential),
+    });
 
     submit(
       { c: credentialResponse.credential },
@@ -46,43 +47,44 @@ const SignIn = () => {
 
 export default SignIn;
 
-export async function loginAction({ request }) {
-  const formData = await request.formData();
-  console.log("Form Data:", formData);
-  const credentialResponse = formData.get("c");
-  console.log("Credential Response:", credentialResponse);
+// export async function loginAction({ request }) {
+//   const formData = await request.formData();
+//   console.log("Form Data:", formData);
+//   const credentialResponse = formData.get("c");
+//   console.log("Credential Response:", credentialResponse);
 
-  axios
-    .post(
-      `${apiBaseURL}/api/auth/`,
-      {
-        token: credentialResponse,
-      },
-      {
-        headers: {
-          accept: "application/json",
-        },
-      }
-    )
-    .then((response) => {
-      console.log("Login successful:", response.data);
-      localStorage.setItem("accessToken", response.data.tokens.access);
-      localStorage.setItem("refreshToken", response.data.tokens.refresh);
-      const accessTokenExpiry = new Date();
-      accessTokenExpiry.setDate(accessTokenExpiry.getDate() + 1);
-      localStorage.setItem(
-        "accessTokenExpiry",
-        accessTokenExpiry.toISOString()
-      );
-      const refreshTokenExpiry = new Date();
-      refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 30);
-      localStorage.setItem(
-        "refreshTokenExpiry",
-        refreshTokenExpiry.toISOString()
-      );
-      return redirect("/");
-    })
-    .catch((error) => {
-      return redirect("/signin");
-    });
-}
+//   axios
+//     .post(
+//       `${apiBaseURL}/api/auth/`,
+//       {
+//         token: credentialResponse,
+//       },
+//       {
+//         headers: {
+//           accept: "application/json",
+//         },
+//       }
+//     )
+//     .then((response) => {
+//       console.log("Login successful:", response.data);
+//       localStorage.setItem("accessToken", response.data.tokens.access);
+//       localStorage.setItem("refreshToken", response.data.tokens.refresh);
+//       const accessTokenExpiry = new Date();
+//       accessTokenExpiry.setDate(accessTokenExpiry.getDate() + 1);
+//       localStorage.setItem(
+//         "accessTokenExpiry",
+//         accessTokenExpiry.toISOString()
+//       );
+//       const refreshTokenExpiry = new Date();
+//       refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 30);
+//       localStorage.setItem(
+//         "refreshTokenExpiry",
+//         refreshTokenExpiry.toISOString()
+//       );
+//       return redirect("/");
+//     })
+//     .catch((error) => {
+//       return redirect("/signin");
+//     });
+//   return redirect("/");
+// }

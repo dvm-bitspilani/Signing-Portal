@@ -1,4 +1,4 @@
-import { Link, redirect, useLoaderData } from "react-router-dom";
+import { Link, useNavigate, useLoaderData } from "react-router-dom";
 import styles from "./Home.module.scss";
 import Navbar from "../ComComponent/Navbar/Navbar";
 import axios from "axios";
@@ -9,8 +9,8 @@ import {
   getRefreshToken,
   UpdateAccessToken,
   logoutAction,
-    accessTokenDuration,
-    refreshTokenDuration,
+  accessTokenDuration,
+  refreshTokenDuration,
   checkAccessToken,
   checkRefreshToken,
 } from "../../assets/utils/auth.js";
@@ -39,17 +39,20 @@ function Home() {
   const refreshToken = getRefreshToken();
   const accessToken = useLoaderData();
 
+  const navigate = useNavigate();
   useEffect(() => {
     if (!refreshToken || !accessToken) {
       logoutAction();
-      return redirect("/signin");
+      navigate("/signin");
+      return;
     }
 
     checkAccessToken();
 
     if (checkRefreshToken() === "EXPIRED") {
       logoutAction();
-      return redirect("/signin");
+      navigate("/signin");
+      return;
     }
 
     const accessTokenTimer = setTimeout(() => {
@@ -59,7 +62,7 @@ function Home() {
     const refreshTokenTimer = setTimeout(() => {
       if (checkRefreshToken() === "EXPIRED") {
         logoutAction();
-        return redirect("/signin");
+        navigate("/signin");
       }
     }, refreshTokenDuration());
 

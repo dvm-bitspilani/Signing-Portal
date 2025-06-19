@@ -71,7 +71,10 @@ const Navbar = () => {
                 >
                   <img
                     className={styles.navProfileImg}
-                    src={globalAppStates.credentials.picture}
+                    src={
+                      globalAppStates.credentials?.picture ||
+                      "/default-profile.png"
+                    }
                   />
                 </button>
               </>
@@ -85,7 +88,7 @@ const Navbar = () => {
           </div>
         )}
       </div>
-      {isSignIn ? (
+      {token ? (
         <div
           className={
             isMenuOpened ? styles.profileOverlayShow : styles.profileOverlay
