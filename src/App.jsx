@@ -1,5 +1,11 @@
-import { useState, useContext, createContext } from "react";
-import { BrowserRouter, Route, Routes, createBrowserRouter, RouterProvider } from "react-router-dom";
+import { useState, useContext, createContext, useEffect } from "react";
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router-dom";
 
 import styles from "./App.module.scss";
 
@@ -12,17 +18,25 @@ import YourSignings from "./pages/YourSignings/YourSignings.jsx";
 import { jwtDecode } from "jwt-decode";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { loginAction } from "./pages/SignIn/SignIn.jsx";
+import {
+  getAccessToken,
+  getRefreshToken,
+  UpdateAccessToken,
+  logoutAction,
+  checkauth,
+} from "./assets/utils/auth.js";
 
 export const AppContext = createContext({});
 
 const App = () => {
-  const { isSignIn } = useContext(SignInContext);
   const [globalAppStates, setGlobalAppStates] = useState({});
 
   const router = createBrowserRouter([
     {
       path: "/",
-      element: isSignIn ? <Home /> : <SignIn />,
+      element: <Home />,
+      id: "root",
+      loader: checkauth,
     },
     {
       path: "/signin",
@@ -31,11 +45,17 @@ const App = () => {
     },
     {
       path: "/yoursignings",
-      element: isSignIn ? <YourSignings /> : <SignIn />,
+      element: <YourSignings />,
+      loader: checkauth,
     },
     {
       path: "/EventDetails/:eventIndex",
       element: <EventDetails />,
+      loader: checkauth,
+    },
+    {
+      path: "/logout",
+      action: logoutAction,
     },
   ]);
 

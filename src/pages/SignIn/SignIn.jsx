@@ -13,10 +13,17 @@ import axios from "axios";
 const SignIn = () => {
   const { globalAppStates, setGlobalAppStates } = useContext(AppContext);
   const { signIn } = useSignIn();
-  const navigate = useNavigate();
   const submit = useSubmit();
   const handleLoginSuccess = (credentialResponse) => {
-    submit({ credentialResponse }, { method: "post", action: "/signin" });
+    console.log("Login Success:", credentialResponse);
+    const userData = jwtDecode(credentialResponse.credential);
+    globalAppStates.user = userData;
+    setStateItems(globalAppStates, setGlobalAppStates);
+
+    submit(
+      { c: credentialResponse.credential },
+      { method: "post", action: "/signin" }
+    );
   };
   return (
     <div className={styles.signInContainer}>
@@ -41,13 +48,15 @@ export default SignIn;
 
 export async function loginAction({ request }) {
   const formData = await request.formData();
-  const credentialResponse = formData.get("credentialResponse");
+  console.log("Form Data:", formData);
+  const credentialResponse = formData.get("c");
+  console.log("Credential Response:", credentialResponse);
 
   axios
     .post(
       `${apiBaseURL}/api/auth/`,
       {
-        token: credentialResponse.credential,
+        token: credentialResponse,
       },
       {
         headers: {
@@ -57,8 +66,23 @@ export async function loginAction({ request }) {
     )
     .then((response) => {
       console.log("Login successful:", response.data);
-
-      const userData = jwtDecode(credentialResponse.credential);
+      localStorage.setItem("accessToken", response.data.tokens.access);
+      localStorage.setItem("refreshToken", response.data.tokens.refresh);
+      const accessTokenExpiry = new Date();
+      accessTokenExpiry.setDate(accessTokenExpiry.getDate() + 1);
+      localStorage.setItem(
+        "accessTokenExpiry",
+        accessTokenExpiry.toISOString()
+      );
+      const refreshTokenExpiry = new Date();
+      refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 30);
+      localStorage.setItem(
+        "refreshTokenExpiry",
+        refreshTokenExpiry.toISOString()
+      );
       return redirect("/");
+    })
+    .catch((error) => {
+      return redirect("/signin");
     });
 }
