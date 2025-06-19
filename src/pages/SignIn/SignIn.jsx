@@ -5,7 +5,7 @@ import googleLogo from "/googleLogo.svg";
 import { jwtDecode } from "jwt-decode";
 import { GoogleLogin } from "@react-oauth/google";
 import { useSignIn } from "../../assets/store/SignInContext";
-import { useNavigate } from "react-router-dom";
+import { redirect, useNavigate, useSubmit } from "react-router-dom";
 import { AppContext } from "../../App";
 import { setStateItem, apiBaseURL, setStateItems } from "../../global";
 import axios from "axios";
@@ -14,25 +14,9 @@ const SignIn = () => {
   const { globalAppStates, setGlobalAppStates } = useContext(AppContext);
   const { signIn } = useSignIn();
   const navigate = useNavigate();
+  const submit = useSubmit();
   const handleLoginSuccess = (credentialResponse) => {
-    //console.log("Login Success: currentUser:", credentialResponse, jwtDecode(credentialResponse.credential));
-    axios.post(`${apiBaseURL}/api/auth/`, {
-        token: credentialResponse.credential
-      }, {
-        headers: {
-          accept: 'application/json'
-        }
-    }).then((response) => {
-      //* `tokens` is object containing `access` and `refresh` tokens
-      setGlobalAppStates(setStateItems(globalAppStates, {
-        credentials: jwtDecode(credentialResponse.credential),
-        tokens: response.data.tokens
-      }))
-
-      localStorage.setItem("isLoggedIn", true);
-      signIn();
-      navigate("/"); // Redirect to home page after successful login
-    })
+    submit({ credentialResponse }, { method: "post", action: "/signin" });
   };
   return (
     <div className={styles.signInContainer}>
@@ -47,12 +31,6 @@ const SignIn = () => {
           text="Continue With Google"
           size="large"
         />
-        {/* <button>
-          <div className={styles.googleLogo}>
-            <img src={googleLogo} alt="" />
-          </div>
-          <div>Continue with Google</div>
-        </button> */}
       </div>
       <footer>Made with &#x2764;&#xfe0f; by DVM, BITS Pilani</footer>
     </div>
@@ -60,3 +38,27 @@ const SignIn = () => {
 };
 
 export default SignIn;
+
+export async function loginAction({ request }) {
+  const formData = await request.formData();
+  const credentialResponse = formData.get("credentialResponse");
+
+  axios
+    .post(
+      `${apiBaseURL}/api/auth/`,
+      {
+        token: credentialResponse.credential,
+      },
+      {
+        headers: {
+          accept: "application/json",
+        },
+      }
+    )
+    .then((response) => {
+      console.log("Login successful:", response.data);
+
+      const userData = jwtDecode(credentialResponse.credential);
+      return redirect("/");
+    });
+}
