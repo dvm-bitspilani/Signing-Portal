@@ -77,10 +77,29 @@ export function checkRefreshToken() {
 }
 
 export function logoutAction() {
+    const refreshToken = getRefreshToken();
+    const accessToken = getAccessToken();
+
   localStorage.removeItem("accessToken");
   localStorage.removeItem("refreshToken");
   localStorage.removeItem("accessTokenExpiry");
     localStorage.removeItem("refreshTokenExpiry");
+    axios
+    .post(
+        `${apiBaseURL}/api/logout/`,
+        { refresh: refreshToken },
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${accessToken}`, // Add Authorization header
+          },
+        }
+      )        .then((response) => {
+            console.log("Logout successful:", response.data);
+        })
+        .catch((error) => {
+            console.error("Error during logout:", error.response?.data || error.message);
+        });
     return redirect("/signin");
 }
 
