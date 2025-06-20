@@ -6,6 +6,7 @@ import { useContext } from "react";
 import SignInContext from "../../../assets/store/SignInContext";
 import ProfileOverlay from "./ProfileOverlay";
 import { AppContext } from "../../../App";
+import { getAccessToken } from "../../../assets/utils/auth";
 
 //* Add path to your pages to both links in desktop view (line 52-53) and mobile view (line 75-76)
 
@@ -17,7 +18,7 @@ const Navbar = () => {
   const [isMobileView, setIsMobileView] = useState(
     window.innerWidth < mobileBreakpoint
   );
-  const token = useRouteLoaderData("root");
+  const token = getAccessToken();
 
   console.log("Navbar token:", token);
 
