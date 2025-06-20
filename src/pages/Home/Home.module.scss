@@ -10,47 +10,79 @@
         width: calc(100vw - 2*$minContentPaddingX);
     }
 
-    .eventListContainer {
-        padding: 54px 0px;
+    .tabContainer {
         display: flex;
-        flex-direction: column;
+        justify-content: center;
+        margin-top: 36px;
+
+        .tab {
+            padding: 6px 12px;
+            border-width: 0px;
+            background-color: transparent;
+            color: $fadedFgColor;
+            font-size: 1.5rem;
+            cursor: pointer;
+            border-radius: 9px 9px 0px 0px;
+            &.active {
+                color: $fgColor;
+                // background-color: rgba(17, 36, 59, 0.459);
+                border-bottom: 2px solid $fgColor;
+            }
+        }
+    }
+
+    .eventContainer {
+        display: grid;
+        grid-template-columns: 100% 100%;
+        overflow-x: scroll;
+        scroll-snap-type: x mandatory;
         gap: 30px;
 
-        .eventItem {
+        &::-webkit-scrollbar {display: none;}
+
+        .eventListContainer {
+            scroll-snap-align: start;
+            padding: 18px 0px;
             display: flex;
-            gap: 18px;
+            flex-direction: column;
+            gap: 30px;
 
-            .eventLeft {
-                flex: 1;
-
-                .eventTitle {
-                    font-size: 1.2em;
-                    color: $fgColor;
-                    font-family: $titleFont;
-                }
-                .eventDesc {
-                    @extend .pageDesc;
-                }
-            }
-
-            .eventRight {
+            .eventItem {
                 display: flex;
-                align-items: center;
+                gap: 18px;
 
-                .eventLink {
-                    font-size: 1em;
-                    font-weight: 600;
-                    color: $fgColor;
-                    font-family: $titleFont;
-                    text-decoration: none;
-                    background-color: $fadedBgColor;
-                    padding: 9px 18px;
-                    border-radius: 27px;
-                    &:hover {
-                        opacity: 0.8;
+                .eventLeft {
+                    flex: 1;
+
+                    .eventTitle {
+                        font-size: 1.2em;
+                        color: $fgColor;
+                        font-family: $titleFont;
+                    }
+                    .eventDesc {
+                        @extend .pageDesc;
+                    }
+                }
+
+                .eventRight {
+                    display: flex;
+                    align-items: center;
+
+                    .eventLink {
+                        font-size: 1em;
+                        font-weight: 600;
+                        color: $fgColor;
+                        font-family: $titleFont;
+                        text-decoration: none;
+                        background-color: $fadedBgColor;
+                        padding: 9px 18px;
+                        border-radius: 27px;
+                        &:hover {
+                            opacity: 0.8;
+                        }
                     }
                 }
             }
-        }
+        }   
     }
 }
