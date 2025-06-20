@@ -111,3 +111,10 @@ export function checkauth() {
     }
     return accessToken;
 }
+
+export function checkLogin() {
+    const accessToken = checkAccessToken();
+    if (accessToken) {
+        return redirect("/");
+    }
+}
