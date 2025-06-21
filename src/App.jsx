@@ -49,7 +49,7 @@ const App = () => {
       action: yoursigningsaction,
     },
     {
-      path: "/EventDetails/:eventIndex",
+      path: "/EventDetails/:eventType/:eventIndex",
       element: <EventDetails />,
       loader: checkauth,
     },

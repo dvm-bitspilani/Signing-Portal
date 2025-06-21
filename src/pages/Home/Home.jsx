@@ -15,25 +15,6 @@ import {
     checkRefreshToken,
 } from "../../assets/utils/auth.js";
 
-export const eventList = [
-    {
-        name: "Tech Innovatiors Summit",
-        description:
-        "Explore the latest trends in technology with industry leaders and innovators.",
-        price: "Rs. 500",
-        dateAndTime: "Sat, 30 May 2025, 10:00 AM",
-        redirectLink: "./EventDetails/0",
-    },
-    {
-        name: "Tech Innovatiors Summit",
-        description:
-        "Explore the latest trends in technology with industry leaders and innovators.",
-        price: "Rs. 500",
-        dateAndTime: "Sat, 31 May 2025, 10:00 AM",
-        redirectLink: "./EventDetails/1",
-    },
-];
-
 function Home() {
     const [activeTab, setActiveTab] = useState(0);
     const [eventList, setEventList] = useState([]);

@@ -1,74 +1,202 @@
-import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useParams, useLoaderData } from "react-router-dom";
 import styles from "./EventDetails.module.scss";
-import { eventList } from "../Home/Home.jsx";
-import Navbar from '../ComComponent/Navbar/Navbar';
+import axios from "axios";
+import Navbar from "../ComComponent/Navbar/Navbar";
+import { apiBaseURL } from "../../global";
+import { getAccessToken } from "../../assets/utils/auth.js";
 
 function EventDetails() {
-  const { eventIndex } = useParams();
-  const event = eventList[eventIndex];
-  const [activeTab, setActiveTab] = useState("about");
+  const { eventType, eventIndex } = useParams();
+  const accessToken = getAccessToken();
 
+  const [event, setEvent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState("about");
+  const [ticketCounts, setTicketCounts] = useState({});
+
+  useEffect(() => {
+    let endpoint = "";
+    if (eventType === "prof-show") {
+      endpoint = `/api/prof-show/${eventIndex}/`;
+    } else if (eventType === "non-comp") {
+      endpoint = `/api/non-comp/${eventIndex}/`;
+    } else {
+      setError("Invalid event type.");
+      setLoading(false);
+      return;
+    }
+
+    axios
+      .get(`${apiBaseURL}${endpoint}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          accept: "application/json",
+        },
+      })
+      .then((response) => {
+        setEvent(response.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError("Event not found or unauthorized.");
+        setLoading(false);
+      });
+  }, [eventType, eventIndex, accessToken]);
+
+  // Handle ticket counter
+  const handleTicketCount = (ticketId, delta) => {
+    setTicketCounts((prev) => {
+      const next = { ...prev };
+      next[ticketId] = Math.max(0, (next[ticketId] || 0) + delta);
+      return next;
+    });
+  };
+
+  if (loading) return <div>Loading...</div>;
+  if (error || !event) return <div>{error || "Event not found."}</div>;
+
+  // Tickets tab content (for both event types)
+  const renderTickets = () => {
+  // For prof-show: single ticket type; for non-comp: flatten all ticket types from all slots
+    const tickets =
+      (eventType === "prof-show")
+        ? [
+            {
+              ticket_type_id: "profshow",
+              ticket_type_name: "General Admission",
+              price: event.price,
+            },
+          ]
+        : (event.slot_details || [])
+            .flatMap(slot => slot.ticket_types || []);
+
+    if (!tickets.length) return <div>No tickets available.</div>;
+
+    return (
+      <div className={styles.ticketsContent}>
+        {tickets.map((tt) => (
+          <div className={styles.ticketItem} key={tt.ticket_type_id}>
+            <div className={styles.ticketInfo}>
+              <div>{tt.ticket_type_name}</div>
+              <div className={styles.ticketPrice}>₹{tt.price}</div>
+            </div>
+            <div className={styles.ticketCounter}>
+              <button onClick={() => handleTicketCount(tt.ticket_type_id, -1)}>
+                -
+              </button>
+              <span className={styles.counterValue}>
+                {ticketCounts[tt.ticket_type_id] || 0}
+              </span>
+              <button onClick={() => handleTicketCount(tt.ticket_type_id, 1)}>
+                +
+              </button>
+            </div>
+          </div>
+        ))}
+        <button className={styles.buyTicketsButton}>Buy Ticket</button>
+      </div>
+    );
+  };
+
+  
+  const renderAbout = () => (
+    <div className={styles.aboutContent}>
+      {eventType === "prof-show" ? (
+        <>
+          <div className={styles.aboutSection}>
+            <div className={styles.aboutLabel}>Artist:</div>
+            <div className={styles.aboutValue}>{event.Artist}</div>
+          </div>
+          <div className={styles.aboutSection}>
+            <div className={styles.aboutLabel}>Description:</div>
+            <div className={styles.aboutValue}>{event.description}</div>
+          </div>
+          <div className={styles.aboutSection}>
+            <div className={styles.aboutLabel}>Start Time:</div>
+            <div className={styles.aboutValue}>{event.start_time}</div>
+          </div>
+          <div className={styles.aboutSection}>
+            <div className={styles.aboutLabel}>End Time:</div>
+            <div className={styles.aboutValue}>{event.end_time}</div>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className={styles.aboutSection}>
+            <div className={styles.aboutLabel}>Description</div>
+            <div className={styles.aboutValue}>{event.description}</div>
+          </div>
+          <div className={styles.aboutSection}>
+            <div className={styles.aboutLabel}>Slots</div>
+            <div className={styles.aboutSlots}>
+              {event.slot_details && event.slot_details.length > 0 ? (
+                event.slot_details.map((slot) => (
+                  <div className={styles.slotBox} key={slot.slot_id}>
+                    <div>
+                      <strong>Venue:</strong> {slot.venue}
+                    </div>
+                    <div>
+                      <strong>Start:</strong> {slot.start_time}
+                    </div>
+                    <div>
+                      <strong>End:</strong> {slot.end_time}
+                    </div>
+                    <div>
+                      <strong>Open for Signings:</strong>{" "}
+                      {slot.is_openforsignings ? "Yes" : "No"}
+                    </div>
+                    
+                  </div>
+                ))
+              ) : (
+                <div>No slots available.</div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+
+  // Main render
   return (
-    <div>
+    <div style={{ position: "relative" }}>
       <Navbar />
       <div className={styles.eventDetailsContent}>
-        <h1 className={styles.eventTitle}>{event.name}</h1>
-        <p className={styles.eventDateAndTime}>{event.dateAndTime}</p>
+        <div className={styles.eventTitle}>
+          {eventType === "prof-show" ? event.name : event.non_comp_name}
+        </div>
+        <div className={styles.eventDateAndTime}>
+          {event.start_time ||
+            (event.slot_details && event.slot_details[0]?.start_time) ||
+            ""}
+        </div>
         <div className={styles.eventDetailsContainer}>
           <div className={styles.tabContainer}>
             <button
-              className={`${styles.tabButton} ${activeTab === "about" ? styles.activeTab : ""}`}
+              className={activeTab === "about" ? styles.activeTab : ""}
               onClick={() => setActiveTab("about")}
             >
               About
             </button>
             <button
-              className={`${styles.tabButton} ${activeTab === "tickets" ? styles.activeTab : ""}`}
+              className={activeTab === "tickets" ? styles.activeTab : ""}
               onClick={() => setActiveTab("tickets")}
             >
               Tickets
             </button>
-            
           </div>
-
           <hr className={styles.separatorLine} />
-
           <div className={styles.tabContent}>
-            {activeTab === "about" && (
-              <div className={styles.aboutContent}>
-                <p>{event.description}</p>
-                <p><strong>Price:</strong> {event.price}</p> {/* Add additional info */}
-              </div>
-            )}
-            {activeTab === "tickets" && (
-              <div className={styles.ticketsContent}>
-                <h3>Tickets</h3>
-                <div className={styles.ticketContainer}>
-                  <div className={styles.ticketItem}>
-                    <div className={styles.ticketInfo}>
-                      <p className={styles.ticketType}>General Admission</p>
-                      <p className={styles.ticketPrice}>{event.price}</p>
-                    </div>
-                    <div className={styles.ticketCounter}>
-                      <button className={styles.counterButton}>-</button>
-                      <span className={styles.counterValue}>0</span> {/* Replace with dynamic value */}
-                      <button className={styles.counterButton}>+</button>
-                    </div>
-                  </div>
-                  {/* Add more ticket types as needed */}
-                </div>
-                <button className = {styles.buyTicketsButton}>Buy Ticket</button>
-                   {/* Replace with dynamic data */}
-              </div>
-            )}
+            {activeTab === "about" && renderAbout()}
+            {activeTab === "tickets" && renderTickets()}
           </div>
         </div>
       </div>
     </div>
-    
   );
 }
 
-export default EventDetails;
-// Note: The eventList is imported from Home.jsx for demonstration purposes.
+export default EventDetails;  
