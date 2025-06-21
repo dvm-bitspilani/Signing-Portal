@@ -19,6 +19,10 @@ import { jwtDecode } from "jwt-decode";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 // import { loginAction } from "./pages/SignIn/SignIn.jsx";
 import { logoutAction, checkauth, checkLogin } from "./assets/utils/auth.js";
+import {
+  loader as yoursigningsloader,
+  action as yoursigningsaction,
+} from "./pages/YourSignings/YourSignings.jsx";
 
 export const AppContext = createContext({});
 
@@ -41,7 +45,8 @@ const App = () => {
     {
       path: "/yoursignings",
       element: <YourSignings />,
-      loader: checkauth,
+      loader: yoursigningsloader,
+      action: yoursigningsaction,
     },
     {
       path: "/EventDetails/:eventIndex",

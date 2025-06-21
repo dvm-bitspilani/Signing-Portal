@@ -23,4 +23,24 @@ export const eventData = [
     timeSlot: "September 5, 2024, 10:00 AM - 6:00 PM",
     status: "Cancelled",
   },
+  {
+    name: "Art Exhibition",
+    price: 50,
+    timeSlot: "September 5, 2024, 10:00 AM - 6:00 PM",
+    status: "Cancelled",
+  },
+  {
+    name: "Art Exhibition",
+    price: 50,
+    timeSlot: "September 5, 2024, 10:00 AM - 6:00 PM",
+    status: "Cancelled",
+  },
+  {
+    name: "Art Exhibition",
+    price: 50,
+    timeSlot: "September 5, 2024, 10:00 AM - 6:00 PM",
+    status: "Cancelled",
+  },
 ];
+
+

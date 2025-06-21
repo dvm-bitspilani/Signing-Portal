@@ -7,7 +7,7 @@ import { useRouteLoaderData, useSubmit } from "react-router-dom";
 export default function ProfileOverlay() {
   const submit = useSubmit();
   const { globalAppStates, setGlobalAppStates } = useContext(AppContext);
-  console.log(globalAppStates);
+  // console.log(globalAppStates);
   const token = useRouteLoaderData("root");
 
   function signOut() {

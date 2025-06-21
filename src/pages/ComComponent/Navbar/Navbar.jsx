@@ -20,8 +20,6 @@ const Navbar = () => {
   );
   const token = getAccessToken();
 
-  console.log("Navbar token:", token);
-
   const handleWindowResize = () =>
     setIsMobileView(window.innerWidth < mobileBreakpoint);
 
