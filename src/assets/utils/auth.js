@@ -2,6 +2,13 @@ import axios from "axios";
 import { apiBaseURL } from "../../global";
 import { redirect } from "react-router";
 
+export function getUserDetails() {
+  const username = localStorage.getItem("username");
+  const profilePicURL = localStorage.getItem("profilePicURL");
+
+  return {username, profilePicURL};
+}
+
 export function getAccessToken() {
   const accessToken = localStorage.getItem("accessToken");
   return accessToken;
@@ -80,6 +87,8 @@ export function logoutAction() {
     const refreshToken = getRefreshToken();
     const accessToken = getAccessToken();
 
+    localStorage.removeItem("username");
+    localStorage.removeItem("profilePicURL");
   localStorage.removeItem("accessToken");
   localStorage.removeItem("refreshToken");
   localStorage.removeItem("accessTokenExpiry");
