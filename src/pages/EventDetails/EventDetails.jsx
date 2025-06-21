@@ -40,12 +40,12 @@ function EventDetails() {
         setLoading(false);
       })
       .catch((err) => {
-        setError("Event not found or unauthorized.");
+        setError("git not found or unauthorized.");
         setLoading(false);
       });
   }, [eventType, eventIndex, accessToken]);
 
-  // Handle ticket counter
+  // ticket counter
   const handleTicketCount = (ticketId, delta) => {
     setTicketCounts((prev) => {
       const next = { ...prev };
@@ -57,9 +57,8 @@ function EventDetails() {
   if (loading) return <div>Loading...</div>;
   if (error || !event) return <div>{error || "Event not found."}</div>;
 
-  // Tickets tab content (for both event types)
   const renderTickets = () => {
-  // For prof-show: single ticket type; for non-comp: flatten all ticket types from all slots
+  // single ticket type for prof-show, multiple for non-comp
     const tickets =
       (eventType === "prof-show")
         ? [
@@ -160,7 +159,6 @@ function EventDetails() {
     </div>
   );
 
-  // Main render
   return (
     <div style={{ position: "relative" }}>
       <Navbar />
