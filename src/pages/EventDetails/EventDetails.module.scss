@@ -12,18 +12,20 @@
   width: $pageContentWidth;
   font-family: $titleFont;
 
+  @media (max-width: $mobileBreakpointWidth) {
+        width: calc(100vw - 2*$minContentPaddingX);
+    }
+
   .eventTitle {
     font-weight: 700;
     font-size: 2.5rem;
     margin-bottom: 20px;
     color: $fgColor;
-    padding: 0 1rem
   }
   
   .eventDateAndTime {
     color: $fadedFgColor;
     font-size: 1rem;
-    padding: 0 1rem;
   }
 
   .eventDetailsContainer {
@@ -72,6 +74,31 @@
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
+
+        .aboutSection {
+          display: flex;
+          flex-direction: row;
+          align-items: flex-start;
+          gap: 2rem;
+          padding: 0.5rem 0 0.5rem 0;
+          border-bottom: 1px solid #2222;
+        }
+
+        .aboutLabel {
+          min-width: 140px;
+          font-weight: 600;
+          font-size: 1.08rem;
+          color: $fgColor;
+          letter-spacing: 0.01em;
+          padding-top: 2px;
+        }
+
+        .aboutValue {
+          color: $fadedFgColor;
+          font-size: 1.05rem;
+          flex: 1;
+          word-break: break-word;
+        }
       }
 
       .ticketsContent {
@@ -82,7 +109,7 @@
         .ticketItem {
           display: flex;
           justify-content: space-between;
-          padding: 12px 0;
+          padding-top: 12px;
 
           .ticketInfo {
             display: flex;
@@ -143,3 +170,5 @@
   }
 
 }
+
+
