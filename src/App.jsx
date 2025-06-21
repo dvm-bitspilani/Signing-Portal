@@ -27,7 +27,7 @@ import {
 export const AppContext = createContext({});
 
 const App = () => {
-  const [globalAppStates, setGlobalAppStates] = useState({ Credentials: null });
+  const [globalAppStates, setGlobalAppStates] = useState({ credentials: null });
 
   const router = createBrowserRouter([
     {

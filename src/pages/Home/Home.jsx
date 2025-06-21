@@ -36,11 +36,13 @@ export const eventList = [
 
 function Home() {
     const [activeTab, setActiveTab] = useState(0);
-    const [eventList, setEventList] = useState([]);
-    const [profShowList, setProfShowList] = useState([]);
+    const [eventList, setEventList] = useState(null);
+    const [profShowList, setProfShowList] = useState(null);
     const refreshToken = getRefreshToken();
     const accessToken = useLoaderData();
     const eventContGap = 30;
+    const [emptyEventsMsg, setEmptyEventsMsg] = useState("Please wait while we load the list of available events.");
+    const [emptyProfShowMsg, setEmptyProfShowMsg] = useState("Please wait while we load the list of available prof shows.");
 
     const navigate = useNavigate();
     useEffect(() => {
@@ -82,14 +84,20 @@ function Home() {
                 Authorization: `Bearer ${accessToken}`
             }}
         ).then((response) => {
-            // console.log(response, response.data.prof_shows.concat(response.data.non_comp_events));
-            setEventList(response.data.non_comp_events.reverse());
-            setProfShowList(response.data.prof_shows.reverse());
+            if (response.data.non_comp_events.length == 0) setEmptyEventsMsg("Looks like there are no available events at this moment.")
+            else setEventList(response.data.non_comp_events.reverse());
+
+            if (response.data.prof_shows.length == 0) setEmptyProfShowMsg("Looks like there are no available prof shows at this moment")
+            else setProfShowList(response.data.prof_shows.reverse());
+
+        }).catch((errResponse) => {
+            setEmptyEventsMsg("Something went wrong in recieveing the available events.");
+            setEmptyProfShowList("Something went wrong in recieving the available prof shows.");
         })
 
         const eventContElem = document.getElementById("eventCont");
         eventContElem.addEventListener("scrollend", (event) => {
-            setActiveTab(eventContElem.scrollLeft/(eventContElem.clientWidth + eventContGap))
+            setActiveTab(Math.round(eventContElem.scrollLeft/(eventContElem.clientWidth + eventContGap)))
         })
     }, [])
 
@@ -110,7 +118,7 @@ function Home() {
                 </div>
                 <div id="eventCont" className={styles.eventContainer}>
                     <div className={styles.eventListContainer}>
-                        {profShowList.map((show, index) => (
+                        {profShowList?.map((show, index) => (
                             <div className={styles.eventItem} key={index}>
                                 <div className={styles.eventLeft}>
                                     <div className={styles.eventTitle}>{show.name}</div>
@@ -122,10 +130,11 @@ function Home() {
                                     </Link>
                                 </div>
                             </div>
-                        ))}
+                        )) ||
+                        <div className={styles.emptyContentMessage}>{emptyProfShowMsg}</div>}
                     </div>
                     <div className={styles.eventListContainer}>
-                        {eventList.map((event, index) => (
+                        {eventList?.map((event, index) => (
                             <div className={styles.eventItem} key={index}>
                                 <div className={styles.eventLeft}>
                                     <div className={styles.eventTitle}>{event.name}</div>
@@ -137,7 +146,8 @@ function Home() {
                                     </Link>
                                 </div>
                             </div>
-                        ))}
+                        )) ||
+                        <div className={styles.emptyContentMessage}>{emptyEventsMsg}</div>}
                     </div>
                 </div>
             </div>

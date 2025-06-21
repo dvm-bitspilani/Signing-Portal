@@ -3,15 +3,18 @@ import styles from "./Navbar.module.scss";
 import { AppContext } from "../../../App";
 import SignInContext from "../../../assets/store/SignInContext";
 import { useRouteLoaderData, useSubmit } from "react-router-dom";
+import { getUserDetails } from "../../../assets/utils/auth";
 
 export default function ProfileOverlay() {
   const submit = useSubmit();
-  const { globalAppStates, setGlobalAppStates } = useContext(AppContext);
+  // const { globalAppStates, setGlobalAppStates } = useContext(AppContext);
   // console.log(globalAppStates);
+  
   const token = useRouteLoaderData("root");
+  const {username, profilePicURL} = getUserDetails();
 
   function signOut() {
-    setGlobalAppStates({ credentials: null });
+    // setGlobalAppStates({ credentials: null });
     submit({ token }, { method: "post", action: "/logout" });
     // googleLogout(); // Uncomment if using Google OAuth
   }
@@ -21,7 +24,7 @@ export default function ProfileOverlay() {
       <div className={styles.profilePicWrapper}>
         <img
           className={styles.profileImage}
-          src={globalAppStates.credentials?.picture || "/default-profile.png"}
+          src={profilePicURL || "/default-profile.png"}
           alt="Profile"
         />{" "}
       </div>
@@ -29,7 +32,7 @@ export default function ProfileOverlay() {
       <div className={styles.profileContentBottom}>
         <p className={styles.profileGreeting}>Welcome,</p>
         <h2 className={styles.profileUsername}>
-          {globalAppStates.credentials?.name || "Guest"}
+          {username || "Guest"}
         </h2>{" "}
       </div>
       <div className={styles.logoutWrapper}>

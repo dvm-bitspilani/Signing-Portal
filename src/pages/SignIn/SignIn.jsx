@@ -11,7 +11,7 @@ import { setStateItem, apiBaseURL, setStateItems } from "../../global";
 import axios from "axios";
 
 const SignIn = () => {
-  const { globalAppStates, setGlobalAppStates } = useContext(AppContext);
+  // const { globalAppStates, setGlobalAppStates } = useContext(AppContext);
   const { signIn } = useSignIn();
   const navigate = useNavigate();
   const handleLoginSuccess = (credentialResponse) => {
@@ -30,12 +30,15 @@ const SignIn = () => {
       )
       .then((response) => {
         //* `tokens` is object containing `access` and `refresh` tokens
-        setGlobalAppStates(
-          setStateItems(globalAppStates, {
-            credentials: jwtDecode(credentialResponse.credential),
-            tokens: response.data.tokens,
-          })
-        );
+        // setGlobalAppStates(
+        //   setStateItems(globalAppStates, {
+        //     credentials: jwtDecode(credentialResponse.credential),
+        //     tokens: response.data.tokens,
+        //   })
+        // );
+
+        localStorage.setItem("username", jwtDecode(credentialResponse.credential).name);
+        localStorage.setItem("profilePicURL", jwtDecode(credentialResponse.credential).picture);
 
         localStorage.setItem("accessToken", response.data.tokens.access);
         localStorage.setItem("refreshToken", response.data.tokens.refresh);

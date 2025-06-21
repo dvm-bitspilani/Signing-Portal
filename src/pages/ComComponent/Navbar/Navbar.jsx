@@ -6,14 +6,15 @@ import { useContext } from "react";
 import SignInContext from "../../../assets/store/SignInContext";
 import ProfileOverlay from "./ProfileOverlay";
 import { AppContext } from "../../../App";
-import { getAccessToken } from "../../../assets/utils/auth";
+import { getAccessToken, getUserDetails } from "../../../assets/utils/auth";
 
 //* Add path to your pages to both links in desktop view (line 52-53) and mobile view (line 75-76)
 
 const Navbar = () => {
   const mobileBreakpoint = 720;
-  const { globalAppStates } = useContext(AppContext);
+  // const { globalAppStates } = useContext(AppContext);
   const { isSignIn } = useContext(SignInContext);
+  const { profilePicURL } = getUserDetails();
   const [isMenuOpened, setIsMenuOpened] = useState(false);
   const [isMobileView, setIsMobileView] = useState(
     window.innerWidth < mobileBreakpoint
@@ -71,7 +72,7 @@ const Navbar = () => {
                   <img
                     className={styles.navProfileImg}
                     src={
-                      globalAppStates.credentials?.picture ||
+                      profilePicURL ||
                       "/default-profile.png"
                     }
                   />
