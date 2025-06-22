@@ -90,7 +90,7 @@
           font-size: 1.08rem;
           color: $fgColor;
           letter-spacing: 0.01em;
-          padding-top: 2px;
+          line-height: 1.5;
         }
 
         .aboutValue {
@@ -98,6 +98,7 @@
           font-size: 1.05rem;
           flex: 1;
           word-break: break-word;
+          line-height: 1.5;
         }
       }
 
