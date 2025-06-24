@@ -1,7 +1,6 @@
 @use '../../global.scss' as *;
 @use "sass:color";
 
-
 .eventDetailsContent {
   display: flex;
   flex-direction: column;
@@ -13,8 +12,8 @@
   font-family: $titleFont;
 
   @media (max-width: $mobileBreakpointWidth) {
-        width: calc(100vw - 2*$minContentPaddingX);
-    }
+    width: calc(100vw - 2*$minContentPaddingX);
+  }
 
   .eventTitle {
     font-weight: 700;
@@ -105,71 +104,126 @@
       .ticketsContent {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        background: #181b20;
+        border-radius: 10px;
+        margin-top: 0.5rem;
+        padding: 1rem 1rem 2rem 1rem;
+        box-shadow: 0 2px 8px #0002;
+        border: 1px solid #23272f;
+        animation: fadeInTickets 0.2s;
+      }
 
-        .ticketItem {
+      @keyframes fadeInTickets {
+        from { opacity: 0; transform: translateY(-8px);}
+        to { opacity: 1; transform: translateY(0);}
+      }
+
+      .ticketItem {
+        display: flex;
+        justify-content: space-between;
+        padding-top: 12px;
+        border-bottom: 1px solid #2224;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+
+        &:last-child {
+          border-bottom: none;
+          margin-bottom: 0;
+          padding-bottom: 0;
+        }
+
+        .ticketInfo {
           display: flex;
-          justify-content: space-between;
-          padding-top: 12px;
+          flex-direction: column;
+          gap: 4px;
 
-          .ticketInfo {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-
-            .ticketPrice {
-              color: $fadedFgColor;
-            }
-          }
-
-          .ticketCounter {
-            
-            display: flex;
-            align-items: center;
-            gap: 8px;
-
-            button {
-              width: 1.8rem; 
-              height: 1.8rem; 
-              border-radius: 50%; 
-              background-color: $fadedBgColor; 
-              color: $fgColor; 
-              border: none;
-              cursor: pointer; 
-              font-size: 1rem; 
-              transition: background-color 0.3s, transform 0.2s; 
-              &:hover {
-                background-color: color.adjust($fadedBgColor, $lightness: 10%); 
-              }
-              &:active {
-                transform: scale(0.9);
-              }
-            }
-
-            .counterValue {
-              font-size: 1rem;
-              font-weight: 600;
-              color: $fgColor;
-            }
-
+          .ticketPrice {
+            color: $fadedFgColor;
           }
         }
-        .buyTicketsButton {
-          align-self: flex-end;
-          padding: 10px 16px;
-          border-radius: 20px;
-          border: none;
-          background-color: #328ff2;
-          color: $fgColor;
-          font-weight: 600;
-          cursor: pointer;
+
+        .ticketCounter {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          button {
+            width: 1.8rem; 
+            height: 1.8rem; 
+            border-radius: 50%; 
+            background-color: $fadedBgColor; 
+            color: $fgColor; 
+            border: none;
+            cursor: pointer; 
+            font-size: 1rem; 
+            transition: background-color 0.3s, transform 0.2s; 
+            &:hover {
+              background-color: color.adjust($fadedBgColor, $lightness: 10%); 
+            }
+            &:active {
+              transform: scale(0.9);
+            }
+          }
+
+          .counterValue {
+            font-size: 1rem;
+            font-weight: 600;
+            color: $fgColor;
+          }
         }
       }
 
+      .buyTicketsButton {
+        align-self: flex-end;
+        padding: 10px 16px;
+        border-radius: 20px;
+        border: none;
+        background-color: #328ff2;
+        color: $fgColor;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 1rem;
+        margin-top: 10px;
+        box-shadow: 0 2px 8px #0002;
+        &:hover {
+          background: color.adjust(#328ff2, $lightness: 5%);
+          box-shadow: 0 4px 16px #0003;
+        }
+      }
     }
-
   }
 
+  // Slot dropdown styles for non-comp events
+  .aboutSlots {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .slotBoxWrapper {
+    margin-bottom: 0.5rem;
+  }
+
+  .slotBox {
+    width: 100%;
+    text-align: left;
+    background: #23272f;
+    border: none;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    color: $fgColor;
+    font-size: 1rem;
+    box-shadow: 0 2px 8px #0002;
+    line-height: 1.4;
+    &:hover:enabled {
+      background: color.adjust(#23272f, $lightness: 5%);
+      box-shadow: 0 4px 16px #0003;
+    }
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
 }
-
-
