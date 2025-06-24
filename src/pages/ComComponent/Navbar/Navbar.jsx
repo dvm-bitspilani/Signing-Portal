@@ -35,7 +35,7 @@ const Navbar = () => {
   return (
     <nav className={styles.navbar}>
       <div className={styles.leftHalf}>
-        <Link to="./" className={styles.logoLink}>
+        <Link to="/" className={styles.logoLink}>
           <div className={styles.logo}>
             <img src={Logo} alt="Logo" />
           </div>
