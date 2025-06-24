@@ -11,6 +11,7 @@ nav {
   justify-content: space-between;
   padding: 18px 44px;
   background-color: $bgColor;
+  z-index: 500;
   .leftHalf {
     height: 100%;
     .logoLink {
@@ -89,13 +90,15 @@ nav {
     position: absolute;
     right: 30px;
     top: calc(100% - 9px);
-    max-width: 210px;
+    max-width: 240px;
     min-width: 150px;
+    z-index: 500;
+    border-radius: 12px;
+    box-shadow: 0px 0px 6px #0d0d0dd4
   }
   .profileOverlayShow {
     @extend .profileOverlay;
     display: block;
-    
   }
   @keyframes profileFadeIn {
     from {
@@ -108,21 +111,24 @@ nav {
     }
   }
   .profileContent {
-    background-color: $fadedBgColor;
+    background-color: #181b20;
     position: relative;
     z-index: 100;
-    padding: 15px 9px;
+    padding: 36px 0px;
     border-radius: 12px;
     animation: profileFadeIn 0.5s normal;
+
+    &.freeOverlay {padding: 18px 12px;}
+
     .profileContentDivider {
       border-color: $fadedBgColor;
     }
     .profilePicWrapper {
       display: flex;
       justify-content: center;
-      padding-bottom: 15px;
+      padding-bottom: 6px;
       .profileImage {
-        height: 36px;
+        height: 42px;
         border-radius: 100%;
       }
     }
@@ -135,7 +141,7 @@ nav {
       .profileUsername {
         color: $fgColor;
         font-family: $titleFont;
-        line-height: 1.2rem;
+        line-height: 1.4rem;
       }
     }
     .logoutWrapper {
@@ -172,16 +178,16 @@ nav {
     top: 0px;
     right: 0px;
     height: 100vh;
-    background-color: $fadedBgColor;
+    background-color: #181b20;
     animation: menuFadeIn 0.2s;
-    padding: 9px;
     overflow-y: auto;
+    z-index: 500;
     &::-webkit-scrollbar {display: none;}
     .profileContent {
       animation: none;
       .profileImage {height: 54px;}
       .profileContentBottom {
-        padding: 9px 3px;
+        padding: 9px 15px;
         gap: 4px;
         display: flex;
         flex-direction: column;
@@ -197,10 +203,16 @@ nav {
     .menuNavlinkContainer {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      padding: 12px;
-      .navlink {font-size: 1.8rem;}
+      padding: 12px 0px;
+      .navlink {
+        font-size: 1.8rem;
+        width: 100%;
+        padding: 6px 15px;
+
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.321);
+        }
+      }
     }
   }
   @keyframes menuFadeIn {

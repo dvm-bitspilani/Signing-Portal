@@ -52,6 +52,7 @@
                 gap: 18px;
 
                 .eventLeft {
+                    min-width: 0;
                     flex: 1;
 
                     .eventTitle {
@@ -61,6 +62,9 @@
                     }
                     .eventDesc {
                         @extend .pageDesc;
+                        text-overflow: ellipsis;
+                        overflow-x: hidden;
+                        white-space: nowrap;
                     }
                 }
 
