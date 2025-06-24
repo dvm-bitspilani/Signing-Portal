@@ -101,21 +101,22 @@ const Navbar = () => {
           ></div>
           {isMobileView ? (
             <div className={styles.sideMenu}>
-              <ProfileOverlay />
-              <div className={styles.menuNavlinkContainer}>
-                <Link to="/" className={styles.navlink}>
-                  Home
-                </Link>
-                <Link to="/yoursignings" className={styles.navlink}>
-                  Your Signings
-                </Link>
-                <Link to="." className={styles.navlink}>
-                  Contact
-                </Link>
-              </div>
+              <ProfileOverlay>
+                <div className={styles.menuNavlinkContainer}>
+                  <Link to="/" className={styles.navlink}>
+                    Home
+                  </Link>
+                  <Link to="/yoursignings" className={styles.navlink}>
+                    Your Signings
+                  </Link>
+                  <Link to="." className={styles.navlink}>
+                    Contact
+                  </Link>
+                </div>
+              </ProfileOverlay>
             </div>
           ) : (
-            <ProfileOverlay />
+            <ProfileOverlay className={styles.freeOverlay} />
           )}
         </div>
       ) : null}

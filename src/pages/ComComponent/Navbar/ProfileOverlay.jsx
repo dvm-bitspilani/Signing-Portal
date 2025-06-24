@@ -5,7 +5,7 @@ import SignInContext from "../../../assets/store/SignInContext";
 import { useRouteLoaderData, useSubmit } from "react-router-dom";
 import { getUserDetails } from "../../../assets/utils/auth";
 
-export default function ProfileOverlay() {
+export default function ProfileOverlay({children, className}) {
   const submit = useSubmit();
   // const { globalAppStates, setGlobalAppStates } = useContext(AppContext);
   // console.log(globalAppStates);
@@ -20,7 +20,7 @@ export default function ProfileOverlay() {
   }
 
   return (
-    <div className={styles.profileContent}>
+    <div className={`${styles.profileContent} ${className}`}>
       <div className={styles.profilePicWrapper}>
         <img
           className={styles.profileImage}
@@ -28,13 +28,13 @@ export default function ProfileOverlay() {
           alt="Profile"
         />{" "}
       </div>
-      <hr className={styles.profileContentDivider} />
       <div className={styles.profileContentBottom}>
         <p className={styles.profileGreeting}>Welcome,</p>
         <h2 className={styles.profileUsername}>
           {username || "Guest"}
         </h2>{" "}
       </div>
+      {children}
       <div className={styles.logoutWrapper}>
         <button className={styles.logoutBtn} onClick={signOut}>
           Logout
