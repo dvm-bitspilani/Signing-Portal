@@ -18,16 +18,33 @@ function Confirmation(props) {
   );
 }
 
-function ErrorModal(props) {
+function Loading() {
+  return (
+    <div className={styles.loadingmodal}>
+      <h2>Loading...</h2>
+    </div>
+  );
+}
+
+function ErrorModal({ children, onClick, isLoading = false }) {
   return (
     <>
-      {ReactDOM.createPortal(
-        <Backdrop onClick={props.onClick} />,
-        document.getElementById("backdrop-root")
-      )}
-      {ReactDOM.createPortal(
-        <Confirmation onClick={props.onClick} text={props.children} />,
-        document.getElementById("modal-root")
+      {isLoading ? (
+        ReactDOM.createPortal(
+          <Loading onClick={onClick} />,
+          document.getElementById("modal-root")
+        )
+      ) : (
+        <>
+          {ReactDOM.createPortal(
+            <Backdrop onClick={onClick} />,
+            document.getElementById("backdrop-root")
+          )}
+          {ReactDOM.createPortal(
+            <Confirmation onClick={onClick} text={children} />,
+            document.getElementById("modal-root")
+          )}
+        </>
       )}
     </>
   );
