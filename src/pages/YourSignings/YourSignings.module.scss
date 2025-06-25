@@ -1,9 +1,8 @@
 @use "../../global.scss" as *;
 
 .tableContainer {
-  margin: auto;
-  margin-top: 72px;
-  padding: 54px $minContentPaddingX;
+  margin: 72px auto auto auto;
+  padding: clamp(30px, 10vw, 100px) $minContentPaddingX;
   width: $pageContentWidth;
   overflow-x: auto;
   font-family: $titleFont;
@@ -15,7 +14,10 @@
   .pageTitle {
     font-size: clamp(1.5rem, 2vw, 4rem);
     color: $fgColor;
-    margin-bottom: 1vw;
+    // margin-bottom: 1.5vw;
+    position: absolute;
+    top: calc(72px + clamp(30px, 10vw, 100px));
+    transform: translateY(-130%);
   }
 
   .errorMessage {
@@ -69,12 +71,13 @@
           font-weight: 400;
           font-size: clamp(0.8rem, 1vw, 2.5rem);
           color: #9cabba;
+          text-wrap: nowrap;
 
           .status {
             padding: 6px 16px;
             border-radius: 20px;
             border: none;
-            font-size: clamp(0.8rem, 1vw, 2.5rem);
+            font-size: clamp(0.9rem, 1.1vw, 2.5rem);
             font-weight: 500;
             text-align: center;
             width: 100%;

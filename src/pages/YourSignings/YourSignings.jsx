@@ -1,5 +1,4 @@
 import styles from "./YourSignings.module.scss";
-// import { eventData } from "./eventData";
 import Navbar from "../ComComponent/Navbar/Navbar";
 import ErrorModal from "../ComComponent/ErrorModal/ErrorModal";
 
@@ -17,6 +16,7 @@ import { getAccessToken, getRefreshToken } from "../../assets/utils/auth.js";
 
 function YourSignings() {
   const [errorModal, setErrorModal] = useState(true);
+  const [currentEvent, setcurrentEvent] = useState("A-1");
   const eventData = useLoaderData();
   const actionData = useActionData();
   const submit = useSubmit();
@@ -72,7 +72,9 @@ function YourSignings() {
                     <td>
                       <button
                         className={`${styles.cancel} ${
-                          event.cancelled || !event.cancellable || isSubmitting
+                          event.cancelled ||
+                          !event.cancellable ||
+                          (isSubmitting && currentEvent === `A-${index}`)
                             ? styles.disabled
                             : ""
                         }`}
@@ -82,6 +84,7 @@ function YourSignings() {
                         onClick={() => {
                           if (event.cancelled) return;
                           setErrorModal(true);
+                          setcurrentEvent(`A-${index}`);
                           const formData = new FormData();
                           formData.append(
                             "prof_show_ticket_id",
@@ -94,7 +97,7 @@ function YourSignings() {
                         }}
                       >
                         {event.cancellable
-                          ? isSubmitting
+                          ? isSubmitting && currentEvent === `A-${index}`
                             ? "Cancelling"
                             : "Cancel"
                           : "Can't Cancel"}
@@ -119,7 +122,9 @@ function YourSignings() {
                     <td>
                       <button
                         className={`${styles.cancel} ${
-                          event.cancelled || !event.cancellable || isSubmitting
+                          event.cancelled ||
+                          !event.cancellable ||
+                          (isSubmitting && currentEvent === `B-${index}`)
                             ? styles.disabled
                             : ""
                         }`}
@@ -129,6 +134,7 @@ function YourSignings() {
                         onClick={() => {
                           if (event.cancelled) return;
                           setErrorModal(true);
+                          setcurrentEvent(`B-${index}`);
                           const formData = new FormData();
                           formData.append(
                             "non_comp_ticket_id",
@@ -141,7 +147,7 @@ function YourSignings() {
                         }}
                       >
                         {event.cancellable
-                          ? isSubmitting
+                          ? isSubmitting && currentEvent === `B-${index}`
                             ? "Cancelling"
                             : "Cancel"
                           : "Can't Cancel"}
