@@ -15,8 +15,9 @@ function EventDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("about");
+  const [openSlotIds, setOpenSlotIds] = useState([]);
+  const [selectedTicketType, setSelectedTicketType] = useState({});
   const [ticketCounts, setTicketCounts] = useState({});
-  const [openSlotIds, setOpenSlotIds] = useState([]); 
 
   useEffect(() => {
     let endpoint = "";
@@ -41,66 +42,87 @@ function EventDetails() {
         setEvent(response.data);
         setLoading(false);
       })
-      .catch((err) => {
+      .catch(() => {
         setError("Event not found or unauthorized.");
         setLoading(false);
       });
   }, [eventType, eventIndex, accessToken]);
 
-  const handleTicketCount = (ticketId, delta) => {
+  const handleSlotToggle = (slotId) => {
+    setOpenSlotIds((prev) => (prev.includes(slotId) ? [] : [slotId]));
+  };
+
+  const handleTicketTypeChange = (slotId, ticketTypeId) => {
+    setSelectedTicketType((prev) => ({
+      ...prev,
+      [slotId]: ticketTypeId,
+    }));
+    setTicketCounts((prev) => ({
+      ...prev,
+      [slotId]: 0, 
+    }));
+  };
+
+  const handleTicketCount = (slotId, delta) => {
     setTicketCounts((prev) => {
-      const next = { ...prev };
-      next[ticketId] = Math.max(0, (next[ticketId] || 0) + delta);
-      return next;
+      const current = prev[slotId] || 0;
+      const next = Math.max(0, current + delta); 
+      return { ...prev, [slotId]: next };
     });
   };
 
-  const handleSlotToggle = (slotId) => {
-  setOpenSlotIds(prev => {
-    if (prev.includes(slotId)) {
-      return prev.filter(id => id !== slotId);
-    } else {
-      return [...prev, slotId];
-    }
-  });
-};
+  const handleProfShowBuy = async () => {
+    const count = ticketCounts["profshow"] || 0;
+    if (count < 1) return alert("Select at least one ticket.");
+    try {
+      const formData = new FormData();
+      formData.append("ticket", count);
 
-  const handleBuyTickets = async () => {
-    if (!event || !event.slot_details) return;
-    let anySelected = false;
-    for (const slot of event.slot_details) {
-      if (!slot.is_openforsignings) continue;
-      for (const tt of slot.ticket_types || []) {
-        const count = ticketCounts[tt.ticket_type_id] || 0;
-        if (count > 0) {
-          anySelected = true;
-          try {
-            const formData = new FormData(); // backend expects FormData content type
-            formData.append("tickets", count);
-
-            await axios.post(
-              `${apiBaseURL}/api/non-comp-ticket/${tt.ticket_type_id}/buy/`,
-              formData,
-              {
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                  accept: "application/json",
-                },
-              }
-            );
-          } catch (err) {
-            alert(
-              `Failed for ${tt.ticket_type_name}: ` +
-                (err.response?.data?.error || "Purchase failed.")
-            );
-            return;
-          }
+      await axios.post(
+        `${apiBaseURL}/api/prof-show/${eventIndex}/buy/`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            accept: "application/json",
+          },
         }
-      }
+      );
+      alert("Tickets purchased successfully!");
+      navigate("/yoursignings");
+    } catch (err) {
+      alert(err.response?.data?.error || "Purchase failed.");
     }
-    if (!anySelected) return alert("Select at least one ticket.");
-    alert("Tickets purchased successfully!");
-    navigate("/yoursignings");
+  };
+
+  const handleNonCompBuy = async (slot) => {
+    const selectedTypeId = selectedTicketType[slot.slot_id];
+    const count = ticketCounts[slot.slot_id] || 0;
+    if (!selectedTypeId) return alert("Select a ticket type.");
+    if (count < 1) return alert("Select at least one ticket.");
+    try {
+      const formData = new FormData();
+      formData.append("tickets", count);
+      await axios.post(
+        `${apiBaseURL}/api/non-comp-ticket/${selectedTypeId}/buy/`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            accept: "application/json",
+          },
+        }
+      );
+      alert("Tickets purchased successfully!");
+      navigate("/yoursignings");
+    } catch (err) {
+      alert(
+        `Failed for ${
+          slot.ticket_types.find((t) => t.ticket_type_id === selectedTypeId)
+            ?.ticket_type_name || "Ticket"
+        }: ` + (err.response?.data?.error || "Purchase failed.")
+      );
+    }
   };
 
   if (loading) return <div>Loading...</div>;
@@ -125,13 +147,31 @@ function EventDetails() {
                 <div className={styles.ticketPrice}>₹{tt.price}</div>
               </div>
               <div className={styles.ticketCounter}>
-                <button onClick={() => handleTicketCount(tt.ticket_type_id, -1)}>
+                <button
+                  onClick={() =>
+                    setTicketCounts((prev) => ({
+                      ...prev,
+                      [tt.ticket_type_id]: Math.max(
+                        0,
+                        (prev[tt.ticket_type_id] || 0) - 1
+                      ),
+                    }))
+                  }
+                  disabled={ticketCounts[tt.ticket_type_id] === 0}
+                >
                   -
                 </button>
                 <span className={styles.counterValue}>
                   {ticketCounts[tt.ticket_type_id] || 0}
                 </span>
-                <button onClick={() => handleTicketCount(tt.ticket_type_id, 1)}>
+                <button
+                  onClick={() =>
+                    setTicketCounts((prev) => ({
+                      ...prev,
+                      [tt.ticket_type_id]: (prev[tt.ticket_type_id] || 0) + 1,
+                    }))
+                  }
+                >
                   +
                 </button>
               </div>
@@ -139,29 +179,8 @@ function EventDetails() {
           ))}
           <button
             className={styles.buyTicketsButton}
-            onClick={async () => {
-              const count = ticketCounts["profshow"] || 0;
-              if (count < 1) return alert("Select at least one ticket.");
-              try {
-                const formData = new FormData(); // backend expects FormData content type
-                formData.append("ticket", count);
-
-                await axios.post(
-                  `${apiBaseURL}/api/prof-show/${eventIndex}/buy/`,
-                  formData,
-                  {
-                    headers: {
-                      Authorization: `Bearer ${accessToken}`,
-                      accept: "application/json",
-                    },
-                  }
-                );
-                alert("Tickets purchased successfully!");
-                navigate("/yoursignings");
-              } catch (err) {
-                alert(err.response?.data?.error || "Purchase failed.");
-              }
-            }}
+            onClick={handleProfShowBuy}
+            disabled={ticketCounts["profshow"] === 0}
           >
             Buy Ticket
           </button>
@@ -190,13 +209,14 @@ function EventDetails() {
       </div>
     );
 
-    // for prof shows
     return (
       <div style={{ position: "relative" }}>
         <Navbar />
         <div className={styles.eventDetailsContent}>
           <div className={styles.eventTitle}>{event.name}</div>
-          <div className={styles.eventDateAndTime}>{event.start_time || ""}</div>
+          <div className={styles.eventDateAndTime}>
+            {event.start_time || ""}
+          </div>
           <div className={styles.eventDetailsContainer}>
             <div className={styles.tabContainer}>
               <button
@@ -252,13 +272,6 @@ function EventDetails() {
                             cursor: slot.is_openforsignings
                               ? "pointer"
                               : "not-allowed",
-                            width: "100%",
-                            textAlign: "left",
-                            background: "#23272f",
-                            border: "none",
-                            borderRadius: "10px",
-                            padding: "1rem",
-                            marginBottom: "0.5rem",
                           }}
                           onClick={() => handleSlotToggle(slot.slot_id)}
                         >
@@ -275,45 +288,101 @@ function EventDetails() {
                         {openSlotIds.includes(slot.slot_id) && (
                           <div className={styles.ticketsContent}>
                             {slot.is_openforsignings ? (
-                              slot.ticket_types && slot.ticket_types.length > 0 ? (
-                                slot.ticket_types.map((tt) => (
-                                  <div
-                                    className={styles.ticketItem}
-                                    key={tt.ticket_type_id}
+                              slot.ticket_types &&
+                              slot.ticket_types.length > 0 ? (
+                                <div>
+                                  <select
+                                    className={styles.ticketTypeDropdown}
+                                    value={
+                                      selectedTicketType[slot.slot_id] || ""
+                                    }
+                                    onChange={(e) =>
+                                      handleTicketTypeChange(
+                                        slot.slot_id,
+                                        e.target.value
+                                      )
+                                    }
                                   >
-                                    <div className={styles.ticketInfo}>
-                                      <div>{tt.ticket_type_name}</div>
-                                      <div className={styles.ticketPrice}>
-                                        ₹{tt.price}
+                                    <option value="" disabled>
+                                      Select Ticket Type
+                                    </option>
+                                    {slot.ticket_types.map((tt) => (
+                                      <option
+                                        key={tt.ticket_type_id}
+                                        value={tt.ticket_type_id}
+                                      >
+                                        {tt.ticket_type_name} (₹{tt.price})
+                                      </option>
+                                    ))}
+                                  </select>
+                                  {selectedTicketType[slot.slot_id] && (
+                                    <>
+                                      <div className={styles.ticketItem}>
+                                        <div className={styles.ticketInfo}>
+                                          <div>
+                                            {
+                                              slot.ticket_types.find(
+                                                (t) =>
+                                                  t.ticket_type_id ===
+                                                  selectedTicketType[
+                                                    slot.slot_id
+                                                  ]
+                                              )?.ticket_type_name
+                                            }
+                                          </div>
+                                          <div className={styles.ticketPrice}>
+                                            Quantity:
+                                            {
+                                              slot.ticket_types.find(
+                                                (t) =>
+                                                  t.ticket_type_id ===
+                                                  selectedTicketType[
+                                                    slot.slot_id
+                                                  ]
+                                              )?.price
+                                            }
+                                          </div>
+                                        </div>
+                                        <div className={styles.ticketCounter}>
+                                          <button
+                                            onClick={() =>
+                                              handleTicketCount(
+                                                slot.slot_id,
+                                                -1
+                                              )
+                                            }
+                                            disabled={
+                                              ticketCounts[slot.slot_id] === 0
+                                            }
+                                          >
+                                            -
+                                          </button>
+                                          <span className={styles.counterValue}>
+                                            {ticketCounts[slot.slot_id] || 0}
+                                          </span>
+                                          <button
+                                            onClick={() =>
+                                              handleTicketCount(slot.slot_id, 1)
+                                            }
+                                          >
+                                            +
+                                          </button>
+                                        </div>
                                       </div>
-                                    </div>
-                                    <div className={styles.ticketCounter}>
-                                      <button
-                                        onClick={() =>
-                                          handleTicketCount(
-                                            tt.ticket_type_id,
-                                            -1
-                                          )
-                                        }
-                                      >
-                                        -
-                                      </button>
-                                      <span className={styles.counterValue}>
-                                        {ticketCounts[tt.ticket_type_id] || 0}
-                                      </span>
-                                      <button
-                                        onClick={() =>
-                                          handleTicketCount(
-                                            tt.ticket_type_id,
-                                            1
-                                          )
-                                        }
-                                      >
-                                        +
-                                      </button>
-                                    </div>
-                                  </div>
-                                ))
+                                      <div className={styles.buyButtonRow}>
+                                        <button
+                                          className={styles.buyTicketsButton}
+                                          onClick={() => handleNonCompBuy(slot)}
+                                          disabled={
+                                            ticketCounts[slot.slot_id] === 0
+                                          }
+                                        >
+                                          Buy Ticket
+                                        </button>
+                                      </div>
+                                    </>
+                                  )}
+                                </div>
                               ) : (
                                 <div>No tickets available.</div>
                               )
@@ -331,13 +400,6 @@ function EventDetails() {
                   )}
                 </div>
               </div>
-              <button
-                className={styles.buyTicketsButton}
-                style={{ marginTop: "2rem", alignSelf: "flex-end" }}
-                onClick={handleBuyTickets}
-              >
-                Buy Ticket
-              </button>
             </div>
           </div>
         </div>
