@@ -5,6 +5,12 @@ import axios from "axios";
 import Navbar from "../ComComponent/Navbar/Navbar";
 import { apiBaseURL } from "../../global";
 import { getAccessToken } from "../../assets/utils/auth.js";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faChevronDown,
+  faChevronUp,
+  faChevronLeft,
+} from "@fortawesome/free-solid-svg-icons";
 
 function EventDetails() {
   const { eventType, eventIndex } = useParams();
@@ -59,14 +65,14 @@ function EventDetails() {
     }));
     setTicketCounts((prev) => ({
       ...prev,
-      [slotId]: 0, 
+      [slotId]: 0,
     }));
   };
 
   const handleTicketCount = (slotId, delta) => {
     setTicketCounts((prev) => {
       const current = prev[slotId] || 0;
-      const next = Math.max(0, current + delta); 
+      const next = Math.max(0, current + delta);
       return { ...prev, [slotId]: next };
     });
   };
@@ -213,6 +219,13 @@ function EventDetails() {
       <div style={{ position: "relative" }}>
         <Navbar />
         <div className={styles.eventDetailsContent}>
+          <button className={styles.backButton} onClick={() => navigate("/")}>
+            <FontAwesomeIcon
+              icon={faChevronLeft}
+              style={{ marginRight: "0.5em" }}
+            />
+            Go Back
+          </button>
           <div className={styles.eventTitle}>{event.name}</div>
           <div className={styles.eventDateAndTime}>
             {event.start_time || ""}
@@ -247,7 +260,15 @@ function EventDetails() {
   return (
     <div style={{ position: "relative" }}>
       <Navbar />
+
       <div className={styles.eventDetailsContent}>
+        <button className={styles.backButton} onClick={() => navigate("/")}>
+          <FontAwesomeIcon
+            icon={faChevronLeft}
+            style={{ marginRight: "0.5em" }}
+          />
+          Go Back
+        </button>
         <div className={styles.eventTitle}>{event.non_comp_name}</div>
         <div className={styles.eventDateAndTime}>
           {event.slot_details && event.slot_details[0]?.start_time}
@@ -277,13 +298,18 @@ function EventDetails() {
                         >
                           <div>
                             <strong>Venue:</strong> {slot.venue}
-                          </div>
-                          <div>
+                            <br />
                             <strong>Start:</strong> {slot.start_time}
-                          </div>
-                          <div>
+                            <br />
                             <strong>End:</strong> {slot.end_time}
                           </div>
+                          <FontAwesomeIcon
+                            icon={
+                              openSlotIds.includes(slot.slot_id)
+                                ? faChevronUp
+                                : faChevronDown
+                            }
+                          />
                         </button>
                         {openSlotIds.includes(slot.slot_id) && (
                           <div className={styles.ticketsContent}>

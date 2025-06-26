@@ -219,12 +219,15 @@
   }
 
   .slotBox {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     width: 100%;
     text-align: left;
     background: #23272f;
     border: none;
     border-radius: 10px;
-    padding: 1rem;
+    padding: 1.25rem 1.75rem;
     margin-bottom: 0.5rem;
     color: $fgColor;
     font-size: 1rem;
@@ -268,5 +271,23 @@
   transition: border-color 0.2s;
   &:focus {
     border-color: #328ff2;
+  }
+}
+
+.backButton {
+  position: static;
+  margin-bottom: 0.8rem;
+  align-self: flex-start;
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  background: $fadedBgColor;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s;
+  &:hover {
+    background: color.adjust($fadedBgColor, $lightness: 10%);
   }
 }
