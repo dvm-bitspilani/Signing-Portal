@@ -81,6 +81,7 @@
           gap: 2rem;
           padding: 0.5rem 0 0.5rem 0;
           border-bottom: 1px solid #2222;
+
         }
 
         .aboutLabel {
@@ -225,5 +226,17 @@
       opacity: 0.5;
       cursor: not-allowed;
     }
+  }
+}
+
+@media (max-width: $mobileBreakpointWidth) {
+  .eventDetailsContent .eventDetailsContainer .tabContent .aboutContent .aboutSection {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .eventDetailsContent .eventDetailsContainer .tabContent {
+    padding: 0;
   }
 }
