@@ -182,7 +182,7 @@ function EventDetails() {
             onClick={handleProfShowBuy}
             disabled={ticketCounts["profshow"] === 0}
           >
-            Buy Ticket
+            Buy Tickets
           </button>
         </div>
       );
@@ -377,7 +377,7 @@ function EventDetails() {
                                             ticketCounts[slot.slot_id] === 0
                                           }
                                         >
-                                          Buy Ticket
+                                          Buy Tickets
                                         </button>
                                       </div>
                                     </>
