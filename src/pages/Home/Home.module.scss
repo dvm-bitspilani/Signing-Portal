@@ -12,21 +12,26 @@
 
     .tabContainer {
         display: flex;
-        justify-content: center;
+        // justify-content: center;
+        gap: 27px;
         margin-top: 36px;
+        padding: 0px 18px;
+        border-bottom: 1px solid white;
 
         .tab {
-            padding: 6px 12px;
+            padding: 6px 0px;
             border-width: 0px;
             background-color: transparent;
             color: $fadedFgColor;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             cursor: pointer;
             border-radius: 9px 9px 0px 0px;
+            transition: color 0.3s;
             &.active {
                 color: $fgColor;
                 // background-color: rgba(17, 36, 59, 0.459);
-                border-bottom: 2px solid $fgColor;
+                border-bottom: 3px solid $fgColor;
+                // font-weight: 600;
             }
         }
     }
