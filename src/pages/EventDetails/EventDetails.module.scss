@@ -30,12 +30,13 @@
   .eventDetailsContainer {
     display: flex;
     flex-direction: column;
-    padding: 54px 0;
+    padding: 36px 0;
 
     .tabContainer {
       display: flex;
       gap: 36px;
       padding: 0 1rem;
+      margin-top: 0.5rem;
 
       .activeTab {
         color: $fgColor;
@@ -286,8 +287,17 @@
   font-weight: 600;
   cursor: pointer;
   font-size: 1rem;
-  transition: background 0.2s;
   &:hover {
     background: color.adjust($fadedBgColor, $lightness: 10%);
+  }
+}
+
+.eventDetailsContent {
+
+  .nonCompContainer {
+    padding-top: 0;
+    .separatorLine {
+      margin-bottom: 2rem;      
+    }
   }
 }

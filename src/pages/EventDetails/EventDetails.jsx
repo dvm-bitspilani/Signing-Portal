@@ -24,6 +24,7 @@ function EventDetails() {
   const [openSlotIds, setOpenSlotIds] = useState([]);
   const [selectedTicketType, setSelectedTicketType] = useState({});
   const [ticketCounts, setTicketCounts] = useState({});
+  const [activeDateTab, setActiveDateTab] = useState(0);
 
   useEffect(() => {
     let endpoint = "";
@@ -256,11 +257,10 @@ function EventDetails() {
     );
   }
 
-  // for non-comp events
+  // non-comp layout 
   return (
     <div style={{ position: "relative" }}>
       <Navbar />
-
       <div className={styles.eventDetailsContent}>
         <button className={styles.backButton} onClick={() => navigate("/")}>
           <FontAwesomeIcon
@@ -270,10 +270,19 @@ function EventDetails() {
           Go Back
         </button>
         <div className={styles.eventTitle}>{event.non_comp_name}</div>
-        <div className={styles.eventDateAndTime}>
-          {event.slot_details && event.slot_details[0]?.start_time}
-        </div>
-        <div className={styles.eventDetailsContainer}>
+        <div className={`${styles.eventDetailsContainer} ${styles.nonCompContainer}`}>
+          <div className={styles.tabContainer}>
+            {event.dates.map((dateObj, idx) => (
+              <button
+                key={dateObj.date}
+                className={activeDateTab === idx ? styles.activeTab : ""}
+                onClick={() => setActiveDateTab(idx)}
+              >
+                {dateObj.date}
+              </button>
+            ))}
+          </div>
+          <hr className={styles.separatorLine} />
           <div className={styles.tabContent} style={{ paddingTop: 0 }}>
             <div className={styles.aboutContent}>
               <div className={styles.aboutSection}>
@@ -283,8 +292,8 @@ function EventDetails() {
               <div className={styles.aboutSection}>
                 <div className={styles.aboutLabel}>Slots</div>
                 <div className={styles.aboutSlots}>
-                  {event.slot_details && event.slot_details.length > 0 ? (
-                    event.slot_details.map((slot) => (
+                  {event.dates[activeDateTab]?.slots.length > 0 ? (
+                    event.dates[activeDateTab].slots.map((slot) => (
                       <div key={slot.slot_id} className={styles.slotBoxWrapper}>
                         <button
                           className={styles.slotBox}
@@ -308,6 +317,11 @@ function EventDetails() {
                               openSlotIds.includes(slot.slot_id)
                                 ? faChevronUp
                                 : faChevronDown
+                            }
+                            className={
+                              openSlotIds.includes(slot.slot_id)
+                                ? styles.chevronIconOpen
+                                : styles.chevronIcon
                             }
                           />
                         </button>
