@@ -72,8 +72,9 @@ function Home() {
             else setProfShowList(response.data.prof_shows.reverse());
 
         }).catch((errResponse) => {
-            setEmptyEventsMsg("Something went wrong in recieveing the available events.");
-            setEmptyProfShowList("Something went wrong in recieving the available prof shows.");
+            setEmptyEventsMsg(`Something went wrong in recieveing the available events.`);
+            setEmptyProfShowMsg(`Something went wrong in recieving the available prof shows.`);
+            console.log(errResponse)
         })
 
         const eventContElem = document.getElementById("eventCont");
