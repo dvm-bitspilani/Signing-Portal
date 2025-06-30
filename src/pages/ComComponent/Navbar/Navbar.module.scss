@@ -141,7 +141,8 @@ nav {
       .profileUsername {
         color: $fgColor;
         font-family: $titleFont;
-        line-height: 1.4rem;
+        line-height: 1.8rem;
+        overflow: hidden;
       }
     }
     .logoutWrapper {
@@ -192,7 +193,10 @@ nav {
         display: flex;
         flex-direction: column;
         .profileGreeting {font-size: 1.2rem;}
-        .profileUsername {font-size: 1.8rem;}
+        .profileUsername {
+          font-size: 1.8rem;
+          line-height: 2.1rem;
+        }
       }
       .logoutBtn {
         font-size: 1.5rem;
