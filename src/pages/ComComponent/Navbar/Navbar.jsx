@@ -1,125 +1,203 @@
-import { React, useEffect, useState } from "react";
-import { Link, useRouteLoaderData } from "react-router-dom";
-import styles from "./Navbar.module.scss";
+import { React, useState } from "react";
+import { Link } from "react-router-dom";
 import Logo from "/Logo.svg";
-import { useContext } from "react";
 import SignInContext from "../../../assets/store/SignInContext";
-import ProfileOverlay from "./ProfileOverlay";
 import { AppContext } from "../../../App";
 import { getAccessToken, getUserDetails } from "../../../assets/utils/auth";
-
-//* Add path to your pages to both links in desktop view (line 52-53) and mobile view (line 75-76)
+import { useSubmit } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ThemeToggle } from "../../../components/theme-toggle";
+import { 
+  Menu, 
+  X, 
+  Home, 
+  Ticket, 
+  Phone, 
+  LogOut, 
+  User 
+} from "lucide-react";
 
 const Navbar = () => {
-  const mobileBreakpoint = 720;
-  // const { globalAppStates } = useContext(AppContext);
-  const { isSignIn } = useContext(SignInContext);
-  const { profilePicURL } = getUserDetails();
-  const [isMenuOpened, setIsMenuOpened] = useState(false);
-  const [isMobileView, setIsMobileView] = useState(
-    window.innerWidth < mobileBreakpoint
-  );
+  const submit = useSubmit();
+  const { username, profilePicURL } = getUserDetails();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const token = getAccessToken();
 
-  const handleWindowResize = () =>
-    setIsMobileView(window.innerWidth < mobileBreakpoint);
+  const signOut = () => {
+    submit({ token }, { method: "post", action: "/logout" });
+  };
 
-  useEffect(() => {
-    window.addEventListener("resize", handleWindowResize);
-
-    return () => {
-      window.removeEventListener("resize", handleWindowResize);
-    };
-  });
+  const navLinks = [
+    { to: "/", label: "Home", icon: Home },
+    { to: "/yoursignings", label: "Your Signings", icon: Ticket },
+    { to: "#", label: "Contact", icon: Phone },
+  ];
 
   return (
-    <nav className={styles.navbar}>
-      <div className={styles.leftHalf}>
-        <Link to="/" className={styles.logoLink}>
-          <div className={styles.logo}>
-            <img src={Logo} alt="Logo" />
-          </div>
-          <div className={styles.title}>Signings Portal</div>
-        </Link>
-      </div>
-      <div className={styles.rightHalf}>
-        {token ? (
-          <div className={styles.signInStatus}>
-            {isMobileView ? (
-              <button
-                className={styles.menuBtn}
-                onClick={() => setIsMenuOpened(true)}
-              >
-                <div className={styles.menuBar}></div>
-                <div className={styles.menuBar}></div>
-                <div className={styles.menuBar}></div>
-              </button>
-            ) : (
+    <nav className="sticky top-0 z-50 w-full border-b border-border/20 bg-background/70 backdrop-blur-md supports-[backdrop-filter]:bg-background/50 shadow-sm">
+      <div className="container mx-auto px-4">
+        <div className="flex h-16 items-center justify-between">
+          {/* Logo and Title */}
+          <Link to="/" className="nav-brand flex items-center space-x-3 transition-all duration-300 hover:scale-105 hover:text-primary">
+            <img src={Logo} alt="Logo" className="h-8 w-8 transition-transform duration-300 hover:rotate-12" />
+            <span className="nav-brand">Signings Portal</span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-6">
+            {token ? (
               <>
-                <Link className={styles.navlink} to="/">
-                  Home
-                </Link>
-                <Link className={styles.navlink} to="/yoursignings">
-                  Your Signings
-                </Link>
-                <Link className={styles.navlink} to=".">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    className="nav-link relative px-3 py-2 rounded-md transition-all duration-300 hover:bg-primary/10 hover:shadow-sm hover:scale-105"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+                <div className="relative">
+                  <ThemeToggle />
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full transition-all duration-300 hover:scale-110 hover:shadow-md hover:bg-primary/10">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={profilePicURL || "/default-profile.png"} alt={username} />
+                        <AvatarFallback>
+                          <User className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56 bg-background/80 backdrop-blur-md border border-border/20 shadow-lg" align="end" forceMount>
+                    <div className="flex items-center justify-start gap-2 p-2">
+                      <div className="flex flex-col space-y-1 leading-none">
+                        <p className="nav-text-muted">Welcome,</p>
+                        <p className="text-label">{username || "Guest"}</p>
+                      </div>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={signOut} 
+                      className="text-red-600 focus:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all duration-200"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <ThemeToggle />
+                </div>
+                <Link to="#" className="nav-link px-3 py-2 rounded-md transition-all duration-300 hover:bg-primary/10 hover:shadow-sm">
                   Contact
                 </Link>
-                <button
-                  className={styles.profileBtn}
-                  onClick={() => setIsMenuOpened(true)}
-                >
-                  <img
-                    className={styles.navProfileImg}
-                    src={
-                      profilePicURL ||
-                      "/default-profile.png"
-                    }
-                  />
-                </button>
-              </>
+              </div>
             )}
           </div>
-        ) : (
-          <div className={styles.signInStatus}>
-            <Link className={styles.navlink} to="">
-              Contacts
-            </Link>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center space-x-2">
+            {!token && (
+              <div className="relative">
+                <ThemeToggle />
+              </div>
+            )}
+            {token ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="transition-all duration-300 hover:bg-primary/10 hover:scale-105"
+              >
+                {isMobileMenuOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
+              </Button>
+            ) : (
+              <Link to="#" className="nav-link px-3 py-2 rounded-md transition-all duration-300 hover:bg-primary/10">
+                Contact
+              </Link>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && token && (
+          <div className="md:hidden border-t border-border/20 bg-background/80 backdrop-blur-md">
+            <div className="space-y-4 py-4">
+              {/* User Info */}
+              <div className="flex items-center space-x-3 px-2">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={profilePicURL || "/default-profile.png"} alt={username} />
+                  <AvatarFallback>
+                    <User className="h-5 w-5" />
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="nav-text-muted">Welcome,</p>
+                  <p className="text-label">{username || "Guest"}</p>
+                </div>
+              </div>
+              
+              {/* Navigation Links */}
+              <div className="space-y-2">
+                {navLinks.map((link) => {
+                  const IconComponent = link.icon;
+                  return (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      className="nav-link flex items-center space-x-3 px-2 py-2 rounded-md mx-2 transition-all duration-300 hover:bg-primary/10 hover:scale-105"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <IconComponent className="h-4 w-4" />
+                      <span>{link.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+              
+              {/* Theme Toggle */}
+              <div className="pt-2 border-t border-border/20">
+                <div className="flex items-center justify-between px-2 py-2">
+                  <span className="text-label">Theme</span>
+                  <ThemeToggle />
+                </div>
+              </div>
+              
+              {/* Logout Button */}
+              <div className="pt-2 border-t border-border/20">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-red-600 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all duration-200"
+                  onClick={() => {
+                    signOut();
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Log out
+                </Button>
+              </div>
+            </div>
           </div>
         )}
       </div>
-      {token ? (
-        <div
-          className={
-            isMenuOpened ? styles.profileOverlayShow : styles.profileOverlay
-          }
-        >
-          <div
-            className={styles.profileOverlayBg}
-            style={isMobileView ? { backgroundColor: "#000000" } : null}
-            onClick={() => setIsMenuOpened(false)}
-          ></div>
-          {isMobileView ? (
-            <div className={styles.sideMenu}>
-              <ProfileOverlay>
-                <div className={styles.menuNavlinkContainer}>
-                  <Link to="/" className={styles.navlink}>
-                    Home
-                  </Link>
-                  <Link to="/yoursignings" className={styles.navlink}>
-                    Your Signings
-                  </Link>
-                  <Link to="." className={styles.navlink}>
-                    Contact
-                  </Link>
-                </div>
-              </ProfileOverlay>
-            </div>
-          ) : (
-            <ProfileOverlay className={styles.freeOverlay} />
-          )}
-        </div>
-      ) : null}
     </nav>
   );
 };
