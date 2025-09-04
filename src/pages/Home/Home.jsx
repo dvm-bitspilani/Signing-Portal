@@ -15,18 +15,15 @@ import {
 } from "../../assets/utils/auth.js";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 
 function Home() {
     const [eventList, setEventList] = useState(null);
-    const [profShowList, setProfShowList] = useState(null);
     const [loading, setLoading] = useState(true);
     const refreshToken = getRefreshToken();
     const accessToken = useLoaderData();
     const [emptyEventsMsg, setEmptyEventsMsg] = useState("Loading available events...");
-    const [emptyProfShowMsg, setEmptyProfShowMsg] = useState("Loading available prof shows...");
 
     const navigate = useNavigate();
     
@@ -75,22 +72,15 @@ function Home() {
             } else {
                 setEventList(response.data.non_comp_events.reverse());
             }
-
-            if (response.data.prof_shows.length === 0) {
-                setEmptyProfShowMsg("No prof shows available at this moment.");
-            } else {
-                setProfShowList(response.data.prof_shows.reverse());
-            }
             setLoading(false);
         }).catch((errResponse) => {
             setEmptyEventsMsg("Something went wrong while fetching events.");
-            setEmptyProfShowMsg("Something went wrong while fetching prof shows.");
             setLoading(false);
             console.log(errResponse);
         });
     }, [accessToken]);
 
-    const EventCard = ({ event, type }) => (
+    const EventCard = ({ event }) => (
         <Card className="group hover:shadow-lg transition-all duration-300 border hover:scale-105 hover:border-primary/30">
             <CardHeader className="space-y-1">
                 <div className="flex items-center justify-between">
@@ -98,7 +88,7 @@ function Home() {
                         {event.name}
                     </CardTitle>
                     <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/30">
-                        {type === 'prof-show' ? 'Prof Show' : 'Event'}
+                        Event
                     </Badge>
                 </div>
                 <CardDescription className="text-body-small line-clamp-2">
@@ -121,7 +111,7 @@ function Home() {
                         asChild 
                         className="font-medium transition-all duration-300 hover:scale-105"
                     >
-                        <Link to={`/EventDetails/${type}/${event.id}`}>
+                        <Link to={`/EventDetails/non-comp/${event.id}`}>
                             View Details
                         </Link>
                     </Button>
@@ -173,69 +163,31 @@ function Home() {
                             Available Events
                         </h1>
                         <p className="text-body-large text-muted-foreground max-w-2xl mx-auto">
-                            Browse our curated list of events and prof shows. Select the ones that spark your interest.
+                            Browse our curated list of events. Select the ones that spark your interest.
                         </p>
                     </div>
 
-                    {/* Tabs */}
-                    <Tabs defaultValue="prof-shows" className="w-full">
-                        <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
-                            <TabsTrigger 
-                                value="prof-shows"
-                            >
-                                Prof Shows
-                            </TabsTrigger>
-                            <TabsTrigger 
-                                value="events"
-                            >
-                                Events
-                            </TabsTrigger>
-                        </TabsList>
-
-                        <TabsContent value="prof-shows" className="space-y-6">
-                            {loading ? (
-                                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                                    {[...Array(6)].map((_, i) => (
-                                        <LoadingSkeleton key={i} />
-                                    ))}
-                                </div>
-                            ) : profShowList && profShowList.length > 0 ? (
-                                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                                    {profShowList.map((show, index) => (
-                                        <EventCard 
-                                            key={index} 
-                                            event={show} 
-                                            type="prof-show" 
-                                        />
-                                    ))}
-                                </div>
-                            ) : (
-                                <EmptyState message={emptyProfShowMsg} />
-                            )}
-                        </TabsContent>
-
-                        <TabsContent value="events" className="space-y-6">
-                            {loading ? (
-                                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                                    {[...Array(6)].map((_, i) => (
-                                        <LoadingSkeleton key={i} />
-                                    ))}
-                                </div>
-                            ) : eventList && eventList.length > 0 ? (
-                                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                                    {eventList.map((event, index) => (
-                                        <EventCard 
-                                            key={index} 
-                                            event={event} 
-                                            type="non-comp" 
-                                        />
-                                    ))}
-                                </div>
-                            ) : (
-                                <EmptyState message={emptyEventsMsg} />
-                            )}
-                        </TabsContent>
-                    </Tabs>
+                    {/* Events */}
+                    <div className="space-y-6">
+                        {loading ? (
+                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                {[...Array(6)].map((_, i) => (
+                                    <LoadingSkeleton key={i} />
+                                ))}
+                            </div>
+                        ) : eventList && eventList.length > 0 ? (
+                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                {eventList.map((event, index) => (
+                                    <EventCard 
+                                        key={index} 
+                                        event={event} 
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <EmptyState message={emptyEventsMsg} />
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

@@ -35,7 +35,6 @@ function EventDetails() {
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState("about");
   const [openSlotIds, setOpenSlotIds] = useState([]);
   const [selectedTicketType, setSelectedTicketType] = useState({});
   const [ticketCounts, setTicketCounts] = useState({});
@@ -43,16 +42,13 @@ function EventDetails() {
   const [purchaseLoading, setPurchaseLoading] = useState(false);
 
   useEffect(() => {
-    let endpoint = "";
-    if (eventType === "prof-show") {
-      endpoint = `/api/prof-show/${eventIndex}/`;
-    } else if (eventType === "non-comp") {
-      endpoint = `/api/non-comp/${eventIndex}/`;
-    } else {
+    if (eventType !== "non-comp") {
       setError("Invalid event type.");
       setLoading(false);
       return;
     }
+
+    const endpoint = `/api/non-comp/${eventIndex}/`;
 
     axios
       .get(`${apiBaseURL}${endpoint}`, {
@@ -71,6 +67,17 @@ function EventDetails() {
       });
   }, [eventType, eventIndex, accessToken]);
 
+  const formatTime = (isoString) => {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) return isoString; // fallback to original if invalid
+    return date.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      hour12: true 
+    });
+  };
+
   const handleSlotToggle = (slotId) => {
     setOpenSlotIds((prev) => (prev.includes(slotId) ? [] : [slotId]));
   };
@@ -82,7 +89,7 @@ function EventDetails() {
     }));
     setTicketCounts((prev) => ({
       ...prev,
-      [slotId]: 0,
+      [slotId]: 1,
     }));
   };
 
@@ -94,36 +101,9 @@ function EventDetails() {
     });
   };
 
-  const handleProfShowBuy = async () => {
-    const count = ticketCounts["profshow"] || 0;
-    if (count < 1) return;
-    
-    setPurchaseLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append("ticket", count);
-
-      await axios.post(
-        `${apiBaseURL}/api/prof-show/${eventIndex}/buy/`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            accept: "application/json",
-          },
-        }
-      );
-      navigate("/yoursignings");
-    } catch (err) {
-      console.error("Purchase failed:", err);
-    } finally {
-      setPurchaseLoading(false);
-    }
-  };
-
   const handleNonCompBuy = async (slot) => {
     const selectedTypeId = selectedTicketType[slot.slot_id];
-    const count = ticketCounts[slot.slot_id] || 0;
+    const count = ticketCounts[slot.slot_id] || 1;
     if (!selectedTypeId || count < 1) return;
     
     setPurchaseLoading(true);
@@ -207,187 +187,6 @@ function EventDetails() {
     );
   }
 
-  // Prof Show Layout
-  if (eventType === "prof-show") {
-    const renderTickets = () => {
-      const tickets = [
-        {
-          ticket_type_id: "profshow",
-          ticket_type_name: "General Admission",
-          price: event.price,
-        },
-      ];
-
-      return (
-        <div className="space-y-4">
-          {tickets.map((ticket) => (
-            <Card key={ticket.ticket_type_id} className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <h4 className="font-medium">{ticket.ticket_type_name}</h4>
-                  <div className="flex items-center text-lg font-semibold">
-                    <IndianRupee className="w-4 h-4" />
-                    {ticket.price}
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      setTicketCounts((prev) => ({
-                        ...prev,
-                        [ticket.ticket_type_id]: Math.max(0, (prev[ticket.ticket_type_id] || 0) - 1),
-                      }))
-                    }
-                    disabled={ticketCounts[ticket.ticket_type_id] === 0}
-                  >
-                    <Minus className="w-4 h-4" />
-                  </Button>
-                  <span className="w-8 text-center font-medium">
-                    {ticketCounts[ticket.ticket_type_id] || 0}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      setTicketCounts((prev) => ({
-                        ...prev,
-                        [ticket.ticket_type_id]: (prev[ticket.ticket_type_id] || 0) + 1,
-                      }))
-                    }
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ))}
-          
-          {ticketCounts["profshow"] > 0 && (
-            <Card className="p-4 bg-muted/50">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Total Amount</p>
-                  <div className="flex items-center text-xl font-bold">
-                    <IndianRupee className="w-5 h-5" />
-                    {(ticketCounts["profshow"] || 0) * event.price}
-                  </div>
-                </div>
-                <Button 
-                  onClick={handleProfShowBuy}
-                  disabled={ticketCounts["profshow"] === 0 || purchaseLoading}
-                  className="min-w-32"
-                >
-                  {purchaseLoading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <Ticket className="w-4 h-4 mr-2" />
-                      Buy Tickets
-                    </>
-                  )}
-                </Button>
-              </div>
-            </Card>
-          )}
-        </div>
-      );
-    };
-
-    const renderAbout = () => (
-      <Card className="p-6">
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Artist</label>
-            <p className="text-base">{event.Artist}</p>
-          </div>
-          <Separator />
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Description</label>
-            <p className="text-base leading-relaxed">{event.description}</p>
-          </div>
-          <Separator />
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground flex items-center">
-                <Clock className="w-4 h-4 mr-2" />
-                Start Time
-              </label>
-              <p className="text-base">{event.start_time}</p>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground flex items-center">
-                <Clock className="w-4 h-4 mr-2" />
-                End Time
-              </label>
-              <p className="text-base">{event.end_time}</p>
-            </div>
-          </div>
-        </div>
-      </Card>
-    );
-
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="container mx-auto p-6">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate("/")}
-            className="mb-6"
-          >
-            <ChevronLeft className="w-4 h-4 mr-2" />
-            Go Back
-          </Button>
-          
-          <div className="max-w-4xl mx-auto space-y-6">
-            <div className="space-y-2">
-              <h1 className="text-heading-primary">{event.name}</h1>
-              <div className="flex items-center text-caption">
-                <Calendar className="w-4 h-4 mr-2" />
-                {event.start_time}
-              </div>
-            </div>
-
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="about" className="flex items-center">
-                  <Info className="w-4 h-4 mr-2" />
-                  About
-                </TabsTrigger>
-                <TabsTrigger value="tickets" className="flex items-center">
-                  <Ticket className="w-4 h-4 mr-2" />
-                  Tickets
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="about" className="mt-6">
-                {renderAbout()}
-              </TabsContent>
-              
-              <TabsContent value="tickets" className="mt-6">
-                {accessToken ? (
-                  renderTickets()
-                ) : (
-                  <Alert>
-                    <Info className="h-4 w-4" />
-                    <AlertDescription>
-                      Please sign in to purchase tickets.
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </TabsContent>
-            </Tabs>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // Non-Comp Layout
   return (
     <div className="min-h-screen bg-background">
@@ -460,7 +259,7 @@ function EventDetails() {
                                         </div>
                                       </div>
                                       <div className="flex items-center space-x-4 text-sm">
-                                        <span>{slot.start_time} - {slot.end_time}</span>
+                                        <span>{formatTime(slot.start_time)} - {formatTime(slot.end_time)}</span>
                                       </div>
                                     </div>
                                     {slot.is_openforsignings && (
@@ -513,12 +312,12 @@ function EventDetails() {
                                                     variant="outline"
                                                     size="sm"
                                                     onClick={() => handleTicketCount(slot.slot_id, -1)}
-                                                    disabled={ticketCounts[slot.slot_id] === 0}
+                                                    disabled={(ticketCounts[slot.slot_id] || 1) <= 1}
                                                   >
                                                     <Minus className="w-4 h-4" />
                                                   </Button>
                                                   <span className="w-8 text-center font-medium">
-                                                    {ticketCounts[slot.slot_id] || 0}
+                                                    {ticketCounts[slot.slot_id] || 1}
                                                   </span>
                                                   <Button
                                                     variant="outline"
@@ -530,18 +329,18 @@ function EventDetails() {
                                                 </div>
                                               </div>
                                               
-                                              {ticketCounts[slot.slot_id] > 0 && (
+                                              {(ticketCounts[slot.slot_id] || 1) > 0 && (
                                                 <div className="flex items-center justify-between pt-4 border-t">
                                                   <div>
                                                     <p className="text-sm text-muted-foreground">Total Amount</p>
                                                     <div className="flex items-center text-lg font-bold">
                                                       <IndianRupee className="w-4 h-4" />
-                                                      {(ticketCounts[slot.slot_id] || 0) * (slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0)}
+                                                      {(ticketCounts[slot.slot_id] || 1) * (slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0)}
                                                     </div>
                                                   </div>
                                                   <Button 
                                                     onClick={() => handleNonCompBuy(slot)}
-                                                    disabled={ticketCounts[slot.slot_id] === 0 || purchaseLoading}
+                                                    disabled={(ticketCounts[slot.slot_id] || 1) === 0 || purchaseLoading}
                                                   >
                                                     {purchaseLoading ? (
                                                       <>

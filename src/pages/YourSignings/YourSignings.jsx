@@ -44,19 +44,19 @@ function YourSignings() {
     );
   };
 
-  const handleCancelTicket = (ticketId, ticketType, index) => {
+  const handleCancelTicket = (ticketId, index) => {
     setErrorModal(true);
-    setcurrentEvent(`${ticketType}-${index}`);
+    setcurrentEvent(`non_comp-${index}`);
     const formData = new FormData();
-    formData.append(`${ticketType}_ticket_id`, ticketId);
+    formData.append(`non_comp_ticket_id`, ticketId);
     submit(formData, {
       method: "post",
       action: "/yoursignings",
     });
   };
 
-  const TicketCard = ({ ticket, index, type }) => {
-    const isProcessing = isSubmitting && currentEvent === `${type}-${index}`;
+  const TicketCard = ({ ticket, index }) => {
+    const isProcessing = isSubmitting && currentEvent === `non_comp-${index}`;
     const canCancel = ticket.cancellable && !ticket.cancelled;
 
     return (
@@ -66,10 +66,10 @@ function YourSignings() {
             <div className="space-y-1">
               <CardTitle className="text-subheading flex items-center gap-2">
                 <Ticket className="h-5 w-5 text-primary" />
-                {type === 'prof_show' ? ticket.show_name : ticket.non_comp_name}
+                {ticket.non_comp_name}
               </CardTitle>
               <CardDescription className="text-body-small">
-                {type === 'prof_show' ? 'Professional Show' : 'Non-Competitive Event'}
+                Non-Competitive Event
               </CardDescription>
             </div>
             {getStatusBadge(ticket.cancelled)}
@@ -96,7 +96,7 @@ function YourSignings() {
               variant={canCancel ? "destructive" : "secondary"}
               size="sm"
               disabled={!canCancel || isSubmitting}
-              onClick={() => canCancel && handleCancelTicket(ticket.ticket_id, type, index)}
+              onClick={() => canCancel && handleCancelTicket(ticket.ticket_id, index)}
               className="min-w-[100px] transition-all duration-300 hover:scale-105"
             >
               {isProcessing ? (
@@ -123,7 +123,7 @@ function YourSignings() {
       </div>
       <h3 className="text-heading-secondary mb-2">No Signings Found</h3>
       <p className="text-body text-muted-foreground max-w-md mb-6">
-        You haven't signed up for any events yet. Browse available events and prof shows to get started.
+        You haven't signed up for any events yet. Browse available events to get started.
       </p>
       <Button asChild className="transition-all duration-300 hover:scale-105">
         <a href="/">Browse Events</a>
@@ -162,7 +162,7 @@ function YourSignings() {
               Your Signings
             </h1>
             <p className="text-body-large text-muted-foreground max-w-2xl mx-auto">
-              Manage your event registrations and prof show bookings
+              Manage your event registrations
             </p>
           </div>
 
@@ -181,33 +181,11 @@ function YourSignings() {
                 </Alert>
               )}
 
-              {/* Professional Shows */}
-              {eventData.data.prof_show_tickets && eventData.data.prof_show_tickets.length > 0 && (
+              {/* Events */}
+              {eventData.data.non_comp_tickets && eventData.data.non_comp_tickets.length > 0 ? (
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-4">
-                    <h2 className="text-heading-secondary">Professional Shows</h2>
-                    <Badge variant="outline">
-                      {eventData.data.prof_show_tickets.length} ticket{eventData.data.prof_show_tickets.length !== 1 ? 's' : ''}
-                    </Badge>
-                  </div>
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {eventData.data.prof_show_tickets.map((ticket, index) => (
-                      <TicketCard 
-                        key={index} 
-                        ticket={ticket} 
-                        index={index} 
-                        type="prof_show" 
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Non-Competitive Events */}
-              {eventData.data.non_comp_tickets && eventData.data.non_comp_tickets.length > 0 && (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 mb-4">
-                    <h2 className="text-heading-secondary">Events</h2>
+                    <h2 className="text-heading-secondary">Your Event Tickets</h2>
                     <Badge variant="outline">
                       {eventData.data.non_comp_tickets.length} ticket{eventData.data.non_comp_tickets.length !== 1 ? 's' : ''}
                     </Badge>
@@ -218,16 +196,11 @@ function YourSignings() {
                         key={index} 
                         ticket={ticket} 
                         index={index} 
-                        type="non_comp" 
                       />
                     ))}
                   </div>
                 </div>
-              )}
-
-              {/* Empty State */}
-              {(!eventData.data.prof_show_tickets || eventData.data.prof_show_tickets.length === 0) &&
-               (!eventData.data.non_comp_tickets || eventData.data.non_comp_tickets.length === 0) && (
+              ) : (
                 <EmptyState />
               )}
             </div>
@@ -281,39 +254,21 @@ export async function action({ request }) {
   }
 
   try {
-    if (formData.has("prof_show_ticket_id")) {
-      await axios.post(
-        `${apiBaseURL}/api/prof-show-cancel/${formData.get(
-          "prof_show_ticket_id"
-        )}/`,
-        {
-          access_token: accessToken,
-          prof_show_ticket_id: formData.get("prof_show_ticket_id"),
+    await axios.post(
+      `${apiBaseURL}/api/non-comp-cancel/${formData.get(
+        "non_comp_ticket_id"
+      )}/`,
+      {
+        access_token: accessToken,
+        non_comp_ticket_id: formData.get("non_comp_ticket_id"),
+      },
+      {
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
-        {
-          headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-    } else {
-      await axios.post(
-        `${apiBaseURL}/api/non-comp-cancel/${formData.get(
-          "non_comp_ticket_id"
-        )}/`,
-        {
-          access_token: accessToken,
-          non_comp_ticket_id: formData.get("non_comp_ticket_id"),
-        },
-        {
-          headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-    }
+      }
+    );
     return {
       isError: false,
       message: "Ticket cancelled successfully",
