@@ -38,7 +38,7 @@ const Navbar = () => {
   const navLinks = [
     { to: "/", label: "Home", icon: Home },
     { to: "/yoursignings", label: "Your Signings", icon: Ticket },
-    { to: "#", label: "Contact", icon: Phone },
+    { to: "/contact", label: "Contact", icon: Phone },
   ];
 
   return (
@@ -105,7 +105,7 @@ const Navbar = () => {
                 <div className="relative">
                   <ThemeToggle />
                 </div>
-                <Link to="#" className="nav-link px-3 py-2 rounded-md transition-all duration-300 hover:bg-primary/10 hover:shadow-sm flex items-center space-x-2">
+                <Link to="/contact" className="nav-link px-3 py-2 rounded-md transition-all duration-300 hover:bg-primary/10 hover:shadow-sm flex items-center space-x-2">
                   <Phone className="h-4 w-4" />
                   <span>Contact</span>
                 </Link>
@@ -134,7 +134,7 @@ const Navbar = () => {
                 )}
               </Button>
             ) : (
-              <Link to="#" className="nav-link px-3 py-2 rounded-md transition-all duration-300 hover:bg-primary/10 flex items-center space-x-2">
+              <Link to="/contact" className="nav-link px-3 py-2 rounded-md transition-all duration-300 hover:bg-primary/10 flex items-center space-x-2">
                 <Phone className="h-4 w-4" />
                 <span>Contact</span>
               </Link>
