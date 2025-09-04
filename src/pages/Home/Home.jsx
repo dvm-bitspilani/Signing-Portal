@@ -4,6 +4,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Calendar, Users } from "lucide-react";
 import { apiBaseURL } from "../../global";
+import { handleApiErrorToast } from "../../assets/utils/toast.js";
 import {
     getRefreshToken,
     UpdateAccessToken,
@@ -76,6 +77,7 @@ function Home() {
         }).catch((errResponse) => {
             setEmptyEventsMsg("Something went wrong while fetching events.");
             setLoading(false);
+            handleApiErrorToast(errResponse, "Failed to load events. Please try again.");
             console.log(errResponse);
         });
     }, [accessToken]);

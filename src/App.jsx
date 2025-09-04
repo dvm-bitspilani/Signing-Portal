@@ -7,6 +7,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { ThemeProvider } from "./components/theme-provider";
+import { Toaster } from "./components/ui/sonner";
 
 import SignInContext from "./assets/store/SignInContext.jsx";
 
@@ -63,6 +64,14 @@ const App = () => {
         <GoogleOAuthProvider clientId="993693860464-5p8rfdqpp8svqhdhviaian2i0kkpqt78.apps.googleusercontent.com">
           <div className="min-h-screen">
             <RouterProvider router={router} />
+            <Toaster 
+              position="top-right" 
+              richColors 
+              closeButton
+              toastOptions={{
+                duration: 4000,
+              }}
+            />
           </div>
         </GoogleOAuthProvider>
       </AppContext.Provider>

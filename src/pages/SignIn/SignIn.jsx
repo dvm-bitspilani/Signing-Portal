@@ -5,7 +5,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import { apiBaseURL } from "../../global";
 import axios from "axios";
-import ErrorModal from "../ComComponent/ErrorModal/ErrorModal.jsx";
+import { showErrorToast, showLoadingToast, dismissToast } from "../../assets/utils/toast.js";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,11 +13,11 @@ import { Heart } from "lucide-react";
 
 const SignIn = () => {
   const navigate = useNavigate();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
   const handleLoginSuccess = (credentialResponse) => {
     setIsLoading(true);
+    const loadingToastId = showLoadingToast("Signing you in...");
 
     axios
       .post(
@@ -31,8 +31,9 @@ const SignIn = () => {
           },
         }
       )
-      .then((response) => {
+        .then((response) => {
         setIsLoading(false);
+        dismissToast(loadingToastId);
 
         localStorage.setItem(
           "username",
@@ -61,32 +62,15 @@ const SignIn = () => {
       })
       .catch((error) => {
         setIsLoading(false);
+        dismissToast(loadingToastId);
         handleError(error);
       });
   };
 
   const handleError = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
-  return (
+    showErrorToast("Please use your BITS email ID to sign in. If your BITS email ID is not working, please contact support.");
+  };  return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/50 to-background flex flex-col">
-      {isLoading && (
-        <ErrorModal isLoading={isLoading} onClick={handleCloseModal}>
-          Signing In...
-        </ErrorModal>
-      )}
-      {isModalOpen && (
-        <ErrorModal onClick={handleCloseModal}>
-          Please Use BITS Email ID to Sign In. If your BITS email ID is not
-          Working, Please use the Contacts page to voice your Problems.
-        </ErrorModal>
-      )}
-      
       <Navbar />
       
       <div className="flex-1 flex items-center justify-center px-4 py-12">

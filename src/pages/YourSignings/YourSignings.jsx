@@ -1,7 +1,8 @@
 import Navbar from "../ComComponent/Navbar/Navbar";
-import ErrorModal from "../ComComponent/ErrorModal/ErrorModal";
 import axios from "axios";
 import { apiBaseURL } from "../../global";
+import { extractErrorMessage } from "../../assets/utils/errorHandling.js";
+import { showErrorToast, showSuccessToast } from "../../assets/utils/toast.js";
 import {
   useLoaderData,
   redirect,
@@ -9,7 +10,7 @@ import {
   useActionData,
   useNavigation,
 } from "react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getAccessToken, getRefreshToken } from "../../assets/utils/auth.js";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,13 +20,21 @@ import { Separator } from "@/components/ui/separator";
 import { Ticket, Calendar, IndianRupee, AlertCircle, CheckCircle, XCircle } from "lucide-react";
 
 function YourSignings() {
-  const [errorModal, setErrorModal] = useState(true);
   const [currentEvent, setcurrentEvent] = useState("A-1");
   const eventData = useLoaderData();
   const actionData = useActionData();
   const submit = useSubmit();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
+
+  // Show toast notifications for action results
+  useEffect(() => {
+    if (actionData?.isError) {
+      showErrorToast(actionData.message);
+    } else if (actionData && !actionData.isError) {
+      showSuccessToast(actionData.message);
+    }
+  }, [actionData]);
 
   const getStatusBadge = (cancelled) => {
     if (cancelled) {
@@ -45,7 +54,6 @@ function YourSignings() {
   };
 
   const handleCancelTicket = (ticketId, index) => {
-    setErrorModal(true);
     setcurrentEvent(`non_comp-${index}`);
     const formData = new FormData();
     formData.append(`non_comp_ticket_id`, ticketId);
@@ -145,12 +153,6 @@ function YourSignings() {
 
   return (
     <div className="min-h-screen bg-background">
-      {actionData && actionData.isError && errorModal && (
-        <ErrorModal onClick={() => setErrorModal(false)}>
-          <p>{actionData.message}</p>
-        </ErrorModal>
-      )}
-      
       <Navbar />
       
       <div className="pt-20 pb-8">
@@ -237,8 +239,7 @@ export async function loader() {
   } catch (error) {
     return {
       isError: true,
-      message:
-        error.response?.data || "An error occurred while fetching signings",
+      message: extractErrorMessage(error, "An error occurred while fetching signings"),
     };
   }
 }
@@ -276,8 +277,7 @@ export async function action({ request }) {
   } catch (error) {
     return {
       isError: true,
-      message:
-        error.response?.data || "An error occurred while cancelling the ticket",
+      message: extractErrorMessage(error, "An error occurred while cancelling the ticket"),
     };
   }
 }
