@@ -48,22 +48,26 @@ const Navbar = () => {
           {/* Logo and Title */}
           <Link to="/" className="nav-brand flex items-center space-x-3 transition-all duration-300 hover:scale-105 hover:text-primary">
             <img src={Logo} alt="Logo" className="h-8 w-8 transition-transform duration-300 hover:rotate-12" />
-            <span className="nav-brand">Signings Portal</span>
+            <span className="nav-brand font-bold">Signings Portal</span>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
             {token ? (
               <>
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.to}
-                    to={link.to}
-                    className="nav-link relative px-3 py-2 rounded-md transition-all duration-300 hover:bg-primary/10 hover:shadow-sm hover:scale-105"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
+                {navLinks.map((link) => {
+                  const IconComponent = link.icon;
+                  return (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      className="nav-link relative px-3 py-2 rounded-md transition-all duration-300 hover:bg-primary/10 hover:shadow-sm hover:scale-105 flex items-center space-x-2"
+                    >
+                      <IconComponent className="h-4 w-4" />
+                      <span>{link.label}</span>
+                    </Link>
+                  );
+                })}
                 <div className="relative">
                   <ThemeToggle />
                 </div>
@@ -101,8 +105,9 @@ const Navbar = () => {
                 <div className="relative">
                   <ThemeToggle />
                 </div>
-                <Link to="#" className="nav-link px-3 py-2 rounded-md transition-all duration-300 hover:bg-primary/10 hover:shadow-sm">
-                  Contact
+                <Link to="#" className="nav-link px-3 py-2 rounded-md transition-all duration-300 hover:bg-primary/10 hover:shadow-sm flex items-center space-x-2">
+                  <Phone className="h-4 w-4" />
+                  <span>Contact</span>
                 </Link>
               </div>
             )}
@@ -129,8 +134,9 @@ const Navbar = () => {
                 )}
               </Button>
             ) : (
-              <Link to="#" className="nav-link px-3 py-2 rounded-md transition-all duration-300 hover:bg-primary/10">
-                Contact
+              <Link to="#" className="nav-link px-3 py-2 rounded-md transition-all duration-300 hover:bg-primary/10 flex items-center space-x-2">
+                <Phone className="h-4 w-4" />
+                <span>Contact</span>
               </Link>
             )}
           </div>

@@ -86,7 +86,7 @@
   }
   
   .nav-link {
-    @apply text-sm font-medium text-foreground transition-colors hover:text-primary;
+    @apply text-sm font-semibold text-foreground transition-colors hover:text-primary;
   }
   
   .nav-text-muted {
