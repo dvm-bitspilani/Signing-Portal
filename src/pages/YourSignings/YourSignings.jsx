@@ -68,11 +68,11 @@ function YourSignings() {
     const canCancel = ticket.cancellable && !ticket.cancelled;
 
     return (
-      <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105">
+      <Card className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border hover:border-primary/30">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <CardTitle className="text-subheading flex items-center gap-2">
+              <CardTitle className="text-subheading flex items-center gap-2 group-hover:text-primary transition-colors">
                 <Ticket className="h-5 w-5 text-primary" />
                 {ticket.non_comp_name}
               </CardTitle>
@@ -125,11 +125,11 @@ function YourSignings() {
   };
 
   const EmptyState = () => (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
-      <div className="rounded-full bg-muted p-4 mb-6">
-        <Ticket className="h-12 w-12 text-muted-foreground" />
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <div className="rounded-full bg-muted p-3 mb-4">
+        <Ticket className="h-8 w-8 text-muted-foreground" />
       </div>
-      <h3 className="text-heading-secondary mb-2">No Signings Found</h3>
+      <h3 className="text-heading-tertiary mb-2">No Signings Found</h3>
       <p className="text-body text-muted-foreground max-w-md mb-6">
         You haven't signed up for any events yet. Browse available events to get started.
       </p>
@@ -152,11 +152,11 @@ function YourSignings() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/50 to-background">
       <Navbar />
       
       <div className="pt-20 pb-8">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-heading-primary mb-4 flex items-center justify-center gap-3">
@@ -172,7 +172,7 @@ function YourSignings() {
           {eventData?.isError ? (
             <ErrorState message={eventData.message} />
           ) : (
-            <div className="space-y-8">
+            <div className="space-y-6">
               {/* Success Message */}
               {actionData && !actionData.isError && (
                 <Alert className="border-green-600/30 bg-green-600/10 max-w-2xl mx-auto">
@@ -185,14 +185,14 @@ function YourSignings() {
 
               {/* Events */}
               {eventData.data.non_comp_tickets && eventData.data.non_comp_tickets.length > 0 ? (
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <div className="flex items-center gap-2 mb-4">
                     <h2 className="text-heading-secondary">Your Event Tickets</h2>
                     <Badge variant="outline">
                       {eventData.data.non_comp_tickets.length} ticket{eventData.data.non_comp_tickets.length !== 1 ? 's' : ''}
                     </Badge>
                   </div>
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {eventData.data.non_comp_tickets.map((ticket, index) => (
                       <TicketCard 
                         key={index} 
