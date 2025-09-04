@@ -65,7 +65,7 @@ function Contact() {
     <Card className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border hover:border-primary/30">
       <CardHeader className="text-center space-y-4">
         <div className="mx-auto">
-          <Avatar className="h-20 w-20 mx-auto mb-4 transition-transform duration-300 group-hover:scale-110">
+          <Avatar className="h-24 w-24 mx-auto mb-4 transition-transform duration-300 group-hover:scale-110">
             <AvatarImage 
               src={member.avatar} 
               alt={member.name}
