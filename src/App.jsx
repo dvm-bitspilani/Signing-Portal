@@ -1,4 +1,4 @@
-import { useState, useContext, createContext, useEffect } from "react";
+import { useState, createContext } from "react";
 import {
   BrowserRouter,
   Route,
@@ -6,8 +6,8 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-
-import styles from "./App.module.scss";
+import { ThemeProvider } from "./components/theme-provider";
+import { Toaster } from "./components/ui/sonner";
 
 import SignInContext from "./assets/store/SignInContext.jsx";
 
@@ -15,7 +15,7 @@ import SignIn from "./pages/SignIn/SignIn.jsx";
 import Home from "./pages/Home/Home.jsx";
 import EventDetails from "./pages/EventDetails/EventDetails.jsx";
 import YourSignings from "./pages/YourSignings/YourSignings.jsx";
-import { jwtDecode } from "jwt-decode";
+import Contact from "./pages/Contact/Contact.jsx";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 // import { loginAction } from "./pages/SignIn/SignIn.jsx";
 import { logoutAction, checkauth, checkLogin } from "./assets/utils/auth.js";
@@ -49,6 +49,11 @@ const App = () => {
       action: yoursigningsaction,
     },
     {
+      path: "/contact",
+      element: <Contact />,
+      loader: checkauth,
+    },
+    {
       path: "/EventDetails/:eventType/:eventIndex",
       element: <EventDetails />,
       loader: checkauth,
@@ -60,13 +65,23 @@ const App = () => {
   ]);
 
   return (
-    <AppContext.Provider value={{ globalAppStates, setGlobalAppStates }}>
-      <GoogleOAuthProvider clientId="993693860464-5p8rfdqpp8svqhdhviaian2i0kkpqt78.apps.googleusercontent.com">
-        <div className={styles.app}>
-          <RouterProvider router={router} />
-        </div>
-      </GoogleOAuthProvider>
-    </AppContext.Provider>
+    <ThemeProvider defaultTheme="light" storageKey="signings-portal-theme">
+      <AppContext.Provider value={{ globalAppStates, setGlobalAppStates }}>
+        <GoogleOAuthProvider clientId="993693860464-5p8rfdqpp8svqhdhviaian2i0kkpqt78.apps.googleusercontent.com">
+          <div className="min-h-screen">
+            <RouterProvider router={router} />
+            <Toaster 
+              position="top-right" 
+              richColors 
+              closeButton
+              toastOptions={{
+                duration: 4000,
+              }}
+            />
+          </div>
+        </GoogleOAuthProvider>
+      </AppContext.Provider>
+    </ThemeProvider>
   );
 };
 
