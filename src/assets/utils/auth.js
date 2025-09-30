@@ -121,6 +121,16 @@ export function checkauth() {
     return accessToken;
 }
 
+export function checkauthWithRedirect({ request }) {
+    const refreshToken = getRefreshToken();
+    const accessToken = getAccessToken();
+    if (!refreshToken) {
+        const url = new URL(request.url);
+        return redirect("/signin", { state: { from: url.pathname + url.search } });
+    }
+    return accessToken;
+}
+
 export function checkLogin() {
     const accessToken = checkAccessToken();
     if (accessToken) {
