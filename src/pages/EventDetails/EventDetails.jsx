@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLoaderData } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../ComComponent/Navbar/Navbar";
 import { apiBaseURL } from "../../global";
-import { getAccessToken } from "../../assets/utils/auth.js";
 import { handleApiErrorToast, showSuccessToast, showLoadingToast, dismissToast } from "../../assets/utils/toast.js";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,7 +29,7 @@ import {
 
 function EventDetails() {
   const { eventType, eventIndex } = useParams();
-  const accessToken = getAccessToken();
+  const accessToken = useLoaderData();
   const navigate = useNavigate();
 
   const [event, setEvent] = useState(null);
