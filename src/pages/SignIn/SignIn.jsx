@@ -2,7 +2,7 @@ import { React, useState } from "react";
 import Navbar from "../ComComponent/Navbar/Navbar";
 import { jwtDecode } from "jwt-decode";
 import { GoogleLogin } from "@react-oauth/google";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { apiBaseURL } from "../../global";
 import axios from "axios";
 import { handleApiErrorToast, showLoadingToast, dismissToast } from "../../assets/utils/toast.js";
@@ -13,6 +13,7 @@ import { Heart } from "lucide-react";
 
 const SignIn = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   
   const handleLoginSuccess = (credentialResponse) => {
@@ -58,7 +59,10 @@ const SignIn = () => {
           "refreshTokenExpiry",
           refreshTokenExpiry.toISOString()
         );
-        navigate("/");
+        
+        // Redirect to the original location or home
+        const from = location.state?.from || "/";
+        navigate(from);
       })
       .catch((error) => {
         setIsLoading(false);
