@@ -215,13 +215,14 @@ function YourSignings() {
 
 export default YourSignings;
 
-export async function loader() {
+export async function loader({ request }) {
   const refreshToken = getRefreshToken();
   const accessToken = getAccessToken();
 
   if (!refreshToken || !accessToken) {
-    redirect("/signin");
-    return { isError: true, message: "Token is missing" };
+    const url = new URL(request.url);
+    const from = url.pathname + url.search + url.hash;
+    return redirect(`/signin?redirectTo=${encodeURIComponent(from)}`);
   }
 
   try {
@@ -250,8 +251,9 @@ export async function action({ request }) {
   const accessToken = getAccessToken();
 
   if (!refreshToken || !accessToken) {
-    redirect("/signin");
-    return { isError: true, message: "Token is missing" };
+    const url = new URL(request.url);
+    const from = url.pathname + url.search + url.hash;
+    return redirect(`/signin?redirectTo=${encodeURIComponent(from)}`);
   }
 
   try {
