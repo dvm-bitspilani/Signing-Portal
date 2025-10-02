@@ -9,54 +9,43 @@
  * @returns {string} - User-friendly error message
  */
 export const extractErrorMessage = (error, defaultMessage = "An unexpected error occurred") => {
-  console.log('Extracting error message from:', error);
-  
   // Check if error has response data (axios error)
   if (error.response?.data) {
     const errorData = error.response.data;
-    console.log('Error data:', errorData);
-    
-    // Prioritize API error messages - check multiple possible fields
-    const apiErrorMessage = 
-      errorData.error ||           // Most common API error field
-      errorData.message ||         // Alternative error field
-      errorData.detail ||          // Django REST framework style
-      errorData.error_description; // OAuth style errors
-    
-    if (apiErrorMessage && typeof apiErrorMessage === 'string' && apiErrorMessage.trim()) {
-      console.log('Found API error message:', apiErrorMessage);
-      return apiErrorMessage.trim();
-    }
     
     // Handle different error response formats
-    if (typeof errorData === 'string' && errorData.trim()) {
-      console.log('Error data is string:', errorData);
-      return errorData.trim();
+    if (typeof errorData === 'string') {
+      return errorData;
+    }
+    
+    if (errorData.message) {
+      return errorData.message;
+    }
+    
+    if (errorData.error) {
+      return errorData.error;
+    }
+    
+    if (errorData.detail) {
+      return errorData.detail;
     }
     
     // Handle validation errors (array of errors)
-    if (Array.isArray(errorData) && errorData.length > 0) {
-      const errorMessage = errorData.join(', ');
-      console.log('Array error message:', errorMessage);
-      return errorMessage;
+    if (Array.isArray(errorData)) {
+      return errorData.join(', ');
     }
     
     // Handle object with error fields
     if (typeof errorData === 'object') {
-      const errorValues = Object.values(errorData)
-        .flat()
-        .filter(val => typeof val === 'string' && val.trim());
+      const errorValues = Object.values(errorData).flat();
       if (errorValues.length > 0) {
-        const errorMessage = errorValues.join(', ');
-        console.log('Object error message:', errorMessage);
-        return errorMessage;
+        return errorValues.join(', ');
       }
     }
   }
   
-  // Check response status for common HTTP errors only if no API error message found
+  // Check response status for common HTTP errors
   if (error.response?.status) {
-    console.log('No API error message found, using status code:', error.response.status);
     switch (error.response.status) {
       case 400:
         return "Invalid request. Please check your input and try again.";
@@ -83,7 +72,6 @@ export const extractErrorMessage = (error, defaultMessage = "An unexpected error
   
   // Check for network or other errors
   if (error.message) {
-    console.log('Using error message:', error.message);
     // Handle common network errors
     if (error.message.includes('Network Error')) {
       return "Network error. Please check your internet connection.";
@@ -98,7 +86,6 @@ export const extractErrorMessage = (error, defaultMessage = "An unexpected error
   }
   
   // Fallback to default message
-  console.log('Using default message:', defaultMessage);
   return defaultMessage;
 };
 

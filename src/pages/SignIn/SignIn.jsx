@@ -5,7 +5,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate, useLocation } from "react-router-dom";
 import { apiBaseURL } from "../../global";
 import axios from "axios";
-import { handleApiErrorToast, showLoadingToast, dismissToast } from "../../assets/utils/toast.js";
+import { showErrorToast, showLoadingToast, dismissToast } from "../../assets/utils/toast.js";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -71,10 +71,8 @@ const SignIn = () => {
       });
   };
 
-  const handleError = (error) => {
-    // Use the API error handling to show the actual error message from the server
-    // If it's a BITS email validation error, the API should return the appropriate message
-    handleApiErrorToast(error, "Please use your BITS email ID to sign in. If your BITS email ID is not working, please contact support.");
+  const handleError = () => {
+    showErrorToast("Please use your BITS email ID to sign in. If your BITS email ID is not working, please contact support.");
   };  return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/50 to-background flex flex-col">
       <Navbar />
