@@ -18,7 +18,7 @@ import YourSignings from "./pages/YourSignings/YourSignings.jsx";
 import Contact from "./pages/Contact/Contact.jsx";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 // import { loginAction } from "./pages/SignIn/SignIn.jsx";
-import { logoutAction, checkauth, checkLogin, checkauthWithRedirect } from "./assets/utils/auth.js";
+import { logoutAction, checkauth, checkLogin } from "./assets/utils/auth.js";
 import {
   loader as yoursigningsloader,
   action as yoursigningsaction,
@@ -56,7 +56,7 @@ const App = () => {
     {
       path: "/EventDetails/:eventType/:eventIndex",
       element: <EventDetails />,
-      loader: checkauthWithRedirect,
+      loader: checkauth,
     },
     {
       path: "/logout",
