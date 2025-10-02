@@ -62,6 +62,9 @@ function EventDetails() {
         setLoading(false);
       })
       .catch((err) => {
+        console.error("Failed to load event details:", err);
+        console.log("Event details error response:", err.response);
+        console.log("Event details error data:", err.response?.data);
         setError("Event not found or unauthorized.");
         setLoading(false);
         handleApiErrorToast(err, "Failed to load event details. Please try again.");
@@ -128,6 +131,8 @@ function EventDetails() {
       setTimeout(() => navigate("/yoursignings"), 1500);
     } catch (err) {
       console.error("Purchase failed:", err);
+      console.log("Purchase error response:", err.response);
+      console.log("Purchase error data:", err.response?.data);
       dismissToast(loadingToastId);
       handleApiErrorToast(err, "Failed to purchase tickets. Please try again.");
     } finally {
