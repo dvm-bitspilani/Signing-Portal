@@ -1,6 +1,6 @@
 import Navbar from "../ComComponent/Navbar/Navbar";
 import axios from "axios";
-import { apiBaseURL } from "../../global";
+import { apiBaseURL, merchBaseURL } from "../../global";
 import { extractErrorMessage } from "../../assets/utils/errorHandling.js";
 import { showErrorToast, showSuccessToast } from "../../assets/utils/toast.js";
 import {
@@ -138,6 +138,21 @@ function YourSignings() {
   const MerchCard = ({ merch, index }) => {
     const isProcessing = isSubmitting && currentMerch === `merch-${index}`;
     const canCancel = merch.cancellable && !merch.cancelled;
+    const displaySize = merch.size === "A" ? "Universal" : merch.size;
+
+    // Format timestamp
+    const formatTimestamp = (timestamp) => {
+      if (!timestamp) return '';
+      const date = new Date(timestamp);
+      return date.toLocaleString('en-US', { 
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+    };
 
     return (
       <Card className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border hover:border-primary/30">
@@ -149,22 +164,43 @@ function YourSignings() {
                 {merch.merch_name}
               </CardTitle>
               <CardDescription className="text-body-small">
-                Merchandise {merch.size_name ? `• Size: ${merch.size_name}` : ''}
+                Merchandise{displaySize ? ` • Size: ${displaySize}` : ''}{merch.quantity ? ` • Qty: ${merch.quantity}` : ''}
               </CardDescription>
             </div>
             {getStatusBadge(merch.cancelled)}
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Merch Image */}
+          {merch.merch_image_url && (
+            <div className="w-full h-32 bg-muted rounded-lg overflow-hidden">
+              <img 
+                src={merch.merch_image_url} 
+                alt={merch.merch_name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+          
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <IndianRupee className="h-4 w-4" />
-              <span className="font-medium">₹{merch.price}</span>
+              <span className="font-medium">{merch.price}</span>
             </div>
-            <div className="text-sm text-muted-foreground">
-              Qty: {merch.quantity}
-            </div>
+            {merch.quantity && (
+              <div className="text-sm text-muted-foreground">
+                Qty: {merch.quantity}
+              </div>
+            )}
           </div>
+
+          {/* Purchase Timestamp */}
+          {merch.timestamp && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Calendar className="h-3 w-3" />
+              <span>Purchased: {formatTimestamp(merch.timestamp)}</span>
+            </div>
+          )}
           
           <Separator />
           
@@ -286,13 +322,15 @@ function YourSignings() {
                     </Badge>
                   </div>
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {eventData.data.merch_tickets.map((merch, index) => (
-                      <MerchCard 
-                        key={index} 
-                        merch={merch} 
-                        index={index} 
-                      />
-                    ))}
+                    {[...eventData.data.merch_tickets]
+                      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                      .map((merch, index) => (
+                        <MerchCard 
+                          key={index} 
+                          merch={merch} 
+                          index={index} 
+                        />
+                      ))}
                   </div>
                 </div>
               )}
@@ -330,7 +368,7 @@ export async function loader({ request }) {
           Authorization: `Bearer ${accessToken}`,
         },
       }),
-      axios.get(`${apiBaseURL}/tickets-manager/user_merch`, {
+      axios.get(`${merchBaseURL}/user_merch`, {
         headers: {
           accept: "application/json",
           Authorization: `Bearer ${accessToken}`,

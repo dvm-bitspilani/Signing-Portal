@@ -139,14 +139,14 @@ function Home() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                     {/* Image Carousel */}
-                    <div className="relative w-full h-48 bg-muted rounded-lg overflow-hidden group">
+                    <div className="relative w-full h-48 bg-muted rounded-lg overflow-hidden">
                         <img 
                             src={images[currentImageIndex]} 
                             alt={merch.name}
                             className="w-full h-full object-cover"
                         />
                         {images.length > 1 && (
-                            <>
+                            <div className="group">
                                 <Button
                                     variant="secondary"
                                     size="icon"
@@ -175,12 +175,12 @@ function Home() {
                                         />
                                     ))}
                                 </div>
-                            </>
+                            </div>
                         )}
                     </div>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-1 text-caption">
-                            <span className="font-semibold text-lg">₹{merch.price}</span>
+                            <span className="font-semibold text-lg">{merch.price === 0 ? '-' : `₹${merch.price}`}</span>
                         </div>
                         <Button 
                             asChild 
@@ -273,67 +273,76 @@ function Home() {
             <Navbar />
             <div className="pt-20 pb-8">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    {/* Header */}
-                    <div className="text-center mb-8">
-                        <h1 className="text-heading-primary mb-4">
-                            Available Events
-                        </h1>
-                        <p className="text-body-large text-muted-foreground max-w-2xl mx-auto">
-                            Browse our curated list of events. Select the ones that spark your interest.
-                        </p>
-                    </div>
+                    {/* Show empty state only if both events and merch are empty and not loading */}
+                    {!loading && !merchLoading && 
+                     (!eventList || eventList.length === 0) && 
+                     (!merchList || merchList.length === 0) ? (
+                        <EmptyState message="No events or merch available at this moment." />
+                    ) : (
+                        <>
+                            {/* Events Section - Only show if loading or has events */}
+                            {(loading || (eventList && eventList.length > 0)) && (
+                                <div className="space-y-6">
+                                    {/* Header */}
+                                    <div className="text-center mb-8">
+                                        <h1 className="text-heading-primary mb-4">
+                                            Available Events
+                                        </h1>
+                                        <p className="text-body-large text-muted-foreground max-w-2xl mx-auto">
+                                            Browse our curated list of events. Select the ones that spark your interest.
+                                        </p>
+                                    </div>
+                                    
+                                    {loading ? (
+                                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                            {[...Array(6)].map((_, i) => (
+                                                <LoadingSkeleton key={i} />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                            {eventList.map((event, index) => (
+                                                <EventCard 
+                                                    key={index} 
+                                                    event={event} 
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
-                    {/* Events */}
-                    <div className="space-y-6">
-                        {loading ? (
-                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                                {[...Array(6)].map((_, i) => (
-                                    <LoadingSkeleton key={i} />
-                                ))}
-                            </div>
-                        ) : eventList && eventList.length > 0 ? (
-                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                                {eventList.map((event, index) => (
-                                    <EventCard 
-                                        key={index} 
-                                        event={event} 
-                                    />
-                                ))}
-                            </div>
-                        ) : (
-                            <EmptyState message={emptyEventsMsg} />
-                        )}
-                    </div>
-
-                    {/* Merch Section */}
-                    <div className="space-y-6 mt-12">
-                        <div className="text-center">
-                            <h2 className="text-heading-secondary mb-2">
-                                Available Merch
-                            </h2>
-                            <p className="text-body text-muted-foreground max-w-2xl mx-auto">
-                                Check out our exclusive merchandise collection
-                            </p>
-                        </div>
-                        {merchLoading ? (
-                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                                {[...Array(3)].map((_, i) => (
-                                    <LoadingSkeleton key={i} />
-                                ))}
-                            </div>
-                        ) : merchList && merchList.length > 0 ? (
-                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                                {merchList.map((merch, index) => (
-                                    <MerchCard 
-                                        key={index} 
-                                        merch={merch} 
-                                    />
-                                ))}
-                            </div>
-                        ) : (
-                            <EmptyState message={emptyMerchMsg} />
-                        )}
-                    </div>
+                            {/* Merch Section - Only show if loading or has merch */}
+                            {(merchLoading || (merchList && merchList.length > 0)) && (
+                                <div className={`space-y-6 ${(loading || (eventList && eventList.length > 0)) ? 'mt-12' : ''}`}>
+                                    <div className="text-center">
+                                        <h2 className="text-heading-secondary mb-2">
+                                            Available Merch
+                                        </h2>
+                                        <p className="text-body text-muted-foreground max-w-2xl mx-auto">
+                                            Check out our exclusive merchandise collection
+                                        </p>
+                                    </div>
+                                    {merchLoading ? (
+                                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                            {[...Array(3)].map((_, i) => (
+                                                <LoadingSkeleton key={i} />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                            {merchList.map((merch, index) => (
+                                                <MerchCard 
+                                                    key={index} 
+                                                    merch={merch} 
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
             </div>
         </div>

@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { 
   ChevronLeft, 
   Calendar, 
@@ -45,6 +46,7 @@ function EventDetails() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState(null);
   const [merchQuantity, setMerchQuantity] = useState(1);
+  const [imageZoomOpen, setImageZoomOpen] = useState(false);
 
   useEffect(() => {
     if (eventType === "non-comp") {
@@ -307,45 +309,101 @@ function EventDetails() {
             <Card className="w-full">
               <CardContent className="p-4 sm:p-6 space-y-6">
                 {/* Image Carousel */}
-                <div className="relative w-full h-96 bg-muted rounded-lg overflow-hidden group">
-                  <img 
-                    src={images[currentImageIndex]} 
-                    alt={merch.name}
-                    className="w-full h-full object-contain"
-                  />
-                  {images.length > 1 && (
-                    <>
-                      <Button
-                        variant="secondary"
-                        size="icon"
-                        className="absolute left-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={prevImage}
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        size="icon"
-                        className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={nextImage}
-                      >
-                        <ChevronLeft className="h-4 w-4 rotate-180" />
-                      </Button>
-                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                        {images.map((_, idx) => (
-                          <div
-                            key={idx}
-                            className={`h-2 w-2 rounded-full transition-all ${
-                              idx === currentImageIndex 
-                                ? 'bg-white w-4' 
-                                : 'bg-white/50'
-                            }`}
-                          />
-                        ))}
+                <Dialog open={imageZoomOpen} onOpenChange={setImageZoomOpen}>
+                  <DialogTrigger asChild>
+                    <div className="relative w-full h-96 bg-muted rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity">
+                      <img 
+                        src={images[currentImageIndex]} 
+                        alt={merch.name}
+                        className="w-full h-full object-contain"
+                      />
+                      {images.length > 1 && (
+                        <div className="group">
+                          <Button
+                            variant="secondary"
+                            size="icon"
+                            className="absolute left-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              prevImage();
+                            }}
+                          >
+                            <ChevronLeft className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="icon"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              nextImage();
+                            }}
+                          >
+                            <ChevronLeft className="h-4 w-4 rotate-180" />
+                          </Button>
+                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                            {images.map((_, idx) => (
+                              <div
+                                key={idx}
+                                className={`h-2 w-2 rounded-full transition-all ${
+                                  idx === currentImageIndex 
+                                    ? 'bg-white w-4' 
+                                    : 'bg-white/50'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20">
+                        <div className="text-white text-sm bg-black/60 px-3 py-1 rounded-full">
+                          Click to zoom
+                        </div>
                       </div>
-                    </>
-                  )}
-                </div>
+                    </div>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-7xl w-full h-[90vh] p-0">
+                    <div className="relative w-full h-full flex items-center justify-center bg-black/95">
+                      <img 
+                        src={images[currentImageIndex]} 
+                        alt={merch.name}
+                        className="max-w-full max-h-full object-contain"
+                      />
+                      {images.length > 1 && (
+                        <>
+                          <Button
+                            variant="secondary"
+                            size="icon"
+                            className="absolute left-4 top-1/2 -translate-y-1/2"
+                            onClick={prevImage}
+                          >
+                            <ChevronLeft className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="icon"
+                            className="absolute right-4 top-1/2 -translate-y-1/2"
+                            onClick={nextImage}
+                          >
+                            <ChevronLeft className="h-4 w-4 rotate-180" />
+                          </Button>
+                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                            {images.map((_, idx) => (
+                              <div
+                                key={idx}
+                                className={`h-2 w-2 rounded-full transition-all ${
+                                  idx === currentImageIndex 
+                                    ? 'bg-white w-4' 
+                                    : 'bg-white/50'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </DialogContent>
+                </Dialog>
 
                 <Separator />
 
@@ -354,8 +412,14 @@ function EventDetails() {
                   <div>
                     <p className="text-sm text-muted-foreground">Price</p>
                     <div className="flex items-center text-2xl font-bold">
-                      <IndianRupee className="w-5 h-5" />
-                      {merch.price}
+                      {merch.price === 0 ? (
+                        <span>-</span>
+                      ) : (
+                        <>
+                          <IndianRupee className="w-5 h-5" />
+                          {merch.price}
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -377,7 +441,7 @@ function EventDetails() {
                         <SelectContent>
                           {merch.sizes.map((size) => (
                             <SelectItem key={size.id} value={size.id.toString()}>
-                              {size.name}
+                              {size.name === "A" ? "Universal" : size.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -422,8 +486,14 @@ function EventDetails() {
                     <div>
                       <p className="text-sm text-muted-foreground">Total Amount</p>
                       <div className="flex items-center text-xl sm:text-2xl font-bold">
-                        <IndianRupee className="w-5 h-5" />
-                        {merch.price * merchQuantity}
+                        {merch.price === 0 ? (
+                          <span>-</span>
+                        ) : (
+                          <>
+                            <IndianRupee className="w-5 h-5" />
+                            {merch.price * merchQuantity}
+                          </>
+                        )}
                       </div>
                     </div>
                     <Button 
