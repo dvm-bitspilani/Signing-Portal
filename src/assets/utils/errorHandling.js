@@ -2,6 +2,8 @@
  * Utility functions for handling API errors consistently across the application
  */
 
+import { logoutAction } from './auth.js';
+
 /**
  * Extracts error message from API response
  * @param {Error} error - The error object from axios or fetch
@@ -15,6 +17,19 @@ export const extractErrorMessage = (error, defaultMessage = "An unexpected error
   if (error.response?.data) {
     const errorData = error.response.data;
     console.log('Error data:', errorData);
+    
+    // Check for invalid token error and logout automatically
+    const errorString = typeof errorData === 'string' ? errorData : JSON.stringify(errorData);
+    if (errorString.includes('Given token not valid for any token type') || 
+        errorString.includes('token_not_valid') ||
+        (errorData.detail && errorData.detail.includes('Given token not valid'))) {
+      console.log('ErrorHandling: Invalid token detected, logging out...');
+      setTimeout(() => {
+        logoutAction();
+        window.location.href = '/signin';
+      }, 1500);
+      return 'Your session has expired. Please sign in again.';
+    }
     
     // Prioritize API error messages - check multiple possible fields
     const apiErrorMessage = 

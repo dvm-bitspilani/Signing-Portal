@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../ComComponent/Navbar/Navbar";
-import { apiBaseURL } from "../../global";
+import { apiBaseURL, merchBaseURL } from "../../global";
 import { getAccessToken } from "../../assets/utils/auth.js";
-import { handleApiErrorToast, showSuccessToast, showLoadingToast, dismissToast } from "../../assets/utils/toast.js";
+import { handleApiErrorToast, showSuccessToast, showLoadingToast, dismissToast, showErrorToast } from "../../assets/utils/toast.js";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -34,6 +34,7 @@ function EventDetails() {
   const navigate = useNavigate();
 
   const [event, setEvent] = useState(null);
+  const [merch, setMerch] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openSlotIds, setOpenSlotIds] = useState([]);
@@ -41,35 +42,57 @@ function EventDetails() {
   const [ticketCounts, setTicketCounts] = useState({});
   const [activeDateTab, setActiveDateTab] = useState(0);
   const [purchaseLoading, setPurchaseLoading] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [selectedSize, setSelectedSize] = useState(null);
+  const [merchQuantity, setMerchQuantity] = useState(1);
 
   useEffect(() => {
-    if (eventType !== "non-comp") {
+    if (eventType === "non-comp") {
+      const endpoint = `/api/non-comp/${eventIndex}/`;
+
+      axios
+        .get(`${apiBaseURL}${endpoint}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            accept: "application/json",
+          },
+        })
+        .then((response) => {
+          setEvent(response.data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error("Failed to load event details:", err);
+          console.log("Event details error response:", err.response);
+          console.log("Event details error data:", err.response?.data);
+          setError("Event not found or unauthorized.");
+          setLoading(false);
+          handleApiErrorToast(err, "Failed to load event details. Please try again.");
+        });
+    } else if (eventType === "merch") {
+      axios
+        .get(`${merchBaseURL}/merch/${eventIndex}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            accept: "application/json",
+          },
+        })
+        .then((response) => {
+          setMerch(response.data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error("Failed to load merch details:", err);
+          console.log("Merch details error response:", err.response);
+          console.log("Merch details error data:", err.response?.data);
+          setError("Merch not found or unauthorized.");
+          setLoading(false);
+          handleApiErrorToast(err, "Failed to load merch details. Please try again.");
+        });
+    } else {
       setError("Invalid event type.");
       setLoading(false);
-      return;
     }
-
-    const endpoint = `/api/non-comp/${eventIndex}/`;
-
-    axios
-      .get(`${apiBaseURL}${endpoint}`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          accept: "application/json",
-        },
-      })
-      .then((response) => {
-        setEvent(response.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Failed to load event details:", err);
-        console.log("Event details error response:", err.response);
-        console.log("Event details error data:", err.response?.data);
-        setError("Event not found or unauthorized.");
-        setLoading(false);
-        handleApiErrorToast(err, "Failed to load event details. Please try again.");
-      });
   }, [eventType, eventIndex, accessToken]);
 
   const formatTime = (isoString) => {
@@ -141,6 +164,50 @@ function EventDetails() {
     }
   };
 
+  const handleMerchBuy = async () => {
+    if (merch.sizes && merch.sizes.length > 0 && !selectedSize) {
+      showErrorToast("Please select a size");
+      return;
+    }
+    if (merchQuantity < 1 || merchQuantity > 25) {
+      showErrorToast("Quantity must be between 1 and 25");
+      return;
+    }
+    
+    setPurchaseLoading(true);
+    const loadingToastId = showLoadingToast("Processing your merch purchase...");
+    
+    try {
+      const purchaseData = [{
+        id: merch.sizes && merch.sizes.length > 0 ? selectedSize : merch.id,
+        quantity: merchQuantity
+      }];
+      
+      await axios.post(
+        `${merchBaseURL}/buy_merch`,
+        purchaseData,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      dismissToast(loadingToastId);
+      showSuccessToast("Merch purchased successfully! Redirecting to your signings...");
+      setTimeout(() => navigate("/yoursignings"), 1500);
+    } catch (err) {
+      console.error("Merch purchase failed:", err);
+      console.log("Merch purchase error response:", err.response);
+      console.log("Merch purchase error data:", err.response?.data);
+      dismissToast(loadingToastId);
+      handleApiErrorToast(err, "Failed to purchase merch. Please try again.");
+    } finally {
+      setPurchaseLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -169,7 +236,7 @@ function EventDetails() {
     );
   }
 
-  if (error || !event) {
+  if (error || (!event && !merch)) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -195,6 +262,193 @@ function EventDetails() {
               </Button>
             </CardContent>
           </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Merch Layout
+  if (eventType === "merch" && merch) {
+    const images = merch.extra_images_url 
+      ? [merch.front_image_url, ...merch.extra_images_url] 
+      : [merch.front_image_url];
+
+    const nextImage = () => {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    };
+
+    const prevImage = () => {
+      setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+    };
+
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto p-4 sm:p-6">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate("/")}
+            className="mb-4 sm:mb-6"
+          >
+            <ChevronLeft className="w-4 h-4 mr-2" />
+            Go Back
+          </Button>
+          
+          <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">{merch.name}</h1>
+                <Badge variant="secondary" className="bg-purple-500/20 text-purple-600 border-purple-500/30">
+                  Merch
+                </Badge>
+              </div>
+            </div>
+
+            <Card className="w-full">
+              <CardContent className="p-4 sm:p-6 space-y-6">
+                {/* Image Carousel */}
+                <div className="relative w-full h-96 bg-muted rounded-lg overflow-hidden group">
+                  <img 
+                    src={images[currentImageIndex]} 
+                    alt={merch.name}
+                    className="w-full h-full object-contain"
+                  />
+                  {images.length > 1 && (
+                    <>
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="absolute left-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={prevImage}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={nextImage}
+                      >
+                        <ChevronLeft className="h-4 w-4 rotate-180" />
+                      </Button>
+                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                        {images.map((_, idx) => (
+                          <div
+                            key={idx}
+                            className={`h-2 w-2 rounded-full transition-all ${
+                              idx === currentImageIndex 
+                                ? 'bg-white w-4' 
+                                : 'bg-white/50'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                <Separator />
+
+                {/* Price */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Price</p>
+                    <div className="flex items-center text-2xl font-bold">
+                      <IndianRupee className="w-5 h-5" />
+                      {merch.price}
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Sizes Selection */}
+                {merch.sizes && merch.sizes.length > 0 && (
+                  <>
+                    <div className="space-y-4">
+                      <h3 className="text-base sm:text-lg font-semibold">Select Size</h3>
+                      <Select
+                        value={selectedSize || ""}
+                        onValueChange={(value) => setSelectedSize(value)}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select Size" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {merch.sizes.map((size) => (
+                            <SelectItem key={size.id} value={size.id.toString()}>
+                              {size.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Separator />
+                  </>
+                )}
+
+                {/* Quantity Selection */}
+                <div className="space-y-4">
+                  <h3 className="text-base sm:text-lg font-semibold">Quantity</h3>
+                  <div className="flex items-center justify-center space-x-4">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setMerchQuantity(Math.max(1, merchQuantity - 1))}
+                      disabled={merchQuantity <= 1}
+                    >
+                      <Minus className="w-4 h-4" />
+                    </Button>
+                    <span className="w-16 text-center text-xl font-medium">
+                      {merchQuantity}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setMerchQuantity(Math.min(25, merchQuantity + 1))}
+                      disabled={merchQuantity >= 25}
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <p className="text-xs text-center text-muted-foreground">Min: 1, Max: 25</p>
+                </div>
+
+                <Separator />
+
+                {/* Total and Buy Button */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Amount</p>
+                      <div className="flex items-center text-xl sm:text-2xl font-bold">
+                        <IndianRupee className="w-5 h-5" />
+                        {merch.price * merchQuantity}
+                      </div>
+                    </div>
+                    <Button 
+                      onClick={handleMerchBuy}
+                      disabled={purchaseLoading || (merch.sizes && merch.sizes.length > 0 && !selectedSize)}
+                      className="w-full sm:w-auto"
+                      size="lg"
+                    >
+                      {purchaseLoading ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <Ticket className="w-4 h-4 mr-2" />
+                          Buy Merch
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     );

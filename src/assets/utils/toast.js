@@ -4,6 +4,7 @@
  */
 
 import { toast } from 'sonner';
+import { logoutAction } from './auth.js';
 
 /**
  * Show a success toast notification
@@ -76,6 +77,25 @@ export const showLoadingToast = (message = 'Loading...', options = {}) => {
 export const handleApiErrorToast = (error, defaultMessage = "An unexpected error occurred", options = {}) => {
   console.log('Toast: Handling API error:', error);
   let errorMessage = defaultMessage;
+
+  // Check for invalid token error and logout automatically
+  if (error.response?.data) {
+    const errorData = error.response.data;
+    const errorString = typeof errorData === 'string' ? errorData : JSON.stringify(errorData);
+    
+    // Check for token validation errors
+    if (errorString.includes('Given token not valid for any token type') || 
+        errorString.includes('token_not_valid') ||
+        (errorData.detail && errorData.detail.includes('Given token not valid'))) {
+      console.log('Toast: Invalid token detected, logging out...');
+      showErrorToast('Your session has expired. Please sign in again.');
+      setTimeout(() => {
+        logoutAction();
+        window.location.href = '/signin';
+      }, 1500);
+      return;
+    }
+  }
 
   // Extract error message from various API response formats
   if (error.response?.data) {

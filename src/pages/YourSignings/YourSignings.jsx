@@ -21,6 +21,7 @@ import { Ticket, Calendar, IndianRupee, AlertCircle, CheckCircle, XCircle } from
 
 function YourSignings() {
   const [currentEvent, setcurrentEvent] = useState("A-1");
+  const [currentMerch, setCurrentMerch] = useState("merch-1");
   const eventData = useLoaderData();
   const actionData = useActionData();
   const submit = useSubmit();
@@ -57,6 +58,16 @@ function YourSignings() {
     setcurrentEvent(`non_comp-${index}`);
     const formData = new FormData();
     formData.append(`non_comp_ticket_id`, ticketId);
+    submit(formData, {
+      method: "post",
+      action: "/yoursignings",
+    });
+  };
+
+  const handleCancelMerch = (merchTicketId, index) => {
+    setCurrentMerch(`merch-${index}`);
+    const formData = new FormData();
+    formData.append(`merch_ticket_id`, merchTicketId);
     submit(formData, {
       method: "post",
       action: "/yoursignings",
@@ -105,6 +116,67 @@ function YourSignings() {
               size="sm"
               disabled={!canCancel || isSubmitting}
               onClick={() => canCancel && handleCancelTicket(ticket.ticket_id, index)}
+              className="min-w-[100px] transition-all duration-300 hover:scale-105"
+            >
+              {isProcessing ? (
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  Cancelling
+                </div>
+              ) : canCancel ? (
+                "Cancel"
+              ) : (
+                "Can't Cancel"
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const MerchCard = ({ merch, index }) => {
+    const isProcessing = isSubmitting && currentMerch === `merch-${index}`;
+    const canCancel = merch.cancellable && !merch.cancelled;
+
+    return (
+      <Card className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border hover:border-primary/30">
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between">
+            <div className="space-y-1">
+              <CardTitle className="text-subheading flex items-center gap-2 group-hover:text-primary transition-colors">
+                <Ticket className="h-5 w-5 text-purple-600" />
+                {merch.merch_name}
+              </CardTitle>
+              <CardDescription className="text-body-small">
+                Merchandise {merch.size_name ? `• Size: ${merch.size_name}` : ''}
+              </CardDescription>
+            </div>
+            {getStatusBadge(merch.cancelled)}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <IndianRupee className="h-4 w-4" />
+              <span className="font-medium">₹{merch.price}</span>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Qty: {merch.quantity}
+            </div>
+          </div>
+          
+          <Separator />
+          
+          <div className="flex items-center justify-between">
+            <div className="text-caption">
+              {canCancel ? "Cancellation available" : merch.cancelled ? "Merch cancelled" : "Cannot be cancelled"}
+            </div>
+            <Button
+              variant={canCancel ? "destructive" : "secondary"}
+              size="sm"
+              disabled={!canCancel || isSubmitting}
+              onClick={() => canCancel && handleCancelMerch(merch.id, index)}
               className="min-w-[100px] transition-all duration-300 hover:scale-105"
             >
               {isProcessing ? (
@@ -184,7 +256,7 @@ function YourSignings() {
               )}
 
               {/* Events */}
-              {eventData.data.non_comp_tickets && eventData.data.non_comp_tickets.length > 0 ? (
+              {eventData.data.non_comp_tickets && eventData.data.non_comp_tickets.length > 0 && (
                 <div className="space-y-6">
                   <div className="flex items-center gap-2 mb-4">
                     <h2 className="text-heading-secondary">Your Event Tickets</h2>
@@ -202,7 +274,32 @@ function YourSignings() {
                     ))}
                   </div>
                 </div>
-              ) : (
+              )}
+
+              {/* Merch */}
+              {eventData.data.merch_tickets && eventData.data.merch_tickets.length > 0 && (
+                <div className="space-y-6 mt-8">
+                  <div className="flex items-center gap-2 mb-4">
+                    <h2 className="text-heading-secondary">Your Merch</h2>
+                    <Badge variant="outline" className="bg-purple-500/10 border-purple-500/30">
+                      {eventData.data.merch_tickets.length} item{eventData.data.merch_tickets.length !== 1 ? 's' : ''}
+                    </Badge>
+                  </div>
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {eventData.data.merch_tickets.map((merch, index) => (
+                      <MerchCard 
+                        key={index} 
+                        merch={merch} 
+                        index={index} 
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Empty State - show only if both are empty */}
+              {(!eventData.data.non_comp_tickets || eventData.data.non_comp_tickets.length === 0) && 
+               (!eventData.data.merch_tickets || eventData.data.merch_tickets.length === 0) && (
                 <EmptyState />
               )}
             </div>
@@ -225,15 +322,27 @@ export async function loader() {
   }
 
   try {
-    const response = await axios.get(`${apiBaseURL}/api/tickets`, {
-      headers: {
-        accept: "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+    const [ticketsResponse, merchResponse] = await Promise.all([
+      axios.get(`${apiBaseURL}/api/tickets`, {
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }),
+      axios.get(`${apiBaseURL}/tickets-manager/user_merch`, {
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }).catch(() => ({ data: [] })) // Handle if merch endpoint fails
+    ]);
+    
     return {
       isError: false,
-      data: response.data,
+      data: {
+        ...ticketsResponse.data,
+        merch_tickets: merchResponse.data
+      },
       message: "Signings fetched successfully",
     };
   } catch (error) {
@@ -255,29 +364,52 @@ export async function action({ request }) {
   }
 
   try {
-    await axios.post(
-      `${apiBaseURL}/api/non-comp-cancel/${formData.get(
-        "non_comp_ticket_id"
-      )}/`,
-      {
-        access_token: accessToken,
-        non_comp_ticket_id: formData.get("non_comp_ticket_id"),
-      },
-      {
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${accessToken}`,
+    const nonCompTicketId = formData.get("non_comp_ticket_id");
+    const merchTicketId = formData.get("merch_ticket_id");
+
+    if (nonCompTicketId) {
+      await axios.post(
+        `${apiBaseURL}/api/non-comp-cancel/${nonCompTicketId}/`,
+        {
+          access_token: accessToken,
+          non_comp_ticket_id: nonCompTicketId,
         },
-      }
-    );
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      return {
+        isError: false,
+        message: "Ticket cancelled successfully",
+      };
+    } else if (merchTicketId) {
+      await axios.post(
+        `${apiBaseURL}/tickets-manager/cancel_merch/${merchTicketId}`,
+        {},
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      return {
+        isError: false,
+        message: "Merch cancelled successfully",
+      };
+    }
+
     return {
-      isError: false,
-      message: "Ticket cancelled successfully",
+      isError: true,
+      message: "Invalid cancellation request",
     };
   } catch (error) {
     return {
       isError: true,
-      message: extractErrorMessage(error, "An error occurred while cancelling the ticket"),
+      message: extractErrorMessage(error, "An error occurred while processing the cancellation"),
     };
   }
 }
