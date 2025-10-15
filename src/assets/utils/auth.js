@@ -112,18 +112,24 @@ export function logoutAction() {
     return redirect("/signin");
 }
 
-export function checkauth() {
-    const refreshToken = getRefreshToken();
-    const accessToken = getAccessToken();
-    if (!refreshToken) {
-        return redirect("/signin");
-    }
-    return accessToken;
+export function checkauth({ request }) {
+  // If unauthenticated, send them to /signin with a redirectTo back to the originally requested path
+  const refreshToken = getRefreshToken();
+  const accessToken = getAccessToken();
+  if (!refreshToken) {
+    const url = new URL(request.url);
+    const from = url.pathname + url.search + url.hash;
+    return redirect(`/signin?redirectTo=${encodeURIComponent(from)}`);
+  }
+  return accessToken;
 }
 
-export function checkLogin() {
-    const accessToken = checkAccessToken();
-    if (accessToken) {
-        return redirect("/");
-    }
+export function checkLogin({ request }) {
+  // If already logged in, send them to redirectTo (if any) or home
+  const accessToken = checkAccessToken();
+  if (accessToken) {
+    const url = new URL(request.url);
+    const redirectTo = url.searchParams.get("redirectTo") || "/";
+    return redirect(redirectTo);
+  }
 }
