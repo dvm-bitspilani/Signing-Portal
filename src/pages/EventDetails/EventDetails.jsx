@@ -191,9 +191,9 @@ function EventDetails() {
       const purchaseData = [{
         id: merch.sizes && merch.sizes.length > 0 ? selectedSize : merch.id,
         quantity: merchQuantity,
-        ...(customizationEnabled && merch.is_customisable && customizationText.trim() && {
-          is_customised: true,
-          customisation_text: customizationText.trim()
+        ...(merch.is_customisable && {
+          is_customised: customizationEnabled && customizationText.trim() ? true : false,
+          customisation_text: customizationEnabled && customizationText.trim() ? customizationText.trim() : ""
         })
       }];
       
