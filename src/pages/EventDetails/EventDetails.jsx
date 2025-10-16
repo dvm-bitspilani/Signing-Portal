@@ -482,7 +482,7 @@ function EventDetails() {
 
                 {/* Total and Buy Button */}
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-muted rounded-lg">
                     <div>
                       <p className="text-sm text-muted-foreground">Total Amount</p>
                       <div className="flex items-center text-xl sm:text-2xl font-bold">
