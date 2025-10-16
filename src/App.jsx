@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
+import Footer from "./components/Footer.jsx";
 
 import SignInContext from "./assets/store/SignInContext.jsx";
 
@@ -68,8 +69,11 @@ const App = () => {
     <ThemeProvider defaultTheme="light" storageKey="signings-portal-theme">
       <AppContext.Provider value={{ globalAppStates, setGlobalAppStates }}>
         <GoogleOAuthProvider clientId="993693860464-5p8rfdqpp8svqhdhviaian2i0kkpqt78.apps.googleusercontent.com">
-          <div className="min-h-screen">
-            <RouterProvider router={router} />
+          <div className="min-h-screen flex flex-col">
+            <div className="flex-1">
+              <RouterProvider router={router} />
+            </div>
+            <Footer />
             <Toaster 
               position="top-right" 
               richColors 

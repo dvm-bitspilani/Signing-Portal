@@ -96,9 +96,6 @@ const SignIn = () => {
               <CardTitle className="text-heading-secondary">
                 Welcome Back
               </CardTitle>
-              <CardDescription className="text-body">
-                Use your BITS email to continue
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {isLoading ? (
@@ -134,14 +131,8 @@ const SignIn = () => {
           </Card>
 
           {/* Additional Info */}
-          <div className="text-center space-y-4">
-            <div className="text-body-small text-muted-foreground">
-              <p>Having trouble signing in?</p>
-              <button className="text-primary hover:text-primary/80 underline transition-colors duration-200">
-                Contact Support
-              </button>
-            </div>
-          </div>
+          <br />
+          <br /><br /><br />
         </div>
       </div>
 
