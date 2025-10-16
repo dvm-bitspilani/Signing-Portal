@@ -14,6 +14,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
 import { 
   ChevronLeft, 
   Calendar, 
@@ -47,6 +49,8 @@ function EventDetails() {
   const [selectedSize, setSelectedSize] = useState(null);
   const [merchQuantity, setMerchQuantity] = useState(1);
   const [imageZoomOpen, setImageZoomOpen] = useState(false);
+  const [customizationEnabled, setCustomizationEnabled] = useState(false);
+  const [customizationText, setCustomizationText] = useState("");
 
   useEffect(() => {
     if (eventType === "non-comp") {
@@ -175,6 +179,10 @@ function EventDetails() {
       showErrorToast("Quantity must be between 1 and 25");
       return;
     }
+    if (customizationEnabled && merch.is_customisable && !customizationText.trim()) {
+      showErrorToast(`Please enter ${merch.customisation_type || "customization text"}`);
+      return;
+    }
     
     setPurchaseLoading(true);
     const loadingToastId = showLoadingToast("Processing your merch purchase...");
@@ -182,7 +190,11 @@ function EventDetails() {
     try {
       const purchaseData = [{
         id: merch.sizes && merch.sizes.length > 0 ? selectedSize : merch.id,
-        quantity: merchQuantity
+        quantity: merchQuantity,
+        ...(customizationEnabled && merch.is_customisable && customizationText.trim() && {
+          is_customised: true,
+          customisation_text: customizationText.trim()
+        })
       }];
       
       await axios.post(
@@ -451,6 +463,42 @@ function EventDetails() {
                   </>
                 )}
 
+                {/* Customization Section */}
+                {merch.is_customisable && (
+                  <>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <h3 className="text-base sm:text-lg font-semibold">Customization</h3>
+                          <p className="text-sm text-muted-foreground">
+                            Add custom {merch.customisation_type || "text"} (+₹{merch.customisation_price || 0})
+                          </p>
+                        </div>
+                        <Switch
+                          checked={customizationEnabled}
+                          onCheckedChange={setCustomizationEnabled}
+                        />
+                      </div>
+                      {customizationEnabled && (
+                        <div className="space-y-2">
+                          <label htmlFor="customization" className="text-sm font-medium">
+                            {merch.customisation_type || "Customization Text"}
+                          </label>
+                          <Input
+                            id="customization"
+                            type="text"
+                            placeholder={`Enter your ${merch.customisation_type || "text"}...`}
+                            value={customizationText}
+                            onChange={(e) => setCustomizationText(e.target.value)}
+                            className="w-full"
+                          />
+                        </div>
+                      )}
+                    </div>
+                    <Separator />
+                  </>
+                )}
+
                 {/* Quantity Selection */}
                 <div className="space-y-4">
                   <h3 className="text-base sm:text-lg font-semibold">Quantity</h3>
@@ -491,10 +539,15 @@ function EventDetails() {
                         ) : (
                           <>
                             <IndianRupee className="w-5 h-5" />
-                            {merch.price * merchQuantity}
+                            {(merch.price + (customizationEnabled && merch.is_customisable ? (merch.customisation_price || 0) : 0)) * merchQuantity}
                           </>
                         )}
                       </div>
+                      {customizationEnabled && merch.is_customisable && merch.customisation_price > 0 && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Includes ₹{merch.customisation_price} customization fee per item
+                        </p>
+                      )}
                     </div>
                     <Button 
                       onClick={handleMerchBuy}
