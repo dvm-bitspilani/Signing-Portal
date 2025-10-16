@@ -5,6 +5,8 @@ import {
   Routes,
   createBrowserRouter,
   RouterProvider,
+  Outlet,
+  useLocation,
 } from "react-router-dom";
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
@@ -27,41 +29,58 @@ import {
 
 export const AppContext = createContext({});
 
+const Layout = () => {
+  const location = useLocation();
+  const hideFooter = location.pathname === "/signin";
+
+  return (
+    <>
+      <Outlet />
+      {!hideFooter && <Footer />}
+    </>
+  );
+};
+
 const App = () => {
   const [globalAppStates, setGlobalAppStates] = useState({ credentials: null });
 
   const router = createBrowserRouter([
     {
-      path: "/",
-      element: <Home />,
-      id: "root",
-      loader: checkauth,
-    },
-    {
-      path: "/signin",
-      element: <SignIn />,
-      loader: checkLogin,
-      // action: loginAction,
-    },
-    {
-      path: "/yoursignings",
-      element: <YourSignings />,
-      loader: yoursigningsloader,
-      action: yoursigningsaction,
-    },
-    {
-      path: "/contact",
-      element: <Contact />,
-      loader: checkauth,
-    },
-    {
-      path: "/EventDetails/:eventType/:eventIndex",
-      element: <EventDetails />,
-      loader: checkauth,
-    },
-    {
-      path: "/logout",
-      action: logoutAction,
+      element: <Layout />,
+      children: [
+        {
+          path: "/",
+          element: <Home />,
+          id: "root",
+          loader: checkauth,
+        },
+        {
+          path: "/signin",
+          element: <SignIn />,
+          loader: checkLogin,
+          // action: loginAction,
+        },
+        {
+          path: "/yoursignings",
+          element: <YourSignings />,
+          loader: yoursigningsloader,
+          action: yoursigningsaction,
+        },
+        {
+          path: "/contact",
+          element: <Contact />,
+          loader: checkauth,
+        },
+        {
+          path: "/EventDetails/:eventType/:eventIndex",
+          element: <EventDetails />,
+          loader: checkauth,
+        },
+        {
+          path: "/logout",
+          action: logoutAction,
+        },
+      ],
     },
   ]);
 
@@ -73,7 +92,6 @@ const App = () => {
             <div className="flex-1">
               <RouterProvider router={router} />
             </div>
-            <Footer />
             <Toaster 
               position="top-right" 
               richColors 
