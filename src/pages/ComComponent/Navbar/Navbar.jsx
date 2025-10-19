@@ -1,6 +1,5 @@
 import { React, useState } from "react";
 import { Link } from "react-router-dom";
-import Logo from "/Logo.svg";
 import SignInContext from "../../../assets/store/SignInContext";
 import { AppContext } from "../../../App";
 import { getAccessToken, getUserDetails } from "../../../assets/utils/auth";
@@ -47,7 +46,7 @@ const Navbar = () => {
         <div className="flex h-16 items-center justify-between">
           {/* Logo and Title */}
           <Link to="/" className="nav-brand flex items-center space-x-3 transition-all duration-300 hover:scale-105 hover:text-primary">
-            <img src={Logo} alt="Logo" className="h-8 w-8 transition-transform duration-300 hover:rotate-12" />
+            <img src="https://res.cloudinary.com/dhrbeqvcw/image/upload/v1760900997/logo2_r7itzj.png" alt="Logo" className="h-8 w-8 transition-transform duration-300 hover:rotate-12" />
             <span className="nav-brand font-bold">Signings Portal</span>
           </Link>
 
