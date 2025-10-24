@@ -95,17 +95,37 @@ function YourSignings() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <IndianRupee className="h-4 w-4" />
-              <span className="font-medium">₹{ticket.price}</span>
-            </div>
-            <div className="text-sm text-muted-foreground">
-              Ticket ID: {ticket.ticket_id}
-            </div>
-          </div>
-          
-          <Separator />
+          {ticket.price > 0 && (
+            <>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <IndianRupee className="h-4 w-4" />
+                  <span className="font-medium">{ticket.price}</span>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Ticket ID: {ticket.ticket_id}
+                </div>
+              </div>
+              
+              <Separator />
+            </>
+          )}
+          {ticket.price === 0 && (
+            <>
+              <Alert className="bg-green-500/10 border-green-500/30">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-600">
+                  This event is free of charge!
+                </AlertDescription>
+              </Alert>
+              <div className="flex items-center justify-end">
+                <div className="text-sm text-muted-foreground">
+                  Ticket ID: {ticket.ticket_id}
+                </div>
+              </div>
+              <Separator />
+            </>
+          )}
           
           <div className="flex items-center justify-between">
             <div className="text-caption">
@@ -182,17 +202,28 @@ function YourSignings() {
             </div>
           )}
           
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <IndianRupee className="h-4 w-4" />
-              <span className="font-medium">{merch.price}</span>
-            </div>
-            {merch.quantity && (
-              <div className="text-sm text-muted-foreground">
-                Qty: {merch.quantity}
+          {merch.price > 0 && (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <IndianRupee className="h-4 w-4" />
+                <span className="font-medium">{merch.price}</span>
               </div>
-            )}
-          </div>
+              {merch.quantity && (
+                <div className="text-sm text-muted-foreground">
+                  Qty: {merch.quantity}
+                </div>
+              )}
+            </div>
+          )}
+
+          {merch.price === 0 && (
+            <Alert className="bg-green-500/10 border-green-500/30">
+              <CheckCircle className="h-4 w-4 text-green-600" />
+              <AlertDescription className="text-green-600">
+                This merch is free of charge!
+              </AlertDescription>
+            </Alert>
+          )}
 
           {/* Purchase Timestamp */}
           {merch.timestamp && (

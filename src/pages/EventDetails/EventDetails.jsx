@@ -420,21 +420,27 @@ function EventDetails() {
                 <Separator />
 
                 {/* Price */}
-                <div className="flex items-center justify-between">
+                <div className={`flex items-center justify-between ${merch.price === 0 ? 'hidden' : ''}`}>
                   <div>
                     <p className="text-sm text-muted-foreground">Price</p>
                     <div className="flex items-center text-2xl font-bold">
-                      {merch.price === 0 ? (
-                        <span>-</span>
-                      ) : (
-                        <>
-                          <IndianRupee className="w-5 h-5" />
-                          {merch.price}
-                        </>
-                      )}
+                      <>
+                        <IndianRupee className="w-5 h-5" />
+                        {merch.price}
+                      </>
                     </div>
                   </div>
                 </div>
+
+                {/* Free Event Note */}
+                {merch.price === 0 && (
+                  <Alert className="bg-green-500/10 border-green-500/30">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <AlertDescription className="text-green-600">
+                      This merch is free of charge!
+                    </AlertDescription>
+                  </Alert>
+                )}
 
                 <Separator />
 
@@ -531,17 +537,13 @@ function EventDetails() {
                 {/* Total and Buy Button */}
                 <div className="space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-muted rounded-lg">
-                    <div>
+                    <div className={merch.price === 0 ? 'hidden' : ''}>
                       <p className="text-sm text-muted-foreground">Total Amount</p>
                       <div className="flex items-center text-xl sm:text-2xl font-bold">
-                        {merch.price === 0 ? (
-                          <span>-</span>
-                        ) : (
-                          <>
-                            <IndianRupee className="w-5 h-5" />
-                            {(merch.price + (customizationEnabled && merch.is_customisable ? (merch.customisation_price || 0) : 0)) * merchQuantity}
-                          </>
-                        )}
+                        <>
+                          <IndianRupee className="w-5 h-5" />
+                          {(merch.price + (customizationEnabled && merch.is_customisable ? (merch.customisation_price || 0) : 0)) * merchQuantity}
+                        </>
                       </div>
                       {customizationEnabled && merch.is_customisable && merch.customisation_price > 0 && (
                         <p className="text-xs text-muted-foreground mt-1">
@@ -552,7 +554,7 @@ function EventDetails() {
                     <Button 
                       onClick={handleMerchBuy}
                       disabled={purchaseLoading || (merch.sizes && merch.sizes.length > 0 && !selectedSize)}
-                      className="w-full sm:w-auto"
+                      className={`${merch.price === 0 ? 'w-full' : 'w-full sm:w-auto'}`}
                       size="lg"
                     >
                       {purchaseLoading ? (
@@ -563,7 +565,7 @@ function EventDetails() {
                       ) : (
                         <>
                           <Ticket className="w-4 h-4 mr-2" />
-                          Buy Merch
+                          {merch.price === 0 ? 'Participate' : 'Buy Merch'}
                         </>
                       )}
                     </Button>
@@ -683,7 +685,9 @@ function EventDetails() {
                                                 <SelectItem key={tt.ticket_type_id} value={tt.ticket_type_id}>
                                                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full">
                                                     <span>{tt.ticket_type_name}</span>
-                                                    <span className="text-sm font-medium text-muted-foreground sm:ml-2">(₹{tt.price})</span>
+                                                    {tt.price > 0 && (
+                                                      <span className="text-sm font-medium text-muted-foreground sm:ml-2">(₹{tt.price})</span>
+                                                    )}
                                                   </div>
                                                 </SelectItem>
                                               ))}
@@ -697,7 +701,7 @@ function EventDetails() {
                                                   <h4 className="text-sm sm:text-base font-medium">
                                                     {slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.ticket_type_name}
                                                   </h4>
-                                                  <div className="flex items-center text-lg font-semibold">
+                                                  <div className={`flex items-center text-lg font-semibold ${slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price === 0 ? 'hidden' : ''}`}>
                                                     <IndianRupee className="w-4 h-4" />
                                                     {slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price}
                                                   </div>
@@ -725,33 +729,44 @@ function EventDetails() {
                                               </div>
                                               
                                               {(ticketCounts[slot.slot_id] || 1) > 0 && (
-                                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 border-t space-y-3 sm:space-y-0">
-                                                  <div>
-                                                    <p className="text-xs sm:text-sm text-muted-foreground">Total Amount</p>
-                                                    <div className="flex items-center text-lg sm:text-xl font-bold">
-                                                      <IndianRupee className="w-4 h-4 sm:w-5 sm:h-5" />
-                                                      {(ticketCounts[slot.slot_id] || 1) * (slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0)}
+                                                <>
+                                                  {/* Free Event Note */}
+                                                  {(slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0) === 0 && (
+                                                    <Alert className="bg-green-500/10 border-green-500/30 mb-3">
+                                                      <CheckCircle className="h-4 w-4 text-green-600" />
+                                                      <AlertDescription className="text-green-600">
+                                                        This event is free of charge!
+                                                      </AlertDescription>
+                                                    </Alert>
+                                                  )}
+                                                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 border-t space-y-3 sm:space-y-0">
+                                                    <div className={(slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0) === 0 ? 'hidden' : ''}>
+                                                      <p className="text-xs sm:text-sm text-muted-foreground">Total Amount</p>
+                                                      <div className="flex items-center text-lg sm:text-xl font-bold">
+                                                        <IndianRupee className="w-4 h-4 sm:w-5 sm:h-5" />
+                                                        {(ticketCounts[slot.slot_id] || 1) * (slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0)}
+                                                      </div>
                                                     </div>
+                                                    <Button 
+                                                      onClick={() => handleNonCompBuy(slot)}
+                                                      disabled={(ticketCounts[slot.slot_id] || 1) === 0 || purchaseLoading}
+                                                      className={`${(slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0) === 0 ? 'w-full' : 'w-full sm:w-auto'}`}
+                                                      size="sm"
+                                                    >
+                                                      {purchaseLoading ? (
+                                                        <>
+                                                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                                                          Processing...
+                                                        </>
+                                                      ) : (
+                                                        <>
+                                                          <Ticket className="w-4 h-4 mr-2" />
+                                                          {(slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0) === 0 ? 'Participate' : 'Buy Tickets'}
+                                                        </>
+                                                      )}
+                                                    </Button>
                                                   </div>
-                                                  <Button 
-                                                    onClick={() => handleNonCompBuy(slot)}
-                                                    disabled={(ticketCounts[slot.slot_id] || 1) === 0 || purchaseLoading}
-                                                    className="w-full sm:w-auto"
-                                                    size="sm"
-                                                  >
-                                                    {purchaseLoading ? (
-                                                      <>
-                                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                                                        Processing...
-                                                      </>
-                                                    ) : (
-                                                      <>
-                                                        <Ticket className="w-4 h-4 mr-2" />
-                                                        Buy Tickets
-                                                      </>
-                                                    )}
-                                                  </Button>
-                                                </div>
+                                                </>
                                               )}
                                             </Card>
                                           )}
