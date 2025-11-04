@@ -607,7 +607,11 @@ function EventDetails() {
                 <div className="overflow-x-auto mb-4 sm:mb-6">
                   <TabsList className="grid w-full min-w-max" style={{ gridTemplateColumns: `repeat(${event.dates.length}, minmax(120px, 1fr))` }}>
                     {event.dates.map((dateObj, idx) => (
-                      <TabsTrigger key={dateObj.date} value={idx.toString()} className="text-xs sm:text-sm whitespace-nowrap">
+                      <TabsTrigger 
+                        key={dateObj.date} 
+                        value={idx.toString()} 
+                        className="text-xs sm:text-sm whitespace-nowrap px-4 py-2 data-[state=active]:font-semibold"
+                      >
                         {dateObj.date}
                       </TabsTrigger>
                     ))}
