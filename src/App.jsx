@@ -15,7 +15,7 @@ import Footer from "./components/Footer.jsx";
 import SignInContext from "./assets/store/SignInContext.jsx";
 
 import SignIn from "./pages/SignIn/SignIn.jsx";
-import Home from "./pages/Home/Home.jsx";
+import Events from "./pages/Events/Events.jsx";
 import Merch from "./pages/Merch/Merch.jsx";
 import EventDetails from "./pages/EventDetails/EventDetails.jsx";
 import YourSignings from "./pages/YourSignings/YourSignings.jsx";
@@ -51,13 +51,13 @@ const App = () => {
       children: [
         {
           path: "/",
-          element: <Home />,
+          element: <Merch />,
           id: "root",
           loader: checkauth,
         },
         {
-          path: "/merch",
-          element: <Merch />,
+          path: "/events",
+          element: <Events />,
           loader: checkauth,
         },
         {

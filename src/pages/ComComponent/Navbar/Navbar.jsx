@@ -36,8 +36,8 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { to: "/", label: "Events", icon: Calendar },
-    { to: "/merch", label: "Merch", icon: ShoppingBag },
+    { to: "/", label: "Merch", icon: ShoppingBag },
+    { to: "/events", label: "Events", icon: Calendar },
     { to: "/yoursignings", label: "Your Signings", icon: Ticket },
     { to: "/contact", label: "Contact", icon: Phone },
   ];
