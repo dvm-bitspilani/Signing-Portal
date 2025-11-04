@@ -16,6 +16,7 @@ import SignInContext from "./assets/store/SignInContext.jsx";
 
 import SignIn from "./pages/SignIn/SignIn.jsx";
 import Home from "./pages/Home/Home.jsx";
+import Merch from "./pages/Merch/Merch.jsx";
 import EventDetails from "./pages/EventDetails/EventDetails.jsx";
 import YourSignings from "./pages/YourSignings/YourSignings.jsx";
 import Contact from "./pages/Contact/Contact.jsx";
@@ -52,6 +53,11 @@ const App = () => {
           path: "/",
           element: <Home />,
           id: "root",
+          loader: checkauth,
+        },
+        {
+          path: "/merch",
+          element: <Merch />,
           loader: checkauth,
         },
         {

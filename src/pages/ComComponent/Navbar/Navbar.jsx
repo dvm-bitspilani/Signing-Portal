@@ -17,7 +17,8 @@ import { ThemeToggle } from "../../../components/theme-toggle";
 import { 
   Menu, 
   X, 
-  Home, 
+  Calendar,
+  ShoppingBag,
   Ticket, 
   Phone, 
   LogOut, 
@@ -35,7 +36,8 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { to: "/", label: "Home", icon: Home },
+    { to: "/", label: "Events", icon: Calendar },
+    { to: "/merch", label: "Merch", icon: ShoppingBag },
     { to: "/yoursignings", label: "Your Signings", icon: Ticket },
     { to: "/contact", label: "Contact", icon: Phone },
   ];
