@@ -610,7 +610,7 @@ function EventDetails() {
                       <TabsTrigger 
                         key={dateObj.date} 
                         value={idx.toString()} 
-                        className="text-xs sm:text-sm whitespace-nowrap px-4 py-2 data-[state=active]:font-semibold"
+                        className="text-xs sm:text-sm whitespace-nowrap px-4 py-2 data-[state=active]:font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                       >
                         {dateObj.date}
                       </TabsTrigger>
