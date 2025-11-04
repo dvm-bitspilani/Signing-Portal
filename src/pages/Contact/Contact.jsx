@@ -137,7 +137,7 @@ function Contact() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/50 to-background">
+    <div className="min-h-screen bg-app-gradient">
       <Navbar />
       
       <div className="pt-20 pb-8">

@@ -273,3 +273,25 @@
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
 }
+
+@layer utilities {
+  /* App-wide background gradient that adapts to theme variables */
+  .bg-app-gradient {
+    background-color: var(--color-background);
+    background-image:
+      radial-gradient(1200px 800px at -10% -10%, color-mix(in oklab, var(--color-primary) 16%, transparent) 0%, transparent 60%),
+      radial-gradient(1000px 600px at 110% 10%, color-mix(in oklab, var(--color-accent) 14%, transparent) 0%, transparent 65%),
+      radial-gradient(900px 700px at 0% 110%, color-mix(in oklab, var(--color-secondary) 10%, transparent) 0%, transparent 60%),
+      linear-gradient(to bottom right, color-mix(in oklab, var(--color-background) 96%, transparent) 0%, var(--color-background) 100%);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+
+  .dark .bg-app-gradient {
+    background-image:
+      radial-gradient(1200px 800px at -10% -10%, color-mix(in oklab, var(--color-primary) 26%, transparent) 0%, transparent 60%),
+      radial-gradient(1000px 600px at 110% 10%, color-mix(in oklab, var(--color-accent) 22%, transparent) 0%, transparent 65%),
+      radial-gradient(900px 700px at 0% 110%, color-mix(in oklab, var(--color-secondary) 18%, transparent) 0%, transparent 60%),
+      linear-gradient(to bottom right, color-mix(in oklab, var(--color-background) 85%, transparent) 0%, var(--color-background) 100%);
+  }
+}

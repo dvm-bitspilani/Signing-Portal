@@ -75,7 +75,7 @@ const SignIn = () => {
     // If it's a BITS email validation error, the API should return the appropriate message
     handleApiErrorToast(error, "Please use your BITS email ID to sign in. If your BITS email ID is not working, please contact support.");
   };  return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/50 to-background flex flex-col">
+    <div className="min-h-screen bg-app-gradient flex flex-col">
       <Navbar />
       
       <div className="flex-1 flex items-center justify-center px-4 py-12">

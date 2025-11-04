@@ -224,7 +224,7 @@ function EventDetails() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-app-gradient">
         <Navbar />
         <div className="container mx-auto p-4 sm:p-6">
           <Button 
@@ -252,7 +252,7 @@ function EventDetails() {
 
   if (error || (!event && !merch)) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-app-gradient">
         <Navbar />
         <div className="container mx-auto p-4 sm:p-6">
           <Button 
@@ -296,7 +296,7 @@ function EventDetails() {
     };
 
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-app-gradient">
         <Navbar />
         <div className="container mx-auto p-4 sm:p-6">
           <Button 
@@ -581,7 +581,7 @@ function EventDetails() {
 
   // Non-Comp Layout
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-app-gradient">
       <Navbar />
       <div className="container mx-auto p-4 sm:p-6">
         <Button 
