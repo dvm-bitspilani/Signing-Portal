@@ -580,6 +580,19 @@ function EventDetails() {
   }
 
   // Non-Comp Layout
+  // Sort dates in ascending chronological order
+  const sortedDates = [...event.dates].sort((a, b) => {
+    const parseDate = (dateStr) => {
+      const [day, month] = dateStr.split(' ');
+      const monthMap = {
+        'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+        'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+      };
+      return new Date(new Date().getFullYear(), monthMap[month], parseInt(day));
+    };
+    return parseDate(a.date) - parseDate(b.date);
+  });
+
   return (
     <div className="min-h-screen bg-app-gradient">
       <Navbar />
@@ -605,8 +618,8 @@ function EventDetails() {
             <CardContent>
               <Tabs value={activeDateTab.toString()} onValueChange={(value) => setActiveDateTab(parseInt(value))}>
                 <div className="overflow-x-auto mb-4 sm:mb-6">
-                  <TabsList className="grid w-full min-w-max" style={{ gridTemplateColumns: `repeat(${event.dates.length}, minmax(120px, 1fr))` }}>
-                    {event.dates.map((dateObj, idx) => (
+                  <TabsList className="grid w-full min-w-max" style={{ gridTemplateColumns: `repeat(${sortedDates.length}, minmax(120px, 1fr))` }}>
+                    {sortedDates.map((dateObj, idx) => (
                       <TabsTrigger key={dateObj.date} value={idx.toString()} className="text-xs sm:text-sm whitespace-nowrap data-[state=active]:bg-green-700 data-[state=active]:text-white dark:data-[state=active]:bg-green-600 data-[state=active]:font-semibold">
                         {dateObj.date}
                       </TabsTrigger>
@@ -614,7 +627,7 @@ function EventDetails() {
                   </TabsList>
                 </div>
                 
-                {event.dates.map((dateObj, idx) => (
+                {sortedDates.map((dateObj, idx) => (
                   <TabsContent key={dateObj.date} value={idx.toString()} className="mt-4 sm:mt-6">
                     <div className="space-y-4 sm:space-y-6">
                       <div className="space-y-2">
