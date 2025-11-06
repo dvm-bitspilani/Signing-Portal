@@ -78,6 +78,20 @@ function YourSignings() {
     const isProcessing = isSubmitting && currentEvent === `non_comp-${index}`;
     const canCancel = ticket.cancellable && !ticket.cancelled;
 
+    // Format timestamp
+    const formatTimestamp = (timestamp) => {
+      if (!timestamp) return '';
+      const date = new Date(timestamp);
+      return date.toLocaleString('en-US', { 
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+    };
+
     return (
       <Card className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border hover:border-primary/30">
         <CardHeader className="pb-3">
@@ -126,6 +140,16 @@ function YourSignings() {
               <Separator />
             </>
           )}
+
+          {/* Purchase Timestamp */}
+          {ticket.timestamp && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Calendar className="h-3 w-3" />
+              <span>Purchased: {formatTimestamp(ticket.timestamp)}</span>
+            </div>
+          )}
+          
+          {ticket.timestamp && <Separator />}
           
           <div className="flex items-center justify-between">
             <div className="text-caption">
