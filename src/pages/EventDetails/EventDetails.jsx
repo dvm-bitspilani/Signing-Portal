@@ -102,6 +102,16 @@ function EventDetails() {
     }
   }, [eventType, eventIndex, accessToken]);
 
+  // Preload size chart images for merch
+  useEffect(() => {
+    if (eventType === "merch" && merch) {
+      const tshirtImg = new Image();
+      const hoodieImg = new Image();
+      tshirtImg.src = "https://res.cloudinary.com/dmcy7qqn7/image/upload/v1760604896/tee_zmxxfx.jpg";
+      hoodieImg.src = "https://res.cloudinary.com/dmcy7qqn7/image/upload/v1760604890/hoodie_n8sah7.jpg";
+    }
+  }, [eventType, merch]);
+
   const formatTime = (isoString) => {
     if (!isoString) return '';
     const date = new Date(isoString);
