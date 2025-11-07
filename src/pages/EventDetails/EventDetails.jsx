@@ -49,6 +49,7 @@ function EventDetails() {
   const [selectedSize, setSelectedSize] = useState(null);
   const [merchQuantity, setMerchQuantity] = useState(1);
   const [imageZoomOpen, setImageZoomOpen] = useState(false);
+  const [sizeChartOpen, setSizeChartOpen] = useState(false);
   const [customizationEnabled, setCustomizationEnabled] = useState(false);
   const [customizationText, setCustomizationText] = useState("");
 
@@ -448,7 +449,34 @@ function EventDetails() {
                 {merch.sizes && merch.sizes.length > 0 && (
                   <>
                     <div className="space-y-4">
-                      <h3 className="text-base sm:text-lg font-semibold">Select Size</h3>
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-base sm:text-lg font-semibold">Select Size</h3>
+                        <Dialog open={sizeChartOpen} onOpenChange={setSizeChartOpen}>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <Info className="w-4 h-4 mr-2" />
+                              Size Chart
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-3xl w-full">
+                            <div className="space-y-4">
+                              <h3 className="text-lg font-semibold">Size Chart</h3>
+                              <div className="relative w-full bg-muted rounded-lg overflow-hidden">
+                                <img 
+                                  src={
+                                    merch.name.toLowerCase().includes('hoodie') || 
+                                    merch.name.toLowerCase().includes('sweatshirt')
+                                      ? "https://res.cloudinary.com/dmcy7qqn7/image/upload/v1760604890/hoodie_n8sah7.jpg"
+                                      : "https://res.cloudinary.com/dmcy7qqn7/image/upload/v1760604896/tee_zmxxfx.jpg"
+                                  }
+                                  alt="Size Chart"
+                                  className="w-full h-auto object-contain"
+                                />
+                              </div>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
                       <Select
                         value={selectedSize || ""}
                         onValueChange={(value) => setSelectedSize(value)}
