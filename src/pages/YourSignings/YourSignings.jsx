@@ -109,6 +109,18 @@ function YourSignings() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Event Time Slot */}
+          {ticket.time_slot && (
+            <>
+              <div className="flex items-center gap-2 text-sm">
+                <Calendar className="h-4 w-4 text-primary" />
+                <span className="font-medium">Event Time:</span>
+                <span className="text-muted-foreground">{ticket.time_slot}</span>
+              </div>
+              <Separator />
+            </>
+          )}
+
           {ticket.price > 0 && (
             <>
               <div className="flex items-center justify-between">
