@@ -92,20 +92,34 @@ function YourSignings() {
       });
     };
 
+    // Format time slot
+    const formatTimeSlot = (timeSlot) => {
+      if (!timeSlot) return '';
+      const date = new Date(timeSlot);
+      return date.toLocaleString('en-US', { 
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+    };
+
     return (
       <Card className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border hover:border-primary/30">
         <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <CardTitle className="text-subheading flex items-center gap-2 group-hover:text-primary transition-colors">
-                <Ticket className="h-5 w-5 text-primary" />
-                {ticket.non_comp_name}
-              </CardTitle>
-              <CardDescription className="text-body-small">
-                Non-Competitive Event
-              </CardDescription>
-            </div>
-            {getStatusBadge(ticket.cancelled)}
+          {/* Event Time Slot */}
+          {ticket.time_slot && (
+            <>
+              <div className="flex items-center gap-2 text-sm">
+                <Calendar className="h-4 w-4 text-primary" />
+                <span className="font-medium">Event Time:</span>
+                <span className="text-muted-foreground">{formatTimeSlot(ticket.time_slot)}</span>
+              </div>
+              <Separator />
+            </>
+          )}{getStatusBadge(ticket.cancelled)}
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
