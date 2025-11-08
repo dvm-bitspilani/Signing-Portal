@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
-import { Ticket, Calendar, IndianRupee, AlertCircle, CheckCircle, XCircle } from "lucide-react";
+import { Ticket, Calendar, IndianRupee, AlertCircle, CheckCircle, XCircle, MapPin } from "lucide-react";
 
 function YourSignings() {
   const [currentEvent, setcurrentEvent] = useState("A-1");
@@ -130,6 +130,18 @@ function YourSignings() {
                 <Calendar className="h-4 w-4 text-primary" />
                 <span className="font-medium">Event Time:</span>
                 <span className="text-muted-foreground">{formatTimeSlot(ticket.time_slot)}</span>
+              </div>
+              <Separator />
+            </>
+          )}
+
+          {/* Venue */}
+          {ticket.venue && (
+            <>
+              <div className="flex items-center gap-2 text-sm">
+                <MapPin className="h-4 w-4 text-primary" />
+                <span className="font-medium">Venue:</span>
+                <span className="text-muted-foreground">{ticket.venue}</span>
               </div>
               <Separator />
             </>
