@@ -2,7 +2,7 @@ import { Link, useNavigate, useLoaderData } from "react-router-dom";
 import Navbar from "../ComComponent/Navbar/Navbar";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Calendar, Users } from "lucide-react";
+import { Calendar, Users, Clock, MapPin, ChevronRight, Sparkles } from "lucide-react";
 import { apiBaseURL } from "../../global";
 import { handleApiErrorToast } from "../../assets/utils/toast.js";
 import {
@@ -14,10 +14,11 @@ import {
     checkAccessToken,
     checkRefreshToken,
 } from "../../assets/utils/auth.js";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 function Home() {
     const [eventList, setEventList] = useState(null);
@@ -82,39 +83,58 @@ function Home() {
         });
     }, [accessToken]);
 
-    const EventCard = ({ event }) => (
-        <Card className="group hover:shadow-lg transition-all duration-300 border hover:scale-105 hover:border-primary/30">
-            <CardHeader className="space-y-1">
-                <div className="flex items-center justify-between">
-                    <CardTitle className="text-subheading group-hover:text-primary transition-colors">
-                        {event.name}
-                    </CardTitle>
-                    <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/30">
-                        Event
-                    </Badge>
-                </div>
-                <CardDescription className="text-body-small line-clamp-2">
-                    {event.description || "No description available"}
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4 text-caption">
-                        <div className="flex items-center space-x-1">
-                            <Calendar className="h-4 w-4" />
-                            <span>Available</span>
+    const EventCard = ({ event, index }) => (
+        <Card 
+            className={cn(
+                "group overflow-hidden border bg-card",
+                "transition-all duration-300 ease-out",
+                "hover:shadow-lg hover:-translate-y-1 hover:border-primary/30",
+                "animate-fade-in-up"
+            )}
+            style={{ animationDelay: `${index * 50}ms` }}
+        >
+            <CardContent className="p-5">
+                <div className="flex flex-col h-full">
+                    {/* Header */}
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                        <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-lg leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+                                {event.name}
+                            </h3>
                         </div>
-                        <div className="flex items-center space-x-1">
-                            <Users className="h-4 w-4" />
-                            <span>Open</span>
+                        <Badge 
+                            variant="info" 
+                            className="shrink-0"
+                        >
+                            Event
+                        </Badge>
+                    </div>
+                    
+                    {/* Description */}
+                    <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1">
+                        {event.description || "Experience this exciting event at the fest!"}
+                    </p>
+                    
+                    {/* Meta Info */}
+                    <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mb-4">
+                        <div className="flex items-center gap-1.5">
+                            <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
+                            <span>Multiple Slots</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <Users className="h-3.5 w-3.5" aria-hidden="true" />
+                            <span>Open for Booking</span>
                         </div>
                     </div>
+                    
+                    {/* Action */}
                     <Button 
                         asChild 
-                        className="font-medium transition-all duration-300 hover:scale-105"
+                        className="w-full group/btn"
                     >
                         <Link to={`/EventDetails/non-comp/${event.id}`}>
-                            View Details
+                            <span>View Details</span>
+                            <ChevronRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
                         </Link>
                     </Button>
                 </div>
@@ -123,72 +143,79 @@ function Home() {
     );
 
     const LoadingSkeleton = () => (
-        <Card>
-            <CardHeader className="space-y-1">
-                <div className="flex items-center justify-between">
-                    <Skeleton className="h-6 w-2/3" />
-                    <Skeleton className="h-5 w-16" />
+        <Card className="overflow-hidden">
+            <CardContent className="p-5">
+                <div className="flex items-start justify-between gap-3 mb-3">
+                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-5 w-14" />
                 </div>
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <div className="flex space-x-4">
-                        <Skeleton className="h-4 w-20" />
-                        <Skeleton className="h-4 w-16" />
-                    </div>
-                    <Skeleton className="h-9 w-24" />
+                <Skeleton className="h-4 w-full mb-1" />
+                <Skeleton className="h-4 w-2/3 mb-4" />
+                <div className="flex gap-4 mb-4">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-28" />
                 </div>
+                <Skeleton className="h-10 w-full" />
             </CardContent>
         </Card>
     );
 
-    const EmptyState = ({ message }) => (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="rounded-full bg-muted p-3 mb-4">
-                <Calendar className="h-8 w-8 text-muted-foreground" />
+    const EmptyState = () => (
+        <div className="flex flex-col items-center justify-center py-16 text-center animate-fade-in">
+            <div className="rounded-2xl bg-muted/50 p-6 mb-6">
+                <Calendar className="h-12 w-12 text-muted-foreground" />
             </div>
-            <h3 className="text-heading-tertiary mb-2">No events found</h3>
-            <p className="text-body text-muted-foreground max-w-md">{message}</p>
+            <h3 className="text-xl font-semibold mb-2">No events available</h3>
+            <p className="text-muted-foreground max-w-sm mb-6">
+                {emptyEventsMsg}
+            </p>
+            <Button asChild variant="outline">
+                <Link to="/">Browse Merchandise Instead</Link>
+            </Button>
         </div>
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-background via-muted/50 to-background">
+        <div className="min-h-screen bg-app-gradient">
             <Navbar />
-            <div className="pt-20 pb-8">
+            
+            <div className="pt-6 pb-8">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="space-y-6">
-                        {/* Header */}
-                        <div className="text-center mb-8">
-                            <h1 className="text-heading-primary mb-4">
-                                Available Events
+                    {/* Header */}
+                    <header className="mb-8 animate-fade-in">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="p-2 rounded-xl bg-primary/10">
+                                <Sparkles className="h-6 w-6 text-primary" />
+                            </div>
+                            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
+                                Events
                             </h1>
-                            <p className="text-body-large text-muted-foreground max-w-2xl mx-auto">
-                                Browse our curated list of events. Select the ones that spark your interest.
-                            </p>
                         </div>
-                        
-                        {loading ? (
-                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                                {[...Array(6)].map((_, i) => (
-                                    <LoadingSkeleton key={i} />
-                                ))}
-                            </div>
-                        ) : eventList && eventList.length > 0 ? (
-                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                                {eventList.map((event, index) => (
-                                    <EventCard 
-                                        key={index} 
-                                        event={event} 
-                                    />
-                                ))}
-                            </div>
-                        ) : (
-                            <EmptyState message={emptyEventsMsg} />
-                        )}
-                    </div>
+                        <p className="text-muted-foreground text-lg max-w-2xl">
+                            Discover and book your spot at exciting fest events
+                        </p>
+                    </header>
+                    
+                    {/* Grid */}
+                    {loading ? (
+                        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                            {[...Array(6)].map((_, i) => (
+                                <LoadingSkeleton key={i} />
+                            ))}
+                        </div>
+                    ) : eventList && eventList.length > 0 ? (
+                        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                            {eventList.map((event, index) => (
+                                <EventCard 
+                                    key={event.id || index} 
+                                    event={event}
+                                    index={index}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <EmptyState />
+                    )}
                 </div>
             </div>
         </div>

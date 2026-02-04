@@ -17,7 +17,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
-import { Ticket, Calendar, IndianRupee, AlertCircle, CheckCircle, XCircle, MapPin } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Ticket, Calendar, IndianRupee, AlertCircle, CheckCircle, XCircle, MapPin, ShoppingBag, Package, Sparkles } from "lucide-react";
 
 function YourSignings() {
   const [currentEvent, setcurrentEvent] = useState("A-1");
@@ -27,6 +28,11 @@ function YourSignings() {
   const submit = useSubmit();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
+
+  // Count active items
+  const activeEventsCount = eventData?.data?.non_comp_tickets?.filter(t => !t.cancelled).length || 0;
+  const activeMerchCount = eventData?.data?.merch_tickets?.filter(m => !m.cancelled).length || 0;
+  const totalActiveCount = activeEventsCount + activeMerchCount;
 
   // Show toast notifications for action results
   useEffect(() => {
@@ -40,14 +46,14 @@ function YourSignings() {
   const getStatusBadge = (cancelled) => {
     if (cancelled) {
       return (
-        <Badge variant="destructive" className="flex items-center gap-1">
+        <Badge variant="cancelled" className="flex items-center gap-1">
           <XCircle className="h-3 w-3" />
           Cancelled
         </Badge>
       );
     }
     return (
-      <Badge variant="default" className="flex items-center gap-1 bg-green-600 hover:bg-green-700">
+      <Badge variant="success" className="flex items-center gap-1 animate-pulse-glow">
         <CheckCircle className="h-3 w-3" />
         Confirmed
       </Badge>
@@ -107,111 +113,88 @@ function YourSignings() {
     };
 
     return (
-      <Card className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border hover:border-primary/30">
+      <Card className={`group card-interactive border animate-fade-in-up ${ticket.cancelled ? 'opacity-60' : ''}`} style={{ animationDelay: `${index * 50}ms` }}>
         <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <CardTitle className="text-subheading flex items-center gap-2 group-hover:text-primary transition-colors">
-                <Ticket className="h-5 w-5 text-primary" />
-                {ticket.non_comp_name}
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-1 min-w-0 flex-1">
+              <CardTitle className="text-base font-semibold flex items-center gap-2 group-hover:text-primary transition-colors truncate">
+                <div className="shrink-0 p-1.5 rounded-lg bg-primary/10">
+                  <Ticket className="h-4 w-4 text-primary" />
+                </div>
+                <span className="truncate">{ticket.non_comp_name}</span>
               </CardTitle>
-              <CardDescription className="text-body-small">
-                Non-Competitive Event
+              <CardDescription className="text-xs">
+                Event Registration
               </CardDescription>
             </div>
             {getStatusBadge(ticket.cancelled)}
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Event Time Slot */}
-          {ticket.time_slot && (
-            <>
-              <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4 text-primary" />
-                <span className="font-medium">Event Time:</span>
-                <span className="text-muted-foreground">{formatTimeSlot(ticket.time_slot)}</span>
+        <CardContent className="space-y-3 pt-0">
+          {/* Event Details Grid */}
+          <div className="grid gap-2 text-sm">
+            {ticket.time_slot && (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Calendar className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{formatTimeSlot(ticket.time_slot)}</span>
               </div>
-              <Separator />
-            </>
-          )}
-
-          {/* Venue */}
-          {ticket.venue && (
-            <>
-              <div className="flex items-center gap-2 text-sm">
-                <MapPin className="h-4 w-4 text-primary" />
-                <span className="font-medium">Venue:</span>
-                <span className="text-muted-foreground">{ticket.venue}</span>
+            )}
+            {ticket.venue && (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{ticket.venue}</span>
               </div>
-              <Separator />
-            </>
-          )}
-
-          {ticket.price > 0 && (
-            <>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <IndianRupee className="h-4 w-4" />
-                  <span className="font-medium">{ticket.price}</span>
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  Ticket ID: {ticket.ticket_id}
-                </div>
-              </div>
-              
-              <Separator />
-            </>
-          )}
-          {ticket.price === 0 && (
-            <>
-              <Alert className="bg-green-500/10 border-green-500/30">
-                <CheckCircle className="h-4 w-4 text-green-600" />
-                <AlertDescription className="text-green-600">
-                  This event is free of charge!
-                </AlertDescription>
-              </Alert>
-              <div className="flex items-center justify-end">
-                <div className="text-sm text-muted-foreground">
-                  Ticket ID: {ticket.ticket_id}
-                </div>
-              </div>
-              <Separator />
-            </>
-          )}
-
-          {/* Purchase Timestamp */}
-          {ticket.timestamp && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Calendar className="h-3 w-3" />
-              <span>Purchased: {formatTimestamp(ticket.timestamp)}</span>
-            </div>
-          )}
-          
-          {ticket.timestamp && <Separator />}
-          
-          <div className="flex items-center justify-between">
-            <div className="text-caption">
-              {canCancel ? "Cancellation available" : ticket.cancelled ? "Ticket cancelled" : "Cannot be cancelled"}
-            </div>
-            <Button
-              variant={canCancel ? "destructive" : "secondary"}
-              size="sm"
-              disabled={!canCancel || isSubmitting}
-              onClick={() => canCancel && handleCancelTicket(ticket.ticket_id, index)}
-              className="min-w-[100px] transition-all duration-300 hover:scale-105"
-            >
-              {isProcessing ? (
-                <div className="flex items-center gap-2">
-                  <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                  Cancelling
-                </div>
-              ) : canCancel ? (
-                "Cancel"
-              ) : (
-                "Can't Cancel"
-              )}
-            </Button>
+            )}
           </div>
+
+          <Separator />
+
+          {/* Price and ID */}
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-1.5">
+              {ticket.price > 0 ? (
+                <>
+                  <IndianRupee className="h-3.5 w-3.5" />
+                  <span className="font-semibold">{ticket.price}</span>
+                </>
+              ) : (
+                <Badge variant="success" size="sm">Free</Badge>
+              )}
+            </div>
+            <span className="text-xs text-muted-foreground font-mono">
+              #{ticket.ticket_id}
+            </span>
+          </div>
+
+          {/* Timestamp */}
+          {ticket.timestamp && (
+            <p className="text-xs text-muted-foreground">
+              Booked {formatTimestamp(ticket.timestamp)}
+            </p>
+          )}
+          
+          {/* Cancel Button */}
+          {canCancel && (
+            <>
+              <Separator />
+              <Button
+                variant="destructive"
+                size="sm"
+                className="w-full"
+                disabled={isSubmitting}
+                onClick={() => handleCancelTicket(ticket.ticket_id, index)}
+              >
+                {isProcessing ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    Cancelling...
+                  </div>
+                ) : (
+                  "Cancel Ticket"
+                )}
+              </Button>
+            </>
+          )}
         </CardContent>
       </Card>
     );
@@ -237,203 +220,269 @@ function YourSignings() {
     };
 
     return (
-      <Card className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border hover:border-primary/30">
+      <Card className={`group card-interactive border animate-fade-in-up ${merch.cancelled ? 'opacity-60' : ''}`} style={{ animationDelay: `${index * 50}ms` }}>
         <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <CardTitle className="text-subheading flex items-center gap-2 group-hover:text-primary transition-colors">
-                <Ticket className="h-5 w-5 text-purple-600" />
-                {merch.merch_name}
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-1 min-w-0 flex-1">
+              <CardTitle className="text-base font-semibold flex items-center gap-2 group-hover:text-primary transition-colors truncate">
+                <div className="shrink-0 p-1.5 rounded-lg bg-warning/10">
+                  <ShoppingBag className="h-4 w-4 text-warning" />
+                </div>
+                <span className="truncate">{merch.merch_name}</span>
               </CardTitle>
-              <CardDescription className="text-body-small">
-                Merchandise{displaySize ? ` • Size: ${displaySize}` : ''}{merch.quantity ? ` • Qty: ${merch.quantity}` : ''}
+              <CardDescription className="text-xs flex items-center gap-2">
+                <span>Merchandise</span>
+                {displaySize && (
+                  <>
+                    <span>•</span>
+                    <span>Size: {displaySize}</span>
+                  </>
+                )}
+                {merch.quantity && (
+                  <>
+                    <span>•</span>
+                    <span>Qty: {merch.quantity}</span>
+                  </>
+                )}
               </CardDescription>
             </div>
             {getStatusBadge(merch.cancelled)}
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 pt-0">
           {/* Merch Image */}
           {merch.merch_image_url && (
-            <div className="w-full h-32 bg-muted rounded-lg overflow-hidden">
+            <div className="relative w-full aspect-4/3 bg-muted rounded-lg overflow-hidden">
               <img 
                 src={merch.merch_image_url} 
                 alt={merch.merch_name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
             </div>
           )}
-          
-          {merch.price > 0 && (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <IndianRupee className="h-4 w-4" />
-                <span className="font-medium">{merch.price}</span>
-              </div>
-              {merch.quantity && (
-                <div className="text-sm text-muted-foreground">
-                  Qty: {merch.quantity}
-                </div>
-              )}
-            </div>
-          )}
 
-          {merch.price === 0 && (
-            <Alert className="bg-green-500/10 border-green-500/30">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertDescription className="text-green-600">
-                This merch is free of charge!
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {/* Purchase Timestamp */}
-          {merch.timestamp && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Calendar className="h-3 w-3" />
-              <span>Purchased: {formatTimestamp(merch.timestamp)}</span>
-            </div>
-          )}
-          
           <Separator />
-          
-          <div className="flex items-center justify-between">
-            <div className="text-caption">
-              {canCancel ? "Cancellation available" : merch.cancelled ? "Merch cancelled" : "Cannot be cancelled"}
-            </div>
-            <Button
-              variant={canCancel ? "destructive" : "secondary"}
-              size="sm"
-              disabled={!canCancel || isSubmitting}
-              onClick={() => canCancel && handleCancelMerch(merch.id, index)}
-              className="min-w-[100px] transition-all duration-300 hover:scale-105"
-            >
-              {isProcessing ? (
-                <div className="flex items-center gap-2">
-                  <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                  Cancelling
-                </div>
-              ) : canCancel ? (
-                "Cancel"
+
+          {/* Price */}
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-1.5">
+              {merch.price > 0 ? (
+                <>
+                  <IndianRupee className="h-3.5 w-3.5" />
+                  <span className="font-semibold">{merch.price}</span>
+                </>
               ) : (
-                "Can't Cancel"
+                <Badge variant="success" size="sm">Free</Badge>
               )}
-            </Button>
+            </div>
+            {merch.quantity && merch.quantity > 1 && (
+              <span className="text-muted-foreground text-xs">
+                ×{merch.quantity} items
+              </span>
+            )}
           </div>
+
+          {/* Timestamp */}
+          {merch.timestamp && (
+            <p className="text-xs text-muted-foreground">
+              Ordered {formatTimestamp(merch.timestamp)}
+            </p>
+          )}
+          
+          {/* Cancel Button */}
+          {canCancel && (
+            <>
+              <Separator />
+              <Button
+                variant="destructive"
+                size="sm"
+                className="w-full"
+                disabled={isSubmitting}
+                onClick={() => handleCancelMerch(merch.id, index)}
+              >
+                {isProcessing ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    Cancelling...
+                  </div>
+                ) : (
+                  "Cancel Order"
+                )}
+              </Button>
+            </>
+          )}
         </CardContent>
       </Card>
     );
   };
 
-  const EmptyState = () => (
-    <div className="flex flex-col items-center justify-center py-12 text-center">
-      <div className="rounded-full bg-muted p-3 mb-4">
-        <Ticket className="h-8 w-8 text-muted-foreground" />
+  const EmptyState = ({ type = "all" }) => {
+    const config = {
+      all: {
+        icon: <Package className="h-8 w-8 text-muted-foreground" />,
+        title: "No Bookings Yet",
+        description: "You haven't made any bookings. Browse events and merchandise to get started.",
+        ctaText: "Explore Merch",
+        ctaLink: "/",
+      },
+      events: {
+        icon: <Ticket className="h-8 w-8 text-muted-foreground" />,
+        title: "No Event Tickets",
+        description: "You haven't registered for any events yet.",
+        ctaText: "Browse Events",
+        ctaLink: "/events",
+      },
+      merch: {
+        icon: <ShoppingBag className="h-8 w-8 text-muted-foreground" />,
+        title: "No Merchandise Orders",
+        description: "You haven't ordered any merchandise yet.",
+        ctaText: "Shop Merch",
+        ctaLink: "/",
+      },
+    };
+
+    const { icon, title, description, ctaText, ctaLink } = config[type];
+
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center animate-fade-in">
+        <div className="rounded-2xl bg-muted/50 p-4 mb-4">
+          {icon}
+        </div>
+        <h3 className="text-lg font-semibold mb-2">{title}</h3>
+        <p className="text-sm text-muted-foreground max-w-xs mb-6">
+          {description}
+        </p>
+        <Button asChild size="sm">
+          <a href={ctaLink}>{ctaText}</a>
+        </Button>
       </div>
-      <h3 className="text-heading-tertiary mb-2">No Signings Found</h3>
-      <p className="text-body text-muted-foreground max-w-md mb-6">
-        You haven't signed up for any events yet. Browse available events to get started.
+    );
+  };
+
+  const ErrorState = ({ message }) => (
+    <div className="flex flex-col items-center justify-center py-16 text-center animate-fade-in">
+      <div className="rounded-2xl bg-destructive/10 p-4 mb-4">
+        <AlertCircle className="h-8 w-8 text-destructive" />
+      </div>
+      <h3 className="text-lg font-semibold mb-2">Something went wrong</h3>
+      <p className="text-sm text-muted-foreground max-w-xs mb-6">
+        {message || "An error occurred while fetching your bookings."}
       </p>
-      <Button asChild className="transition-all duration-300 hover:scale-105">
-        <a href="/">Browse Events</a>
+      <Button variant="outline" onClick={() => window.location.reload()}>
+        Try Again
       </Button>
     </div>
   );
 
-  const ErrorState = ({ message }) => (
-    <Alert className="border-red-600/30 bg-red-600/10 max-w-2xl mx-auto">
-      <AlertCircle className="h-4 w-4 text-red-400" />
-      <AlertDescription className="text-red-300">
-        <div className="space-y-2">
-          <p className="font-semibold">WHOOPS!</p>
-          <p>{message || "An error occurred while fetching signings."}</p>
-        </div>
-      </AlertDescription>
-    </Alert>
-  );
+  // Prepare data
+  const eventTickets = eventData?.data?.non_comp_tickets || [];
+  const merchTickets = eventData?.data?.merch_tickets || [];
+  const hasEvents = eventTickets.length > 0;
+  const hasMerch = merchTickets.length > 0;
 
   return (
     <div className="min-h-screen bg-app-gradient">
       <Navbar />
       
-      <div className="pt-20 pb-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="pt-20 pb-24 md:pb-8">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
           {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-heading-primary mb-4 flex items-center justify-center gap-3">
-              <Ticket className="h-10 w-10 text-primary" />
-              Your Signings
-            </h1>
-            <p className="text-body-large text-muted-foreground max-w-2xl mx-auto">
-              Manage your event registrations
+          <div className="mb-8 animate-fade-in">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 rounded-xl bg-primary/10">
+                <Sparkles className="h-6 w-6 text-primary" />
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight">
+                Your Bookings
+              </h1>
+            </div>
+            <p className="text-muted-foreground ml-12">
+              Manage your event registrations and merchandise orders
             </p>
           </div>
+
+          {/* Stats Summary */}
+          {!eventData?.isError && totalActiveCount > 0 && (
+            <div className="grid grid-cols-2 gap-3 mb-6 animate-fade-in" style={{ animationDelay: '100ms' }}>
+              <Card className="border-0 bg-primary/5">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Ticket className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{activeEventsCount}</p>
+                    <p className="text-xs text-muted-foreground">Active Events</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="border-0 bg-warning/5">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-warning/10">
+                    <ShoppingBag className="h-5 w-5 text-warning" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{activeMerchCount}</p>
+                    <p className="text-xs text-muted-foreground">Merch Orders</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           {/* Content */}
           {eventData?.isError ? (
             <ErrorState message={eventData.message} />
+          ) : !hasEvents && !hasMerch ? (
+            <EmptyState type="all" />
           ) : (
-            <div className="space-y-6">
-              {/* Success Message */}
-              {actionData && !actionData.isError && (
-                <Alert className="border-green-600/30 bg-green-600/10 max-w-2xl mx-auto">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  <AlertDescription className="text-green-300">
-                    {actionData.message}
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              {/* Events */}
-              {eventData.data.non_comp_tickets && eventData.data.non_comp_tickets.length > 0 && (
-                <div className="space-y-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <h2 className="text-heading-secondary">Your Event Tickets</h2>
-                    <Badge variant="outline">
-                      {eventData.data.non_comp_tickets.length} ticket{eventData.data.non_comp_tickets.length !== 1 ? 's' : ''}
+            <Tabs defaultValue={hasEvents ? "events" : "merch"} className="animate-fade-in" style={{ animationDelay: '150ms' }}>
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="events" className="flex items-center gap-2">
+                  <Ticket className="h-4 w-4" />
+                  Events
+                  {hasEvents && (
+                    <Badge variant="secondary" size="sm" className="ml-1">
+                      {eventTickets.length}
                     </Badge>
-                  </div>
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {eventData.data.non_comp_tickets.map((ticket, index) => (
-                      <TicketCard 
-                        key={index} 
-                        ticket={ticket} 
-                        index={index} 
-                      />
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="merch" className="flex items-center gap-2">
+                  <ShoppingBag className="h-4 w-4" />
+                  Merchandise
+                  {hasMerch && (
+                    <Badge variant="secondary" size="sm" className="ml-1">
+                      {merchTickets.length}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="events" className="mt-0">
+                {hasEvents ? (
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {eventTickets.map((ticket, index) => (
+                      <TicketCard key={ticket.ticket_id || index} ticket={ticket} index={index} />
                     ))}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <EmptyState type="events" />
+                )}
+              </TabsContent>
 
-              {/* Merch */}
-              {eventData.data.merch_tickets && eventData.data.merch_tickets.length > 0 && (
-                <div className="space-y-6 mt-8">
-                  <div className="flex items-center gap-2 mb-4">
-                    <h2 className="text-heading-secondary">Your Merch</h2>
-                    <Badge variant="outline" className="bg-purple-500/10 border-purple-500/30">
-                      {eventData.data.merch_tickets.length} item{eventData.data.merch_tickets.length !== 1 ? 's' : ''}
-                    </Badge>
-                  </div>
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {[...eventData.data.merch_tickets]
+              <TabsContent value="merch" className="mt-0">
+                {hasMerch ? (
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {[...merchTickets]
                       .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
                       .map((merch, index) => (
-                        <MerchCard 
-                          key={index} 
-                          merch={merch} 
-                          index={index} 
-                        />
+                        <MerchCard key={merch.id || index} merch={merch} index={index} />
                       ))}
                   </div>
-                </div>
-              )}
-
-              {/* Empty State - show only if both are empty */}
-              {(!eventData.data.non_comp_tickets || eventData.data.non_comp_tickets.length === 0) && 
-               (!eventData.data.merch_tickets || eventData.data.merch_tickets.length === 0) && (
-                <EmptyState />
-              )}
-            </div>
+                ) : (
+                  <EmptyState type="merch" />
+                )}
+              </TabsContent>
+            </Tabs>
           )}
         </div>
       </div>

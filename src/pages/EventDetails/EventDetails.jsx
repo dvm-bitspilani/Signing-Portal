@@ -18,6 +18,7 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { 
   ChevronLeft, 
+  ChevronRight,
   Calendar, 
   Clock, 
   MapPin, 
@@ -28,7 +29,10 @@ import {
   Ticket,
   Info,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  ShoppingBag,
+  Sparkles,
+  ZoomIn
 } from "lucide-react";
 
 function EventDetails() {
@@ -237,24 +241,34 @@ function EventDetails() {
     return (
       <div className="min-h-screen bg-app-gradient">
         <Navbar />
-        <div className="container mx-auto p-4 sm:p-6">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate("/")}
-            className="mb-4 sm:mb-6"
-          >
-            <ChevronLeft className="w-4 h-4 mr-2" />
-            Go Back
-          </Button>
-          
-          <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
-            <Skeleton className="h-6 sm:h-8 w-48 sm:w-64" />
-            <Skeleton className="h-4 sm:h-6 w-32 sm:w-48" />
-            <Card className="w-full">
-              <CardContent className="p-4 sm:p-6">
-                <Skeleton className="h-48 sm:h-64 w-full" />
-              </CardContent>
-            </Card>
+        <div className="pt-20 pb-24 md:pb-8">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => navigate(-1)}
+              className="mb-6 -ml-2"
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Back
+            </Button>
+            
+            <div className="space-y-6 animate-fade-in">
+              <div className="space-y-2">
+                <Skeleton className="h-8 w-3/4" />
+                <Skeleton className="h-5 w-1/3" />
+              </div>
+              <Card>
+                <CardContent className="p-6">
+                  <Skeleton className="aspect-4/3 w-full rounded-lg" />
+                  <div className="mt-6 space-y-4">
+                    <Skeleton className="h-6 w-1/4" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
@@ -265,28 +279,31 @@ function EventDetails() {
     return (
       <div className="min-h-screen bg-app-gradient">
         <Navbar />
-        <div className="container mx-auto p-4 sm:p-6">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate("/")}
-            className="mb-4 sm:mb-6"
-          >
-            <ChevronLeft className="w-4 h-4 mr-2" />
-            Go Back
-          </Button>
-          
-          <Card className="max-w-md mx-auto">
-            <CardContent className="p-4 sm:p-6 text-center">
-              <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 mx-auto text-destructive mb-4" />
-              <h3 className="text-base sm:text-lg font-semibold mb-2">Event Not Found</h3>
-              <p className="text-sm sm:text-base text-muted-foreground mb-4">
-                {error || "The event you're looking for doesn't exist or has been removed."}
+        <div className="pt-20 pb-24 md:pb-8">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => navigate(-1)}
+              className="mb-6 -ml-2"
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Back
+            </Button>
+            
+            <div className="flex flex-col items-center justify-center py-16 text-center animate-fade-in">
+              <div className="rounded-2xl bg-destructive/10 p-4 mb-4">
+                <AlertCircle className="h-8 w-8 text-destructive" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Not Found</h3>
+              <p className="text-sm text-muted-foreground max-w-xs mb-6">
+                {error || "The item you're looking for doesn't exist or has been removed."}
               </p>
-              <Button onClick={() => navigate("/")} className="w-full sm:w-auto">
-                Go to Homepage
+              <Button onClick={() => navigate("/")} size="sm">
+                Go to Home
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -306,87 +323,105 @@ function EventDetails() {
       setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
     };
 
+    const totalPrice = (merch.price + (customizationEnabled && merch.is_customisable ? (merch.customisation_price || 0) : 0)) * merchQuantity;
+
     return (
       <div className="min-h-screen bg-app-gradient">
         <Navbar />
-        <div className="container mx-auto p-4 sm:p-6">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate("/")}
-            className="mb-4 sm:mb-6"
-          >
-            <ChevronLeft className="w-4 h-4 mr-2" />
-            Go Back
-          </Button>
-          
-          <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">{merch.name}</h1>
-                <Badge variant="secondary" className="bg-purple-500/20 text-purple-600 border-purple-500/30">
-                  Merch
-                </Badge>
+        <div className="pt-20 pb-40 md:pb-8">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => navigate(-1)}
+              className="mb-6 -ml-2"
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Back
+            </Button>
+            
+            <div className="space-y-6 animate-fade-in">
+              {/* Header */}
+              <div className="space-y-2">
+                <div className="flex items-start gap-3">
+                  <div className="shrink-0 p-2 rounded-xl bg-warning/10">
+                    <ShoppingBag className="h-5 w-5 text-warning" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h1 className="text-2xl font-bold tracking-tight">{merch.name}</h1>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="warning">Merchandise</Badge>
+                      {merch.price === 0 && <Badge variant="success">Free</Badge>}
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <Card className="w-full">
-              <CardContent className="p-4 sm:p-6 space-y-6">
-                {/* Image Carousel */}
+              {/* Image Gallery */}
+              <Card className="overflow-hidden">
                 <Dialog open={imageZoomOpen} onOpenChange={setImageZoomOpen}>
                   <DialogTrigger asChild>
-                    <div className="relative w-full h-96 bg-muted rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity">
+                    <div className="relative aspect-square bg-muted cursor-pointer group">
                       <img 
                         src={images[currentImageIndex]} 
                         alt={merch.name}
-                        className="w-full h-full object-contain"
+                        className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                       />
                       {images.length > 1 && (
-                        <div className="group">
+                        <>
                           <Button
                             variant="secondary"
                             size="icon"
-                            className="absolute left-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                            className="absolute left-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
                             onClick={(e) => {
                               e.stopPropagation();
                               prevImage();
                             }}
+                            aria-label="Previous image"
                           >
                             <ChevronLeft className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="secondary"
                             size="icon"
-                            className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
                             onClick={(e) => {
                               e.stopPropagation();
                               nextImage();
                             }}
+                            aria-label="Next image"
                           >
-                            <ChevronLeft className="h-4 w-4 rotate-180" />
+                            <ChevronRight className="h-4 w-4" />
                           </Button>
-                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                            {images.map((_, idx) => (
-                              <div
-                                key={idx}
-                                className={`h-2 w-2 rounded-full transition-all ${
-                                  idx === currentImageIndex 
-                                    ? 'bg-white w-4' 
-                                    : 'bg-white/50'
-                                }`}
-                              />
-                            ))}
-                          </div>
-                        </div>
+                        </>
                       )}
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20">
-                        <div className="text-white text-sm bg-black/60 px-3 py-1 rounded-full">
-                          Click to zoom
+                      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                        {images.map((_, idx) => (
+                          <button
+                            key={idx}
+                            className={`h-1.5 rounded-full transition-all ${
+                              idx === currentImageIndex 
+                                ? 'bg-foreground w-4' 
+                                : 'bg-foreground/30 w-1.5'
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setCurrentImageIndex(idx);
+                            }}
+                            aria-label={`Go to image ${idx + 1}`}
+                          />
+                        ))}
+                      </div>
+                      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex items-center gap-1.5 text-xs bg-black/60 text-white px-2 py-1 rounded-full">
+                          <ZoomIn className="h-3 w-3" />
+                          Zoom
                         </div>
                       </div>
                     </div>
                   </DialogTrigger>
-                  <DialogContent className="max-w-7xl w-full h-[90vh] p-0">
-                    <div className="relative w-full h-full flex items-center justify-center bg-black/95">
+                  <DialogContent className="max-w-5xl w-full h-[90vh] p-0 bg-black/95">
+                    <div className="relative w-full h-full flex items-center justify-center">
                       <img 
                         src={images[currentImageIndex]} 
                         alt={merch.name}
@@ -399,6 +434,7 @@ function EventDetails() {
                             size="icon"
                             className="absolute left-4 top-1/2 -translate-y-1/2"
                             onClick={prevImage}
+                            aria-label="Previous image"
                           >
                             <ChevronLeft className="h-4 w-4" />
                           </Button>
@@ -407,71 +443,41 @@ function EventDetails() {
                             size="icon"
                             className="absolute right-4 top-1/2 -translate-y-1/2"
                             onClick={nextImage}
+                            aria-label="Next image"
                           >
-                            <ChevronLeft className="h-4 w-4 rotate-180" />
+                            <ChevronRight className="h-4 w-4" />
                           </Button>
-                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                            {images.map((_, idx) => (
-                              <div
-                                key={idx}
-                                className={`h-2 w-2 rounded-full transition-all ${
-                                  idx === currentImageIndex 
-                                    ? 'bg-white w-4' 
-                                    : 'bg-white/50'
-                                }`}
-                              />
-                            ))}
-                          </div>
                         </>
                       )}
                     </div>
                   </DialogContent>
                 </Dialog>
 
-                <Separator />
-
-                {/* Price */}
-                <div className={`flex items-center justify-between ${merch.price === 0 ? 'hidden' : ''}`}>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Price</p>
-                    <div className="flex items-center text-2xl font-bold">
-                      <>
-                        <IndianRupee className="w-5 h-5" />
-                        {merch.price}
-                      </>
+                <CardContent className="p-4 sm:p-6 space-y-5">
+                  {/* Price */}
+                  {merch.price > 0 && (
+                    <div className="flex items-baseline gap-1">
+                      <IndianRupee className="w-5 h-5" />
+                      <span className="text-3xl font-bold">{merch.price}</span>
                     </div>
-                  </div>
-                </div>
+                  )}
 
-                {/* Free Event Note */}
-                {merch.price === 0 && (
-                  <Alert className="bg-green-500/10 border-green-500/30">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <AlertDescription className="text-green-600">
-                      This merch is free of charge!
-                    </AlertDescription>
-                  </Alert>
-                )}
-
-                <Separator />
-
-                {/* Sizes Selection */}
-                {merch.sizes && merch.sizes.length > 0 && (
-                  <>
-                    <div className="space-y-4">
+                  {/* Sizes Selection */}
+                  {merch.sizes && merch.sizes.length > 0 && (
+                    <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-base sm:text-lg font-semibold">Select Size</h3>
+                        <label className="text-sm font-medium">Size</label>
                         <Dialog open={sizeChartOpen} onOpenChange={setSizeChartOpen}>
                           <DialogTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <Info className="w-4 h-4 mr-2" />
+                            <Button variant="link" size="sm" className="h-auto p-0 text-primary">
+                              <Info className="w-3 h-3 mr-1" />
                               Size Chart
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="max-w-3xl w-full">
+                          <DialogContent className="max-w-3xl">
                             <div className="space-y-4">
                               <h3 className="text-lg font-semibold">Size Chart</h3>
-                              <div className="relative w-full bg-muted rounded-lg overflow-hidden">
+                              <div className="relative bg-muted rounded-lg overflow-hidden">
                                 <img 
                                   src={
                                     merch.name.toLowerCase().includes('hoodie') || 
@@ -480,42 +486,39 @@ function EventDetails() {
                                       : "https://res.cloudinary.com/dmcy7qqn7/image/upload/v1760604896/tee_zmxxfx.jpg"
                                   }
                                   alt="Size Chart"
-                                  className="w-full h-auto object-contain"
+                                  className="w-full h-auto"
                                 />
                               </div>
                             </div>
                           </DialogContent>
                         </Dialog>
                       </div>
-                      <Select
-                        value={selectedSize || ""}
-                        onValueChange={(value) => setSelectedSize(value)}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select Size" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {merch.sizes.map((size) => (
-                            <SelectItem key={size.id} value={size.id.toString()}>
-                              {size.name === "A" ? "Universal" : size.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <div className="flex flex-wrap gap-2">
+                        {merch.sizes.map((size) => (
+                          <button
+                            key={size.id}
+                            className={`min-w-12 px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
+                              selectedSize === size.id.toString()
+                                ? 'border-primary bg-primary/10 text-primary'
+                                : 'border-border hover:border-primary/50'
+                            }`}
+                            onClick={() => setSelectedSize(size.id.toString())}
+                          >
+                            {size.name === "A" ? "One Size" : size.name}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    <Separator />
-                  </>
-                )}
+                  )}
 
-                {/* Customization Section */}
-                {merch.is_customisable && (
-                  <>
-                    <div className="space-y-4">
+                  {/* Customization Section */}
+                  {merch.is_customisable && (
+                    <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <div className="space-y-0.5">
-                          <h3 className="text-base sm:text-lg font-semibold">Customization</h3>
-                          <p className="text-sm text-muted-foreground">
-                            Add custom {merch.customisation_type || "text"} (+₹{merch.customisation_price || 0})
+                        <div>
+                          <label className="text-sm font-medium">Add Customization</label>
+                          <p className="text-xs text-muted-foreground">
+                            +₹{merch.customisation_price || 0} per item
                           </p>
                         </div>
                         <Switch
@@ -524,76 +527,75 @@ function EventDetails() {
                         />
                       </div>
                       {customizationEnabled && (
-                        <div className="space-y-2">
-                          <label htmlFor="customization" className="text-sm font-medium">
-                            {merch.customisation_type || "Customization Text"}
-                          </label>
-                          <Input
-                            id="customization"
-                            type="text"
-                            placeholder={`Enter your ${merch.customisation_type || "text"}...`}
-                            value={customizationText}
-                            onChange={(e) => setCustomizationText(e.target.value)}
-                            className="w-full"
-                          />
-                        </div>
+                        <Input
+                          type="text"
+                          placeholder={`Enter your ${merch.customisation_type || "text"}...`}
+                          value={customizationText}
+                          onChange={(e) => setCustomizationText(e.target.value)}
+                          className="w-full"
+                        />
                       )}
                     </div>
-                    <Separator />
-                  </>
-                )}
+                  )}
 
-                {/* Quantity Selection */}
-                <div className="space-y-4">
-                  <h3 className="text-base sm:text-lg font-semibold">Quantity</h3>
-                  <div className="flex items-center justify-center space-x-4">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setMerchQuantity(Math.max(1, merchQuantity - 1))}
-                      disabled={merchQuantity <= 1}
-                    >
-                      <Minus className="w-4 h-4" />
-                    </Button>
-                    <span className="w-16 text-center text-xl font-medium">
-                      {merchQuantity}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setMerchQuantity(Math.min(25, merchQuantity + 1))}
-                      disabled={merchQuantity >= 25}
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  <p className="text-xs text-center text-muted-foreground">Min: 1, Max: 25</p>
-                </div>
-
-                <Separator />
-
-                {/* Total and Buy Button */}
-                <div className="space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-muted rounded-lg">
-                    <div className={merch.price === 0 ? 'hidden' : ''}>
-                      <p className="text-sm text-muted-foreground">Total Amount</p>
-                      <div className="flex items-center text-xl sm:text-2xl font-bold">
-                        <>
-                          <IndianRupee className="w-5 h-5" />
-                          {(merch.price + (customizationEnabled && merch.is_customisable ? (merch.customisation_price || 0) : 0)) * merchQuantity}
-                        </>
+                  {/* Quantity Selection */}
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium">Quantity</label>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center border rounded-lg">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-10 w-10 rounded-r-none"
+                          onClick={() => setMerchQuantity(Math.max(1, merchQuantity - 1))}
+                          disabled={merchQuantity <= 1}
+                          aria-label="Decrease quantity"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </Button>
+                        <span className="w-12 text-center font-medium">
+                          {merchQuantity}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-10 w-10 rounded-l-none"
+                          onClick={() => setMerchQuantity(Math.min(25, merchQuantity + 1))}
+                          disabled={merchQuantity >= 25}
+                          aria-label="Increase quantity"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </Button>
                       </div>
-                      {customizationEnabled && merch.is_customisable && merch.customisation_price > 0 && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Includes ₹{merch.customisation_price} customization fee per item
-                        </p>
-                      )}
+                      <span className="text-xs text-muted-foreground">Max 25</span>
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Desktop Buy Section */}
+              <Card className="hidden md:block">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center justify-between">
+                    {merch.price > 0 && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Total</p>
+                        <div className="flex items-baseline gap-1">
+                          <IndianRupee className="w-5 h-5" />
+                          <span className="text-2xl font-bold">{totalPrice}</span>
+                        </div>
+                        {customizationEnabled && merch.is_customisable && merch.customisation_price > 0 && (
+                          <p className="text-xs text-muted-foreground">
+                            Incl. ₹{merch.customisation_price * merchQuantity} customization
+                          </p>
+                        )}
+                      </div>
+                    )}
                     <Button 
                       onClick={handleMerchBuy}
                       disabled={purchaseLoading || (merch.sizes && merch.sizes.length > 0 && !selectedSize)}
-                      className={`${merch.price === 0 ? 'w-full' : 'w-full sm:w-auto'}`}
                       size="lg"
+                      className={merch.price === 0 ? 'w-full' : ''}
                     >
                       {purchaseLoading ? (
                         <>
@@ -602,16 +604,50 @@ function EventDetails() {
                         </>
                       ) : (
                         <>
-                          <Ticket className="w-4 h-4 mr-2" />
-                          {merch.price === 0 ? 'Participate' : 'Buy Merch'}
+                          <ShoppingBag className="w-4 h-4 mr-2" />
+                          {merch.price === 0 ? 'Get Now' : 'Buy Now'}
                         </>
                       )}
                     </Button>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </div>
+        </div>
+
+        {/* Mobile Floating Bottom CTA */}
+        <div className="fixed bottom-16 left-0 right-0 md:hidden z-40 px-4 pb-4 pt-2 bg-linear-to-t from-background via-background to-transparent">
+          <Card className="border shadow-lg">
+            <CardContent className="p-3 flex items-center justify-between gap-3">
+              {merch.price > 0 && (
+                <div>
+                  <p className="text-xs text-muted-foreground">Total</p>
+                  <div className="flex items-baseline gap-0.5">
+                    <IndianRupee className="w-4 h-4" />
+                    <span className="text-xl font-bold">{totalPrice}</span>
+                  </div>
+                </div>
+              )}
+              <Button 
+                onClick={handleMerchBuy}
+                disabled={purchaseLoading || (merch.sizes && merch.sizes.length > 0 && !selectedSize)}
+                className={merch.price === 0 ? 'flex-1' : ''}
+              >
+                {purchaseLoading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag className="w-4 h-4 mr-2" />
+                    {merch.price === 0 ? 'Get Now' : 'Buy Now'}
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -634,230 +670,225 @@ function EventDetails() {
   return (
     <div className="min-h-screen bg-app-gradient">
       <Navbar />
-      <div className="container mx-auto p-4 sm:p-6">
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate("/")}
-          className="mb-4 sm:mb-6"
-        >
-          <ChevronLeft className="w-4 h-4 mr-2" />
-          Go Back
-        </Button>
-        
-        <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
-          <div className="space-y-2">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">{event.non_comp_name}</h1>
-          </div>
-
-          <Card className="w-full">
-            <CardHeader className="pb-4 sm:pb-6">
-              <CardTitle className="text-lg sm:text-xl">Event Dates</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Tabs value={activeDateTab.toString()} onValueChange={(value) => setActiveDateTab(parseInt(value))}>
-                <div className="overflow-x-auto mb-4 sm:mb-6">
-                  <TabsList className="grid w-full min-w-max" style={{ gridTemplateColumns: `repeat(${sortedDates.length}, minmax(120px, 1fr))` }}>
-                    {sortedDates.map((dateObj, idx) => (
-                      <TabsTrigger key={dateObj.date} value={idx.toString()} className="text-xs sm:text-sm whitespace-nowrap data-[state=active]:bg-green-700 data-[state=active]:text-white dark:data-[state=active]:bg-green-600 data-[state=active]:font-semibold">
-                        {dateObj.date}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
+      <div className="pt-20 pb-24 md:pb-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="mb-6 -ml-2"
+          >
+            <ChevronLeft className="w-4 h-4 mr-1" />
+            Back
+          </Button>
+          
+          <div className="space-y-6 animate-fade-in">
+            {/* Header */}
+            <div className="space-y-2">
+              <div className="flex items-start gap-3">
+                <div className="shrink-0 p-2 rounded-xl bg-primary/10">
+                  <Ticket className="h-5 w-5 text-primary" />
                 </div>
-                
-                {sortedDates.map((dateObj, idx) => (
-                  <TabsContent key={dateObj.date} value={idx.toString()} className="mt-4 sm:mt-6">
-                    <div className="space-y-4 sm:space-y-6">
-                      <div className="space-y-2">
-                        <h3 className="text-base sm:text-lg font-semibold">Description</h3>
-                        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{event.description}</p>
-                      </div>
-                      
-                      <Separator />
-                      
-                      <div className="space-y-4">
-                        <h3 className="text-base sm:text-lg font-semibold flex items-center">
-                          <Clock className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                          Available Slots
-                        </h3>
-                        
-                        {dateObj.slots.length > 0 ? (
-                          <div className="space-y-3">
-                            {dateObj.slots.map((slot) => (
-                              <Card 
-                                key={slot.slot_id} 
-                                className={`transition-all ${!slot.is_openforsignings ? 'opacity-50' : ''}`}
-                              >
-                                <CardHeader 
-                                  className="cursor-pointer pb-3 sm:pb-4"
-                                  onClick={() => slot.is_openforsignings && handleSlotToggle(slot.slot_id)}
-                                >
-                                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                                    <div className="space-y-2">
-                                      <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-                                        <Badge variant={slot.is_openforsignings ? "default" : "secondary"} className="w-fit">
-                                          {slot.is_openforsignings ? "Open" : "Closed"}
-                                        </Badge>
-                                        <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
-                                          <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                                          {slot.venue}
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-2xl font-bold tracking-tight">{event.non_comp_name}</h1>
+                  <p className="text-muted-foreground text-sm mt-1">
+                    {event.description}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Date Tabs */}
+            <Tabs value={activeDateTab.toString()} onValueChange={(value) => setActiveDateTab(parseInt(value))}>
+              {/* Date Pills - Horizontal scrollable */}
+              <div className="overflow-x-auto -mx-4 px-4 pb-2">
+                <TabsList className="inline-flex h-auto p-1 bg-muted/50 gap-1">
+                  {sortedDates.map((dateObj, idx) => (
+                    <TabsTrigger 
+                      key={dateObj.date} 
+                      value={idx.toString()} 
+                      className="px-4 py-2 text-sm whitespace-nowrap rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                    >
+                      <Calendar className="w-3.5 h-3.5 mr-1.5" />
+                      {dateObj.date}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </div>
+              
+              {sortedDates.map((dateObj, idx) => (
+                <TabsContent key={dateObj.date} value={idx.toString()} className="mt-4">
+                  <div className="space-y-3">
+                    {dateObj.slots.length > 0 ? (
+                      dateObj.slots.map((slot, slotIdx) => (
+                        <Card 
+                          key={slot.slot_id} 
+                          className={`transition-all animate-fade-in-up ${!slot.is_openforsignings ? 'opacity-50' : 'card-interactive'}`}
+                          style={{ animationDelay: `${slotIdx * 50}ms` }}
+                        >
+                          <CardHeader 
+                            className="cursor-pointer pb-3"
+                            onClick={() => slot.is_openforsignings && handleSlotToggle(slot.slot_id)}
+                          >
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Badge variant={slot.is_openforsignings ? "success" : "secondary"} size="sm">
+                                    {slot.is_openforsignings ? "Open" : "Closed"}
+                                  </Badge>
+                                </div>
+                                <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                                  <div className="flex items-center">
+                                    <Clock className="w-3.5 h-3.5 mr-1.5 shrink-0" />
+                                    {formatTime(slot.start_time)} - {formatTime(slot.end_time)}
+                                  </div>
+                                  <div className="flex items-center">
+                                    <MapPin className="w-3.5 h-3.5 mr-1.5 shrink-0" />
+                                    {slot.venue}
+                                  </div>
+                                </div>
+                              </div>
+                              {slot.is_openforsignings && (
+                                <ChevronLeft className={`w-5 h-5 text-muted-foreground transition-transform ${openSlotIds.includes(slot.slot_id) ? 'rotate-90' : '-rotate-90'}`} />
+                              )}
+                            </div>
+                          </CardHeader>
+                          
+                          {openSlotIds.includes(slot.slot_id) && (
+                            <CardContent className="pt-0 border-t">
+                              {slot.is_openforsignings ? (
+                                slot.ticket_types && slot.ticket_types.length > 0 ? (
+                                  <div className="pt-4 space-y-4">
+                                    <Select
+                                      value={selectedTicketType[slot.slot_id] || ""}
+                                      onValueChange={(value) => handleTicketTypeChange(slot.slot_id, value)}
+                                    >
+                                      <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Select ticket type" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {slot.ticket_types.map((tt) => (
+                                          <SelectItem key={tt.ticket_type_id} value={tt.ticket_type_id}>
+                                            <div className="flex items-center justify-between w-full">
+                                              <span>{tt.ticket_type_name}</span>
+                                              {tt.price > 0 && (
+                                                <span className="text-muted-foreground ml-2">₹{tt.price}</span>
+                                              )}
+                                            </div>
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    
+                                    {selectedTicketType[slot.slot_id] && (
+                                      <div className="p-4 bg-muted/50 rounded-lg space-y-4">
+                                        <div className="flex items-center justify-between">
+                                          <div>
+                                            <p className="font-medium">
+                                              {slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.ticket_type_name}
+                                            </p>
+                                            {(slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0) > 0 && (
+                                              <div className="flex items-center text-lg font-semibold">
+                                                <IndianRupee className="w-4 h-4" />
+                                                {slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price}
+                                              </div>
+                                            )}
+                                            {(slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0) === 0 && (
+                                              <Badge variant="success" size="sm">Free</Badge>
+                                            )}
+                                          </div>
+                                          <div className="flex items-center border rounded-lg bg-background">
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              className="h-9 w-9 rounded-r-none"
+                                              onClick={() => handleTicketCount(slot.slot_id, -1)}
+                                              disabled={(ticketCounts[slot.slot_id] || 1) <= 1}
+                                              aria-label="Decrease quantity"
+                                            >
+                                              <Minus className="w-4 h-4" />
+                                            </Button>
+                                            <span className="w-10 text-center font-medium">
+                                              {ticketCounts[slot.slot_id] || 1}
+                                            </span>
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              className="h-9 w-9 rounded-l-none"
+                                              onClick={() => handleTicketCount(slot.slot_id, 1)}
+                                              aria-label="Increase quantity"
+                                            >
+                                              <Plus className="w-4 h-4" />
+                                            </Button>
+                                          </div>
+                                        </div>
+
+                                        <Separator />
+
+                                        <div className="flex items-center justify-between">
+                                          {(slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0) > 0 && (
+                                            <div>
+                                              <p className="text-xs text-muted-foreground">Total</p>
+                                              <div className="flex items-center text-xl font-bold">
+                                                <IndianRupee className="w-4 h-4" />
+                                                {(ticketCounts[slot.slot_id] || 1) * (slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0)}
+                                              </div>
+                                            </div>
+                                          )}
+                                          <Button 
+                                            onClick={() => handleNonCompBuy(slot)}
+                                            disabled={(ticketCounts[slot.slot_id] || 1) === 0 || purchaseLoading}
+                                            className={(slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0) === 0 ? 'w-full' : ''}
+                                          >
+                                            {purchaseLoading ? (
+                                              <>
+                                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                                                Processing...
+                                              </>
+                                            ) : (
+                                              <>
+                                                <Ticket className="w-4 h-4 mr-2" />
+                                                {(slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0) === 0 ? 'Participate' : 'Buy Tickets'}
+                                              </>
+                                            )}
+                                          </Button>
                                         </div>
                                       </div>
-                                      <div className="flex items-center text-xs sm:text-sm">
-                                        <span>{formatTime(slot.start_time)} - {formatTime(slot.end_time)}</span>
-                                      </div>
-                                    </div>
-                                    {slot.is_openforsignings && (
-                                      <Button variant="ghost" size="sm" className="self-start sm:self-center">
-                                        {openSlotIds.includes(slot.slot_id) ? (
-                                          <ChevronLeft className="w-4 h-4 rotate-90" />
-                                        ) : (
-                                          <ChevronLeft className="w-4 h-4 -rotate-90" />
-                                        )}
-                                      </Button>
                                     )}
                                   </div>
-                                </CardHeader>
-                                
-                                {openSlotIds.includes(slot.slot_id) && (
-                                  <CardContent className="pt-0">
-                                    {slot.is_openforsignings ? (
-                                      slot.ticket_types && slot.ticket_types.length > 0 ? (
-                                        <div className="space-y-4">
-                                          <Select
-                                            value={selectedTicketType[slot.slot_id] || ""}
-                                            onValueChange={(value) => handleTicketTypeChange(slot.slot_id, value)}
-                                          >
-                                            <SelectTrigger className="w-full">
-                                              <SelectValue placeholder="Select Ticket Type" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                              {slot.ticket_types.map((tt) => (
-                                                <SelectItem key={tt.ticket_type_id} value={tt.ticket_type_id}>
-                                                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full">
-                                                    <span>{tt.ticket_type_name}</span>
-                                                    {tt.price > 0 && (
-                                                      <span className="text-sm font-medium text-muted-foreground sm:ml-2">(₹{tt.price})</span>
-                                                    )}
-                                                  </div>
-                                                </SelectItem>
-                                              ))}
-                                            </SelectContent>
-                                          </Select>
-                                          
-                                          {selectedTicketType[slot.slot_id] && (
-                                            <Card className="p-3 sm:p-4">
-                                              <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
-                                                <div className="space-y-1">
-                                                  <h4 className="text-sm sm:text-base font-medium">
-                                                    {slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.ticket_type_name}
-                                                  </h4>
-                                                  <div className={`flex items-center text-lg font-semibold ${slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price === 0 ? 'hidden' : ''}`}>
-                                                    <IndianRupee className="w-4 h-4" />
-                                                    {slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price}
-                                                  </div>
-                                                </div>
-                                                <div className="flex items-center justify-center space-x-3">
-                                                  <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => handleTicketCount(slot.slot_id, -1)}
-                                                    disabled={(ticketCounts[slot.slot_id] || 1) <= 1}
-                                                  >
-                                                    <Minus className="w-4 h-4" />
-                                                  </Button>
-                                                  <span className="w-8 text-center font-medium">
-                                                    {ticketCounts[slot.slot_id] || 1}
-                                                  </span>
-                                                  <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => handleTicketCount(slot.slot_id, 1)}
-                                                  >
-                                                    <Plus className="w-4 h-4" />
-                                                  </Button>
-                                                </div>
-                                              </div>
-                                              
-                                              {(ticketCounts[slot.slot_id] || 1) > 0 && (
-                                                <>
-                                                  {/* Free Event Note */}
-                                                  {(slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0) === 0 && (
-                                                    <Alert className="bg-green-500/10 border-green-500/30 mb-3">
-                                                      <CheckCircle className="h-4 w-4 text-green-600" />
-                                                      <AlertDescription className="text-green-600">
-                                                        This event is free of charge!
-                                                      </AlertDescription>
-                                                    </Alert>
-                                                  )}
-                                                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 border-t space-y-3 sm:space-y-0">
-                                                    <div className={(slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0) === 0 ? 'hidden' : ''}>
-                                                      <p className="text-xs sm:text-sm text-muted-foreground">Total Amount</p>
-                                                      <div className="flex items-center text-lg sm:text-xl font-bold">
-                                                        <IndianRupee className="w-4 h-4 sm:w-5 sm:h-5" />
-                                                        {(ticketCounts[slot.slot_id] || 1) * (slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0)}
-                                                      </div>
-                                                    </div>
-                                                    <Button 
-                                                      onClick={() => handleNonCompBuy(slot)}
-                                                      disabled={(ticketCounts[slot.slot_id] || 1) === 0 || purchaseLoading}
-                                                      className={`${(slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0) === 0 ? 'w-full' : 'w-full sm:w-auto'}`}
-                                                      size="sm"
-                                                    >
-                                                      {purchaseLoading ? (
-                                                        <>
-                                                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                                                          Processing...
-                                                        </>
-                                                      ) : (
-                                                        <>
-                                                          <Ticket className="w-4 h-4 mr-2" />
-                                                          {(slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0) === 0 ? 'Participate' : 'Buy Tickets'}
-                                                        </>
-                                                      )}
-                                                    </Button>
-                                                  </div>
-                                                </>
-                                              )}
-                                            </Card>
-                                          )}
-                                        </div>
-                                      ) : (
-                                        <Alert>
-                                          <Info className="h-4 w-4" />
-                                          <AlertDescription>
-                                            No tickets available for this slot.
-                                          </AlertDescription>
-                                        </Alert>
-                                      )
-                                    ) : (
-                                      <Alert>
-                                        <AlertCircle className="h-4 w-4" />
-                                        <AlertDescription>
-                                          Signings are not open for this slot.
-                                        </AlertDescription>
-                                      </Alert>
-                                    )}
-                                  </CardContent>
-                                )}
-                              </Card>
-                            ))}
-                          </div>
-                        ) : (
-                          <Alert>
-                            <Info className="h-4 w-4" />
-                            <AlertDescription>
-                              No slots available for this date.
-                            </AlertDescription>
-                          </Alert>
-                        )}
-                      </div>
-                    </div>
-                  </TabsContent>
-                ))}
-              </Tabs>
-            </CardContent>
-          </Card>
+                                ) : (
+                                  <Alert className="mt-4">
+                                    <Info className="h-4 w-4" />
+                                    <AlertDescription>
+                                      No tickets available for this slot.
+                                    </AlertDescription>
+                                  </Alert>
+                                )
+                              ) : (
+                                <Alert className="mt-4">
+                                  <AlertCircle className="h-4 w-4" />
+                                  <AlertDescription>
+                                    Signings are not open for this slot.
+                                  </AlertDescription>
+                                </Alert>
+                              )}
+                            </CardContent>
+                          )}
+                        </Card>
+                      ))
+                    ) : (
+                      <Card className="animate-fade-in">
+                        <CardContent className="py-8 text-center">
+                          <Info className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                          <p className="text-muted-foreground">No slots available for this date.</p>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                </TabsContent>
+              ))}
+            </Tabs>
+          </div>
         </div>
       </div>
     </div>

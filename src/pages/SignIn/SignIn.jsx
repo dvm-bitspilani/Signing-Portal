@@ -1,15 +1,15 @@
 import { React, useState } from "react";
-import Navbar from "../ComComponent/Navbar/Navbar";
 import { jwtDecode } from "jwt-decode";
 import { GoogleLogin } from "@react-oauth/google";
 import { useLocation, useNavigate } from "react-router-dom";
 import { apiBaseURL } from "../../global";
 import axios from "axios";
 import { handleApiErrorToast, showLoadingToast, dismissToast } from "../../assets/utils/toast.js";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Heart } from "lucide-react";
+import { Shield, Sparkles } from "lucide-react";
+import { ThemeToggle } from "../../components/theme-toggle";
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ const SignIn = () => {
           },
         }
       )
-        .then((response) => {
+      .then((response) => {
         setIsLoading(false);
         dismissToast(loadingToastId);
 
@@ -71,58 +71,87 @@ const SignIn = () => {
   };
 
   const handleError = (error) => {
-    // Use the API error handling to show the actual error message from the server
-    // If it's a BITS email validation error, the API should return the appropriate message
     handleApiErrorToast(error, "Please use your BITS email ID to sign in. If your BITS email ID is not working, please contact support.");
-  };  return (
+  };
+
+  return (
     <div className="min-h-screen bg-app-gradient flex flex-col">
-      <Navbar />
+      {/* Minimal header with theme toggle */}
+      <header className="absolute top-4 right-4 z-10">
+        <ThemeToggle />
+      </header>
       
-      <div className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-md space-y-8">
-          {/* Header */}
-          <div className="text-center">
-            <h1 className="text-heading-primary mb-2">
-              Signings Portal
-            </h1>
-            <p className="text-body-large text-muted-foreground">
-              Sign in to access events and prof shows
-            </p>
+      <main className="flex-1 flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-sm space-y-8 animate-fade-in">
+          {/* Logo and Branding */}
+          <div className="text-center space-y-4">
+            <div className="flex justify-center">
+              <div className="relative">
+                <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-150" />
+                <img 
+                  src="https://res.cloudinary.com/dhrbeqvcw/image/upload/v1760900997/logo2_r7itzj.png" 
+                  alt="BITS Oasis Logo" 
+                  className="relative h-20 w-20"
+                />
+              </div>
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">
+                Signings Portal
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                BITS Pilani, Pilani Campus
+              </p>
+            </div>
           </div>
 
           {/* Sign In Card */}
-          <Card className="border shadow-lg backdrop-blur-sm bg-card/80">
-            <CardHeader className="space-y-1 text-center">
-              <CardTitle className="text-heading-secondary">
-                Welcome Back
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
+          <Card className="border-0 shadow-xl bg-card/95 backdrop-blur-sm">
+            <CardContent className="pt-8 pb-8 px-6 space-y-6">
+              <div className="text-center space-y-2">
+                <div className="flex items-center justify-center gap-2 text-primary">
+                  <Sparkles className="h-5 w-5" />
+                  <span className="text-sm font-medium">Welcome</span>
+                </div>
+                <h2 className="text-xl font-semibold">
+                  Sign in to continue
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Access events, merchandise, and your bookings
+                </p>
+              </div>
+              
               {isLoading ? (
-                <div className="space-y-4">
-                  <Skeleton className="h-12 w-full" />
+                <div className="space-y-4 py-2">
+                  <Skeleton className="h-11 w-full rounded-full" />
                   <div className="text-center">
-                    <Skeleton className="h-4 w-32 mx-auto" />
+                    <p className="text-sm text-muted-foreground">
+                      Authenticating...
+                    </p>
                   </div>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-5">
+                  {/* Google Sign-In Button Container */}
                   <div className="flex justify-center">
                     <GoogleLogin
                       onSuccess={handleLoginSuccess}
                       onError={handleError}
                       auto_select={true}
                       shape="pill"
-                      theme="filled_black"
-                      text="Continue With Google"
+                      theme="outline"
+                      text="continue_with"
                       size="large"
-                      width="300"
+                      width="280"
+                      logo_alignment="center"
                     />
                   </div>
                   
-                  <Alert className="border-primary/30 bg-primary/10">
-                    <AlertDescription className="text-primary text-body-small">
-                      Make sure to use your official BITS Pilani email address for authentication.
+                  {/* Info Alert */}
+                  <Alert className="border-border bg-muted/50">
+                    <Shield className="h-4 w-4 text-primary" />
+                    <AlertDescription className="text-xs text-muted-foreground ml-2">
+                      Use your official <span className="font-medium text-foreground">@pilani.bits-pilani.ac.in</span> email address
                     </AlertDescription>
                   </Alert>
                 </div>
@@ -130,16 +159,18 @@ const SignIn = () => {
             </CardContent>
           </Card>
 
-          {/* Additional Info */}
-          <br />
-          <br /><br /><br />
+          {/* Privacy Note */}
+          <p className="text-center text-xs text-muted-foreground px-4">
+            By signing in, you agree to our event booking terms and conditions. 
+            Your data is secured and used only for fest activities.
+          </p>
         </div>
-      </div>
+      </main>
 
       {/* Footer */}
       <footer className="py-6 text-center">
-        <p className="text-caption flex items-center justify-center gap-2">
-          Made with <Heart className="h-4 w-4 text-red-500" /> by DVM, BITS Pilani
+        <p className="text-xs text-muted-foreground">
+          Made with ❤️ by <span className="font-medium">DVM</span>, BITS Pilani
         </p>
       </footer>
     </div>

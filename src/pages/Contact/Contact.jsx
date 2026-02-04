@@ -94,7 +94,7 @@ function Contact() {
         <div className="space-y-3">
           <div className="flex items-center justify-between p-2 rounded-md bg-muted/50 hover:bg-muted transition-colors">
             <div className="flex items-center space-x-3 flex-1 min-w-0">
-              <Mail className="h-4 w-4 text-primary flex-shrink-0" />
+              <Mail className="h-4 w-4 text-primary shrink-0" />
               <a 
                 href={`mailto:${member.email}`}
                 className="text-caption text-muted-foreground hover:text-primary transition-colors truncate"
@@ -106,7 +106,7 @@ function Contact() {
               size="sm"
               variant="ghost"
               onClick={() => copyToClipboard(member.email, "Email")}
-              className="h-6 w-6 p-0 hover:bg-primary/10 flex-shrink-0 ml-2"
+              className="h-6 w-6 p-0 hover:bg-primary/10 shrink-0 ml-2"
             >
               <Copy className="h-3 w-3" />
             </Button>
@@ -114,7 +114,7 @@ function Contact() {
           
           <div className="flex items-center justify-between p-2 rounded-md bg-muted/50 hover:bg-muted transition-colors">
             <div className="flex items-center space-x-3 flex-1 min-w-0">
-              <Phone className="h-4 w-4 text-primary flex-shrink-0" />
+              <Phone className="h-4 w-4 text-primary shrink-0" />
               <a 
                 href={`tel:${member.phone}`}
                 className="text-caption text-muted-foreground hover:text-primary transition-colors"
@@ -126,7 +126,7 @@ function Contact() {
               size="sm"
               variant="ghost"
               onClick={() => copyToClipboard(member.phone, "Phone")}
-              className="h-6 w-6 p-0 hover:bg-primary/10 flex-shrink-0 ml-2"
+              className="h-6 w-6 p-0 hover:bg-primary/10 shrink-0 ml-2"
             >
               <Copy className="h-3 w-3" />
             </Button>

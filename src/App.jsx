@@ -11,6 +11,7 @@ import {
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
 import Footer from "./components/Footer.jsx";
+import MobileBottomNav from "./components/MobileBottomNav.jsx";
 
 import SignInContext from "./assets/store/SignInContext.jsx";
 
@@ -33,12 +34,25 @@ export const AppContext = createContext({});
 const Layout = () => {
   const location = useLocation();
   const hideFooter = location.pathname === "/signin";
+  const hideBottomNav = location.pathname === "/signin";
 
   return (
-    <>
-      <Outlet />
-      {!hideFooter && <Footer />}
-    </>
+    <div className="min-h-screen flex flex-col">
+      {/* Main content area with bottom padding on mobile for bottom nav */}
+      <main className={`flex-1 ${!hideBottomNav ? 'pb-20 md:pb-0' : ''}`}>
+        <Outlet />
+      </main>
+      
+      {/* Footer - hidden on sign-in, and on mobile when bottom nav is visible */}
+      {!hideFooter && (
+        <div className="hidden md:block">
+          <Footer />
+        </div>
+      )}
+      
+      {/* Mobile Bottom Navigation */}
+      {!hideBottomNav && <MobileBottomNav />}
+    </div>
   );
 };
 
@@ -91,22 +105,19 @@ const App = () => {
   ]);
 
   return (
-    <ThemeProvider defaultTheme="light" storageKey="signings-portal-theme">
+    <ThemeProvider defaultTheme="system" storageKey="signings-portal-theme">
       <AppContext.Provider value={{ globalAppStates, setGlobalAppStates }}>
         <GoogleOAuthProvider clientId="993693860464-5p8rfdqpp8svqhdhviaian2i0kkpqt78.apps.googleusercontent.com">
-          <div className="min-h-screen flex flex-col">
-            <div className="flex-1">
-              <RouterProvider router={router} />
-            </div>
-            <Toaster 
-              position="top-right" 
-              richColors 
-              closeButton
-              toastOptions={{
-                duration: 4000,
-              }}
-            />
-          </div>
+          <RouterProvider router={router} />
+          <Toaster 
+            position="top-center" 
+            richColors 
+            closeButton
+            toastOptions={{
+              duration: 4000,
+              className: "!bg-background !text-foreground !border-border",
+            }}
+          />
         </GoogleOAuthProvider>
       </AppContext.Provider>
     </ThemeProvider>

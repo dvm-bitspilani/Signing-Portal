@@ -1,7 +1,5 @@
-import { React, useState } from "react";
-import { Link } from "react-router-dom";
-import SignInContext from "../../../assets/store/SignInContext";
-import { AppContext } from "../../../App";
+import { React } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { getAccessToken, getUserDetails } from "../../../assets/utils/auth";
 import { useSubmit } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -15,8 +13,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ThemeToggle } from "../../../components/theme-toggle";
 import { 
-  Menu, 
-  X, 
   Calendar,
   ShoppingBag,
   Ticket, 
@@ -24,11 +20,12 @@ import {
   LogOut, 
   User 
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const Navbar = () => {
   const submit = useSubmit();
+  const location = useLocation();
   const { username, profilePicURL } = getUserDetails();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const token = getAccessToken();
 
   const signOut = () => {
@@ -42,168 +39,169 @@ const Navbar = () => {
     { to: "/contact", label: "Contact", icon: Phone },
   ];
 
+  const isActive = (path) => {
+    if (path === "/") return location.pathname === "/";
+    return location.pathname.startsWith(path);
+  };
+
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border/20 bg-background/70 backdrop-blur-md supports-[backdrop-filter]:bg-background/50 shadow-sm">
+    <nav className="sticky top-0 z-50 w-full border-b border-border/30 bg-background/80 backdrop-blur-lg supports-backdrop-filter:bg-background/60">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo and Title */}
-          <Link to="/" className="nav-brand flex items-center space-x-3 transition-all duration-300 hover:scale-105 hover:text-primary">
-            <img src="https://res.cloudinary.com/dhrbeqvcw/image/upload/v1760900997/logo2_r7itzj.png" alt="Logo" className="h-8 w-8 transition-transform duration-300 hover:rotate-12" />
-            <span className="nav-brand font-bold">Signings Portal</span>
+          <Link 
+            to="/" 
+            className="flex items-center gap-3 transition-all duration-200 hover:opacity-80"
+          >
+            <img 
+              src="https://res.cloudinary.com/dhrbeqvcw/image/upload/v1760900997/logo2_r7itzj.png" 
+              alt="Signings Portal Logo" 
+              className="h-9 w-9" 
+            />
+            <span className="text-lg font-bold tracking-tight">
+              Signings Portal
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden md:flex items-center gap-1">
             {token ? (
               <>
                 {navLinks.map((link) => {
                   const IconComponent = link.icon;
+                  const active = isActive(link.to);
                   return (
                     <Link
                       key={link.to}
                       to={link.to}
-                      className="nav-link relative px-3 py-2 rounded-md transition-all duration-300 hover:bg-primary/10 hover:shadow-sm hover:scale-105 flex items-center space-x-2"
+                      className={cn(
+                        "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                        active 
+                          ? "bg-primary/10 text-primary" 
+                          : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                      )}
+                      aria-current={active ? "page" : undefined}
                     >
-                      <IconComponent className="h-4 w-4" />
+                      <IconComponent className="h-4 w-4" aria-hidden="true" />
                       <span>{link.label}</span>
                     </Link>
                   );
                 })}
-                <div className="relative">
+                
+                <div className="ml-2 flex items-center gap-2">
                   <ThemeToggle />
-                </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full transition-all duration-300 hover:scale-110 hover:shadow-md hover:bg-primary/10">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={profilePicURL || "/default-profile.png"} alt={username} />
-                        <AvatarFallback>
-                          <User className="h-4 w-4" />
-                        </AvatarFallback>
-                      </Avatar>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56 bg-background/80 backdrop-blur-md border border-border/20 shadow-lg" align="end" forceMount>
-                    <div className="flex items-center justify-start gap-2 p-2">
-                      <div className="flex flex-col space-y-1 leading-none">
-                        <p className="nav-text-muted">Welcome,</p>
-                        <p className="text-label">{username || "Guest"}</p>
-                      </div>
-                    </div>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem 
-                      onClick={signOut} 
-                      className="text-red-600 focus:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all duration-200"
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        className="relative h-9 w-9 rounded-full p-0 hover:ring-2 hover:ring-primary/20"
+                        aria-label="User menu"
+                      >
+                        <Avatar className="h-9 w-9">
+                          <AvatarImage src={profilePicURL || "/default-profile.png"} alt={username} />
+                          <AvatarFallback>
+                            <User className="h-4 w-4" />
+                          </AvatarFallback>
+                        </Avatar>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent 
+                      className="w-56 glass" 
+                      align="end" 
+                      forceMount
                     >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Log out</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                      <div className="flex items-center gap-3 p-3">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={profilePicURL} alt={username} />
+                          <AvatarFallback>
+                            <User className="h-5 w-5" />
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                          <span className="text-xs text-muted-foreground">Signed in as</span>
+                          <span className="text-sm font-semibold truncate max-w-[140px]">
+                            {username || "Guest"}
+                          </span>
+                        </div>
+                      </div>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        onClick={signOut} 
+                        className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Log out</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </>
             ) : (
-              <div className="flex items-center space-x-4">
-                <div className="relative">
-                  <ThemeToggle />
-                </div>
-                <Link to="/contact" className="nav-link px-3 py-2 rounded-md transition-all duration-300 hover:bg-primary/10 hover:shadow-sm flex items-center space-x-2">
-                  <Phone className="h-4 w-4" />
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <Link 
+                  to="/contact" 
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-200"
+                >
+                  <Phone className="h-4 w-4" aria-hidden="true" />
                   <span>Contact</span>
                 </Link>
               </div>
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center space-x-2">
-            {!token && (
-              <div className="relative">
-                <ThemeToggle />
-              </div>
-            )}
-            {token ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="transition-all duration-300 hover:bg-primary/10 hover:scale-105"
-              >
-                {isMobileMenuOpen ? (
-                  <X className="h-5 w-5" />
-                ) : (
-                  <Menu className="h-5 w-5" />
-                )}
-              </Button>
-            ) : (
-              <Link to="/contact" className="nav-link px-3 py-2 rounded-md transition-all duration-300 hover:bg-primary/10 flex items-center space-x-2">
-                <Phone className="h-4 w-4" />
-                <span>Contact</span>
-              </Link>
+          {/* Mobile: Logo + Theme Toggle + Profile (navigation moved to bottom) */}
+          <div className="flex md:hidden items-center gap-2">
+            <ThemeToggle />
+            {token && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    className="relative h-9 w-9 rounded-full p-0"
+                    aria-label="User menu"
+                  >
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage src={profilePicURL} alt={username} />
+                      <AvatarFallback>
+                        <User className="h-4 w-4" />
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent 
+                  className="w-56 glass mr-2" 
+                  align="end" 
+                  forceMount
+                >
+                  <div className="flex items-center gap-3 p-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={profilePicURL} alt={username} />
+                      <AvatarFallback>
+                        <User className="h-5 w-5" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col">
+                      <span className="text-xs text-muted-foreground">Signed in as</span>
+                      <span className="text-sm font-semibold truncate max-w-[140px]">
+                        {username || "Guest"}
+                      </span>
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={signOut} 
+                    className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
           </div>
         </div>
-
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && token && (
-          <div className="md:hidden border-t border-border/20 bg-background/80 backdrop-blur-md">
-            <div className="space-y-4 py-4">
-              {/* User Info */}
-              <div className="flex items-center space-x-3 px-2">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={profilePicURL || "/default-profile.png"} alt={username} />
-                  <AvatarFallback>
-                    <User className="h-5 w-5" />
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="nav-text-muted">Welcome,</p>
-                  <p className="text-label">{username || "Guest"}</p>
-                </div>
-              </div>
-              
-              {/* Navigation Links */}
-              <div className="space-y-2">
-                {navLinks.map((link) => {
-                  const IconComponent = link.icon;
-                  return (
-                    <Link
-                      key={link.to}
-                      to={link.to}
-                      className="nav-link flex items-center space-x-3 px-2 py-2 rounded-md mx-2 transition-all duration-300 hover:bg-primary/10 hover:scale-105"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <IconComponent className="h-4 w-4" />
-                      <span>{link.label}</span>
-                    </Link>
-                  );
-                })}
-              </div>
-              
-              {/* Theme Toggle */}
-              <div className="pt-2 border-t border-border/20">
-                <div className="flex items-center justify-between px-2 py-2">
-                  <span className="text-label">Theme</span>
-                  <ThemeToggle />
-                </div>
-              </div>
-              
-              {/* Logout Button */}
-              <div className="pt-2 border-t border-border/20">
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start text-red-600 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all duration-200"
-                  onClick={() => {
-                    signOut();
-                    setIsMobileMenuOpen(false);
-                  }}
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Log out
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </nav>
   );
