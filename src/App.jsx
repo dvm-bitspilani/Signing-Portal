@@ -107,7 +107,7 @@ const App = () => {
   return (
     <ThemeProvider defaultTheme="system" storageKey="signings-portal-theme">
       <AppContext.Provider value={{ globalAppStates, setGlobalAppStates }}>
-        <GoogleOAuthProvider clientId="650062736141-pb64o0ubh8ejek13gogejjb9t5r6sdf0.apps.googleusercontent.com/">
+        <GoogleOAuthProvider clientId="650062736141-pb64o0ubh8ejek13gogejjb9t5r6sdf0.apps.googleusercontent.com">
           <RouterProvider router={router} />
           <Toaster
             position="top-center"
