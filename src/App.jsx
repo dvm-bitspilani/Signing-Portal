@@ -42,14 +42,14 @@ const Layout = () => {
       <main className={`flex-1 ${!hideBottomNav ? 'pb-20 md:pb-0' : ''}`}>
         <Outlet />
       </main>
-      
+
       {/* Footer - hidden on sign-in, and on mobile when bottom nav is visible */}
       {!hideFooter && (
         <div className="hidden md:block">
           <Footer />
         </div>
       )}
-      
+
       {/* Mobile Bottom Navigation */}
       {!hideBottomNav && <MobileBottomNav />}
     </div>
@@ -107,11 +107,11 @@ const App = () => {
   return (
     <ThemeProvider defaultTheme="system" storageKey="signings-portal-theme">
       <AppContext.Provider value={{ globalAppStates, setGlobalAppStates }}>
-        <GoogleOAuthProvider clientId="993693860464-5p8rfdqpp8svqhdhviaian2i0kkpqt78.apps.googleusercontent.com">
+        <GoogleOAuthProvider clientId="650062736141-pb64o0ubh8ejek13gogejjb9t5r6sdf0.apps.googleusercontent.com/">
           <RouterProvider router={router} />
-          <Toaster 
-            position="top-center" 
-            richColors 
+          <Toaster
+            position="top-center"
+            richColors
             closeButton
             toastOptions={{
               duration: 4000,
