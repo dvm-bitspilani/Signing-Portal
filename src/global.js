@@ -1,8 +1,8 @@
 import React from "react";
 
-export const apiBaseURL = "https://www.bits-oasis.org/2025/main/signings";
+export const apiBaseURL = "https://www.bits-apogee.org/2026/main/signings";
 export const merchBaseURL =
-  "https://www.bits-oasis.org/2025/main/tickets-manager";
+  "https://www.bits-apogee.org/2026/main/tickets-manager";
 //* Adds/sets a key-value pair to an 'object' state
 export function setStateItem(state, key, value) {
   const object = { ...state };
