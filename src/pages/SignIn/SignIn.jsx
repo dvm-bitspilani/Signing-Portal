@@ -17,7 +17,7 @@ const SignIn = () => {
   const params = new URLSearchParams(location.search);
   const redirectTo = params.get("redirectTo") || "/";
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const handleLoginSuccess = (credentialResponse) => {
     setIsLoading(true);
     const loadingToastId = showLoadingToast("Signing you in...");
@@ -80,7 +80,7 @@ const SignIn = () => {
       <header className="absolute top-4 right-4 z-10">
         <ThemeToggle />
       </header>
-      
+
       <main className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-sm space-y-8 animate-fade-in">
           {/* Logo and Branding */}
@@ -88,31 +88,13 @@ const SignIn = () => {
             <div className="flex justify-center">
               <div className="relative">
                 <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-150" />
-<<<<<<< HEAD
-                <div
-                  className="relative h-20 w-20 select-none bg-foreground"
-                  style={{
-                    maskImage: `url("https://ca.bits-apogee.org/assets/apogee-logo-b58bcc05.svg")`,
-                    WebkitMaskImage: `url("https://ca.bits-apogee.org/assets/apogee-logo-b58bcc05.svg")`,
-                    maskSize: "contain",
-                    WebkitMaskSize: "contain",
-                    maskRepeat: "no-repeat",
-                    WebkitMaskRepeat: "no-repeat",
-                    maskPosition: "center",
-                    WebkitMaskPosition: "center",
-                  }}
-                  role="img"
-                  aria-label="BITS Oasis Logo"
+                <img
+                  src="https://ca.bits-apogee.org/apogee26logo.svg"
+                  alt="BITS Oasis Logo"
+                  draggable="false"
+                  className="relative h-20 w-20 select-none"
+                  style={{ userSelect: "none", WebkitUserDrag: "none" }}
                 />
-=======
-                  <img 
-                    src="https://ca.bits-apogee.org/apogee26logo.svg" 
-                    alt="BITS Oasis Logo" 
-                    draggable="false"
-                    className="relative h-20 w-20 select-none"
-                    style={{ userSelect: "none", WebkitUserDrag: "none" }}
-                  />
->>>>>>> parent of 45bae96 (update logo)
               </div>
             </div>
             <div>
@@ -140,7 +122,7 @@ const SignIn = () => {
                   Access events, merchandise, and your bookings
                 </p>
               </div>
-              
+
               {isLoading ? (
                 <div className="space-y-4 py-2">
                   <Skeleton className="h-11 w-full rounded-full" />
@@ -166,7 +148,7 @@ const SignIn = () => {
                       logo_alignment="center"
                     />
                   </div>
-                  
+
                   {/* Info Alert */}
                   <Alert className="border-border bg-muted/50">
                     <Shield className="h-4 w-4 text-primary" />
@@ -181,7 +163,7 @@ const SignIn = () => {
 
           {/* Privacy Note */}
           <p className="text-center text-xs text-muted-foreground px-4">
-            By signing in, you agree to our event booking terms and conditions. 
+            By signing in, you agree to our event booking terms and conditions.
             Your data is secured and used only for fest activities.
           </p>
         </div>
