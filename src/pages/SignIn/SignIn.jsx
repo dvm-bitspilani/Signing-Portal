@@ -99,7 +99,7 @@ const SignIn = () => {
                   src="https://ca.bits-apogee.org/assets/apogee-logo-b58bcc05.svg"
                   alt="BITS Oasis Logo"
                   draggable="false"
-                  className="relative h-20 w-20 select-none"
+                  className="relative h-20 w-20 select-none invert dark:invert-0"
                   style={{ userSelect: "none", WebkitUserDrag: "none" }}
                 />
               </div>
