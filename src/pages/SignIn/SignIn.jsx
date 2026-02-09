@@ -88,13 +88,13 @@ const SignIn = () => {
             <div className="flex justify-center">
               <div className="relative">
                 <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-150" />
-                  <img
-                    src="https://ca.bits-apogee.org/assets/apogee-logo-b58bcc05.svg"
-                    alt="BITS Oasis Logo"
-                    draggable="false"
-                    className="relative h-20 w-20 select-none rounded-full bg-gradient-to-br from-primary to-purple-900 p-3 dark:bg-none dark:p-0 transition-all"
-                    style={{ userSelect: "none", WebkitUserDrag: "none" }}
-                  />
+                <img
+                  src="https://ca.bits-apogee.org/assets/apogee-logo-b58bcc05.svg"
+                  alt="BITS Oasis Logo"
+                  draggable="false"
+                  className="relative h-20 w-20 select-none rounded-xl bg-gradient-to-br from-violet-950/95 via-blue-900/95 to-purple-900/95 p-3 dark:bg-none dark:p-0 transition-all"
+                  style={{ userSelect: "none", WebkitUserDrag: "none" }}
+                />
               </div>
             </div>
             <div>
@@ -109,12 +109,8 @@ const SignIn = () => {
 
           {/* Sign In Card */}
           <Card className="border-0 shadow-xl bg-card/95 backdrop-blur-sm">
-            <CardContent className="pt-8 pb-8 px-6 space-y-6">
+            <CardContent className="pt-4 pb-8 px-6 space-y-6">
               <div className="text-center space-y-2">
-                <div className="flex items-center justify-center gap-2 text-primary">
-                  <Sparkles className="h-5 w-5" />
-                  <span className="text-sm font-medium">Welcome</span>
-                </div>
                 <h2 className="text-xl font-semibold">
                   Sign in to continue
                 </h2>
@@ -161,11 +157,11 @@ const SignIn = () => {
             </CardContent>
           </Card>
 
-          {/* Privacy Note */}
+          {/* Privacy Note
           <p className="text-center text-xs text-muted-foreground px-4">
             By signing in, you agree to our event booking terms and conditions.
             Your data is secured and used only for fest activities.
-          </p>
+          </p> */}
         </div>
       </main>
 
