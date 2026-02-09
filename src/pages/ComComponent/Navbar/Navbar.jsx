@@ -12,13 +12,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ThemeToggle } from "../../../components/theme-toggle";
-import { 
+import {
   Calendar,
   ShoppingBag,
-  Ticket, 
-  Phone, 
-  LogOut, 
-  User 
+  Ticket,
+  Phone,
+  LogOut,
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -49,13 +49,13 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo and Title */}
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="flex items-center gap-3 transition-all duration-200 hover:opacity-80"
           >
-            <img 
-              src="https://ca.bits-apogee.org/apogee26logo.svg" 
-              alt="Signings Portal Logo" 
+            <img
+              src="https://ca.bits-apogee.org/assets/apogee-logo-b58bcc05.svg"
+              alt="Signings Portal Logo"
               draggable="false"
               className="h-9 w-9 select-none"
               style={{ userSelect: "none", WebkitUserDrag: "none" }}
@@ -78,9 +78,9 @@ const Navbar = () => {
                       to={link.to}
                       className={cn(
                         "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-                        active 
-                          ? "bg-primary/10 text-primary" 
-                          : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                        active
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:text-foreground hover:bg-accent",
                       )}
                       aria-current={active ? "page" : undefined}
                     >
@@ -89,28 +89,31 @@ const Navbar = () => {
                     </Link>
                   );
                 })}
-                
+
                 <div className="ml-2 flex items-center gap-2">
                   <ThemeToggle />
-                  
+
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         className="relative h-9 w-9 rounded-full p-0 hover:ring-2 hover:ring-primary/20"
                         aria-label="User menu"
                       >
                         <Avatar className="h-9 w-9">
-                          <AvatarImage src={profilePicURL || "/default-profile.png"} alt={username} />
+                          <AvatarImage
+                            src={profilePicURL || "/default-profile.png"}
+                            alt={username}
+                          />
                           <AvatarFallback>
                             <User className="h-4 w-4" />
                           </AvatarFallback>
                         </Avatar>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent 
-                      className="w-56 glass" 
-                      align="end" 
+                    <DropdownMenuContent
+                      className="w-56 glass"
+                      align="end"
                       forceMount
                     >
                       <div className="flex items-center gap-3 p-3">
@@ -121,15 +124,17 @@ const Navbar = () => {
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col">
-                          <span className="text-xs text-muted-foreground">Signed in as</span>
+                          <span className="text-xs text-muted-foreground">
+                            Signed in as
+                          </span>
                           <span className="text-sm font-semibold truncate max-w-[140px]">
                             {username || "Guest"}
                           </span>
                         </div>
                       </div>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem 
-                        onClick={signOut} 
+                      <DropdownMenuItem
+                        onClick={signOut}
                         className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
                       >
                         <LogOut className="mr-2 h-4 w-4" />
@@ -142,8 +147,8 @@ const Navbar = () => {
             ) : (
               <div className="flex items-center gap-2">
                 <ThemeToggle />
-                <Link 
-                  to="/contact" 
+                <Link
+                  to="/contact"
                   className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-200"
                 >
                   <Phone className="h-4 w-4" aria-hidden="true" />
@@ -159,8 +164,8 @@ const Navbar = () => {
             {token && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     className="relative h-9 w-9 rounded-full p-0"
                     aria-label="User menu"
                   >
@@ -172,9 +177,9 @@ const Navbar = () => {
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent 
-                  className="w-56 glass mr-2" 
-                  align="end" 
+                <DropdownMenuContent
+                  className="w-56 glass mr-2"
+                  align="end"
                   forceMount
                 >
                   <div className="flex items-center gap-3 p-3">
@@ -185,15 +190,17 @@ const Navbar = () => {
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col">
-                      <span className="text-xs text-muted-foreground">Signed in as</span>
+                      <span className="text-xs text-muted-foreground">
+                        Signed in as
+                      </span>
                       <span className="text-sm font-semibold truncate max-w-[140px]">
                         {username || "Guest"}
                       </span>
                     </div>
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem 
-                    onClick={signOut} 
+                  <DropdownMenuItem
+                    onClick={signOut}
                     className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
