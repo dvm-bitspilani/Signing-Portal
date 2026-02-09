@@ -4,11 +4,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { useLocation, useNavigate } from "react-router-dom";
 import { apiBaseURL } from "../../global";
 import axios from "axios";
-import {
-  handleApiErrorToast,
-  showLoadingToast,
-  dismissToast,
-} from "../../assets/utils/toast.js";
+import { handleApiErrorToast, showLoadingToast, dismissToast } from "../../assets/utils/toast.js";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,7 +17,7 @@ const SignIn = () => {
   const params = new URLSearchParams(location.search);
   const redirectTo = params.get("redirectTo") || "/";
   const [isLoading, setIsLoading] = useState(false);
-
+  
   const handleLoginSuccess = (credentialResponse) => {
     setIsLoading(true);
     const loadingToastId = showLoadingToast("Signing you in...");
@@ -36,7 +32,7 @@ const SignIn = () => {
           headers: {
             accept: "application/json",
           },
-        },
+        }
       )
       .then((response) => {
         setIsLoading(false);
@@ -44,11 +40,11 @@ const SignIn = () => {
 
         localStorage.setItem(
           "username",
-          jwtDecode(credentialResponse.credential).name,
+          jwtDecode(credentialResponse.credential).name
         );
         localStorage.setItem(
           "profilePicURL",
-          jwtDecode(credentialResponse.credential).picture,
+          jwtDecode(credentialResponse.credential).picture
         );
 
         localStorage.setItem("accessToken", response.data.tokens.access);
@@ -57,13 +53,13 @@ const SignIn = () => {
         accessTokenExpiry.setDate(accessTokenExpiry.getDate() + 1);
         localStorage.setItem(
           "accessTokenExpiry",
-          accessTokenExpiry.toISOString(),
+          accessTokenExpiry.toISOString()
         );
         const refreshTokenExpiry = new Date();
         refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 30);
         localStorage.setItem(
           "refreshTokenExpiry",
-          refreshTokenExpiry.toISOString(),
+          refreshTokenExpiry.toISOString()
         );
         navigate(redirectTo, { replace: true });
       })
@@ -75,10 +71,7 @@ const SignIn = () => {
   };
 
   const handleError = (error) => {
-    handleApiErrorToast(
-      error,
-      "Please use your BITS email ID to sign in. If your BITS email ID is not working, please contact support.",
-    );
+    handleApiErrorToast(error, "Please use your BITS email ID to sign in. If your BITS email ID is not working, please contact support.");
   };
 
   return (
@@ -87,7 +80,7 @@ const SignIn = () => {
       <header className="absolute top-4 right-4 z-10">
         <ThemeToggle />
       </header>
-
+      
       <main className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-sm space-y-8 animate-fade-in">
           {/* Logo and Branding */}
@@ -95,6 +88,7 @@ const SignIn = () => {
             <div className="flex justify-center">
               <div className="relative">
                 <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-150" />
+<<<<<<< HEAD
                 <div
                   className="relative h-20 w-20 select-none bg-foreground"
                   style={{
@@ -110,6 +104,15 @@ const SignIn = () => {
                   role="img"
                   aria-label="BITS Oasis Logo"
                 />
+=======
+                  <img 
+                    src="https://ca.bits-apogee.org/apogee26logo.svg" 
+                    alt="BITS Oasis Logo" 
+                    draggable="false"
+                    className="relative h-20 w-20 select-none"
+                    style={{ userSelect: "none", WebkitUserDrag: "none" }}
+                  />
+>>>>>>> parent of 45bae96 (update logo)
               </div>
             </div>
             <div>
@@ -130,12 +133,14 @@ const SignIn = () => {
                   <Sparkles className="h-5 w-5" />
                   <span className="text-sm font-medium">Welcome</span>
                 </div>
-                <h2 className="text-xl font-semibold">Sign in to continue</h2>
+                <h2 className="text-xl font-semibold">
+                  Sign in to continue
+                </h2>
                 <p className="text-sm text-muted-foreground">
                   Access events, merchandise, and your bookings
                 </p>
               </div>
-
+              
               {isLoading ? (
                 <div className="space-y-4 py-2">
                   <Skeleton className="h-11 w-full rounded-full" />
@@ -161,16 +166,12 @@ const SignIn = () => {
                       logo_alignment="center"
                     />
                   </div>
-
+                  
                   {/* Info Alert */}
                   <Alert className="border-border bg-muted/50">
                     <Shield className="h-4 w-4 text-primary" />
                     <AlertDescription className="text-xs text-muted-foreground ml-2">
-                      Use your official{" "}
-                      <span className="font-medium text-foreground">
-                        @pilani.bits-pilani.ac.in
-                      </span>{" "}
-                      email address
+                      Use your official <span className="font-medium text-foreground">@pilani.bits-pilani.ac.in</span> email address
                     </AlertDescription>
                   </Alert>
                 </div>
@@ -180,7 +181,7 @@ const SignIn = () => {
 
           {/* Privacy Note */}
           <p className="text-center text-xs text-muted-foreground px-4">
-            By signing in, you agree to our event booking terms and conditions.
+            By signing in, you agree to our event booking terms and conditions. 
             Your data is secured and used only for fest activities.
           </p>
         </div>
