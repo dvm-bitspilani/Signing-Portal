@@ -88,11 +88,13 @@ const SignIn = () => {
             <div className="flex justify-center">
               <div className="relative">
                 <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-150" />
-                <img 
-                  src="https://res.cloudinary.com/dhrbeqvcw/image/upload/v1760900997/logo2_r7itzj.png" 
-                  alt="BITS Oasis Logo" 
-                  className="relative h-20 w-20"
-                />
+                  <img 
+                    src="https://ca.bits-apogee.org/apogee26logo.svg" 
+                    alt="BITS Oasis Logo" 
+                    draggable="false"
+                    className="relative h-20 w-20 select-none"
+                    style={{ userSelect: "none", WebkitUserDrag: "none" }}
+                  />
               </div>
             </div>
             <div>

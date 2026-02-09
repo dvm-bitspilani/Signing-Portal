@@ -54,9 +54,11 @@ const Navbar = () => {
             className="flex items-center gap-3 transition-all duration-200 hover:opacity-80"
           >
             <img 
-              src="https://res.cloudinary.com/dhrbeqvcw/image/upload/v1760900997/logo2_r7itzj.png" 
+              src="https://ca.bits-apogee.org/apogee26logo.svg" 
               alt="Signings Portal Logo" 
-              className="h-9 w-9" 
+              draggable="false"
+              className="h-9 w-9 select-none"
+              style={{ userSelect: "none", WebkitUserDrag: "none" }}
             />
             <span className="text-lg font-bold tracking-tight">
               Signings Portal
