@@ -88,13 +88,13 @@ const SignIn = () => {
             <div className="flex justify-center">
               <div className="relative">
                 <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-150" />
-                <img
-                  src="https://ca.bits-apogee.org/assets/apogee-logo-b58bcc05.svg"
-                  alt="BITS Oasis Logo"
-                  draggable="false"
-                  className="relative h-20 w-20 select-none"
-                  style={{ userSelect: "none", WebkitUserDrag: "none" }}
-                />
+                  <img
+                    src="https://ca.bits-apogee.org/assets/apogee-logo-b58bcc05.svg"
+                    alt="BITS Oasis Logo"
+                    draggable="false"
+                    className="relative h-20 w-20 select-none rounded-full bg-gradient-to-br from-primary to-purple-900 p-3 dark:bg-none dark:p-0 transition-all"
+                    style={{ userSelect: "none", WebkitUserDrag: "none" }}
+                  />
               </div>
             </div>
             <div>

@@ -57,7 +57,7 @@ const Navbar = () => {
               src="https://ca.bits-apogee.org/assets/apogee-logo-b58bcc05.svg"
               alt="Signings Portal Logo"
               draggable="false"
-              className="h-9 w-9 select-none"
+              className="h-9 w-9 select-none rounded-full bg-gradient-to-br from-primary to-purple-900 p-1.5 dark:bg-none dark:p-0 transition-all"
               style={{ userSelect: "none", WebkitUserDrag: "none" }}
             />
             <span className="text-lg font-bold tracking-tight">
