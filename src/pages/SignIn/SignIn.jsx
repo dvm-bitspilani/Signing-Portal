@@ -89,7 +89,7 @@ const SignIn = () => {
               <div className="relative">
                 <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-150" />
                 <img
-                  src="https://ca.bits-apogee.org/apogee26logo.svg"
+                  src="https://ca.bits-apogee.org/assets/apogee-logo-b58bcc05.svg"
                   alt="BITS Oasis Logo"
                   draggable="false"
                   className="relative h-20 w-20 select-none"
