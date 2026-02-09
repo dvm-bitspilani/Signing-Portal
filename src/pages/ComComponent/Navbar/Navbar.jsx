@@ -53,12 +53,20 @@ const Navbar = () => {
             to="/"
             className="flex items-center gap-3 transition-all duration-200 hover:opacity-80"
           >
-            <img
-              src="https://ca.bits-apogee.org/assets/apogee-logo-b58bcc05.svg"
-              alt="Signings Portal Logo"
-              draggable="false"
-              className="h-9 w-9 select-none brightness-0 dark:invert"
-              style={{ userSelect: "none", WebkitUserDrag: "none" }}
+            <div
+              className="h-9 w-9 select-none bg-foreground"
+              style={{
+                maskImage: `url("https://ca.bits-apogee.org/assets/apogee-logo-b58bcc05.svg")`,
+                WebkitMaskImage: `url("https://ca.bits-apogee.org/assets/apogee-logo-b58bcc05.svg")`,
+                maskSize: "contain",
+                WebkitMaskSize: "contain",
+                maskRepeat: "no-repeat",
+                WebkitMaskRepeat: "no-repeat",
+                maskPosition: "center",
+                WebkitMaskPosition: "center",
+              }}
+              role="img"
+              aria-label="Signings Portal Logo"
             />
             <span className="text-lg font-bold tracking-tight">
               Signings Portal

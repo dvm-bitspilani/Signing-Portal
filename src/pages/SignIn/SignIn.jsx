@@ -95,12 +95,20 @@ const SignIn = () => {
             <div className="flex justify-center">
               <div className="relative">
                 <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-150" />
-                <img
-                  src="https://ca.bits-apogee.org/assets/apogee-logo-b58bcc05.svg"
-                  alt="BITS Oasis Logo"
-                  draggable="false"
-                  className="relative h-20 w-20 select-none brightness-0 dark:invert"
-                  style={{ userSelect: "none", WebkitUserDrag: "none" }}
+                <div
+                  className="relative h-20 w-20 select-none bg-foreground"
+                  style={{
+                    maskImage: `url("https://ca.bits-apogee.org/assets/apogee-logo-b58bcc05.svg")`,
+                    WebkitMaskImage: `url("https://ca.bits-apogee.org/assets/apogee-logo-b58bcc05.svg")`,
+                    maskSize: "contain",
+                    WebkitMaskSize: "contain",
+                    maskRepeat: "no-repeat",
+                    WebkitMaskRepeat: "no-repeat",
+                    maskPosition: "center",
+                    WebkitMaskPosition: "center",
+                  }}
+                  role="img"
+                  aria-label="BITS Oasis Logo"
                 />
               </div>
             </div>
