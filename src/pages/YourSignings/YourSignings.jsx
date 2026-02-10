@@ -115,7 +115,7 @@ function YourSignings() {
     return (
       <Card className={`group card-interactive border animate-fade-in-up ${ticket.cancelled ? 'opacity-60' : ''}`} style={{ animationDelay: `${index * 50}ms` }}>
         <CardHeader className="pb-3">
-          <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start justify-between gap-3 min-w-0">
             <div className="space-y-1 min-w-0 flex-1">
               <CardTitle className="text-base font-semibold flex items-center gap-2 group-hover:text-primary transition-colors truncate">
                 <div className="shrink-0 p-1.5 rounded-lg bg-primary/10">
@@ -222,7 +222,7 @@ function YourSignings() {
     return (
       <Card className={`group card-interactive border animate-fade-in-up ${merch.cancelled ? 'opacity-60' : ''}`} style={{ animationDelay: `${index * 50}ms` }}>
         <CardHeader className="pb-3">
-          <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start justify-between gap-3 min-w-0">
             <div className="space-y-1 min-w-0 flex-1">
               <CardTitle className="text-base font-semibold flex items-center gap-2 group-hover:text-primary transition-colors truncate">
                 <div className="shrink-0 p-1.5 rounded-lg bg-warning/10">

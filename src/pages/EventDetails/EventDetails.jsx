@@ -106,6 +106,21 @@ function EventDetails() {
     }
   }, [eventType, eventIndex, accessToken]);
 
+  // Set default open slot
+  useEffect(() => {
+    if (event?.dates && event.dates.length > 0) {
+      // Find the first date with slots
+      const firstDateWithSlots = event.dates.find(d => d.slots && d.slots.length > 0);
+      if (firstDateWithSlots) {
+        // Take the first slot from the first available date
+        const firstSlot = firstDateWithSlots.slots[0];
+        if (firstSlot && firstSlot.is_openforsignings) {
+          setOpenSlotIds([firstSlot.slot_id]);
+        }
+      }
+    }
+  }, [event]);
+
   // Preload size chart images for merch
   useEffect(() => {
     if (eventType === "merch" && merch) {
