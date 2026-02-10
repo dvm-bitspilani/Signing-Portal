@@ -323,21 +323,21 @@ function YourSignings() {
         title: "No Bookings Yet",
         description: "You haven't made any bookings. Browse events and merchandise to get started.",
         ctaText: "Explore Merch",
-        ctaLink: "/",
+        ctaLink: "/merch",
       },
       events: {
         icon: <Ticket className="h-8 w-8 text-muted-foreground" />,
         title: "No Event Tickets",
         description: "You haven't registered for any events yet.",
         ctaText: "Browse Events",
-        ctaLink: "/events",
+        ctaLink: "/",
       },
       merch: {
         icon: <ShoppingBag className="h-8 w-8 text-muted-foreground" />,
         title: "No Merchandise Orders",
         description: "You haven't ordered any merchandise yet.",
         ctaText: "Shop Merch",
-        ctaLink: "/",
+        ctaLink: "/merch",
       },
     };
 

@@ -22,15 +22,15 @@ const MobileBottomNav = () => {
   const navItems = [
     { 
       to: "/", 
-      label: "Merch", 
-      icon: ShoppingBag,
-      activeOn: ["/"] 
-    },
-    { 
-      to: "/events", 
       label: "Events", 
       icon: Calendar,
-      activeOn: ["/events", "/EventDetails"] 
+      activeOn: ["/", "/events", "/EventDetails"] 
+    },
+    { 
+      to: "/merch", 
+      label: "Merch", 
+      icon: ShoppingBag,
+      activeOn: ["/merch"] 
     },
     { 
       to: "/yoursignings", 

@@ -65,8 +65,13 @@ const App = () => {
       children: [
         {
           path: "/",
-          element: <Merch />,
+          element: <Events />,
           id: "root",
+          loader: checkauth,
+        },
+        {
+          path: "/merch",
+          element: <Merch />,
           loader: checkauth,
         },
         {

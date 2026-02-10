@@ -33,14 +33,14 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { to: "/", label: "Merch", icon: ShoppingBag },
-    { to: "/events", label: "Events", icon: Calendar },
+    { to: "/", label: "Events", icon: Calendar },
+    { to: "/merch", label: "Merch", icon: ShoppingBag },
     { to: "/yoursignings", label: "Your Signings", icon: Ticket },
     { to: "/contact", label: "Contact", icon: Phone },
   ];
 
   const isActive = (path) => {
-    if (path === "/") return location.pathname === "/";
+    if (path === "/") return location.pathname === "/" || location.pathname === "/events";
     return location.pathname.startsWith(path);
   };
 
