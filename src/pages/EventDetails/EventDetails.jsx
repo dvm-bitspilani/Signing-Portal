@@ -261,7 +261,7 @@ function EventDetails() {
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => navigate(-1)}
+              onClick={() => navigate("/")}
               className="mb-6 -ml-2"
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
@@ -299,7 +299,7 @@ function EventDetails() {
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => navigate(-1)}
+              onClick={() => navigate("/")}
               className="mb-6 -ml-2"
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
@@ -348,7 +348,7 @@ function EventDetails() {
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => navigate(-1)}
+              onClick={() => navigate("/")}
               className="mb-6 -ml-2"
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
