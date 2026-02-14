@@ -838,8 +838,7 @@ function EventDetails() {
                             variant="ghost"
                             size="icon"
                             className="h-10 w-10 rounded-r-none"
-                            onClick={() => setProfShowTicketCount(Math.max(1, profShowTicketCount - 1))}
-                            disabled={profShowTicketCount <= 1}
+                            disabled
                             aria-label="Decrease quantity"
                           >
                             <Minus className="w-4 h-4" />
@@ -851,7 +850,7 @@ function EventDetails() {
                             variant="ghost"
                             size="icon"
                             className="h-10 w-10 rounded-l-none"
-                            onClick={() => setProfShowTicketCount(profShowTicketCount + 1)}
+                            disabled
                             aria-label="Increase quantity"
                           >
                             <Plus className="w-4 h-4" />
@@ -897,8 +896,7 @@ function EventDetails() {
                           variant="ghost"
                           size="icon"
                           className="h-9 w-9 rounded-r-none"
-                          onClick={() => setProfShowTicketCount(Math.max(1, profShowTicketCount - 1))}
-                          disabled={profShowTicketCount <= 1}
+                          disabled
                           aria-label="Decrease quantity"
                         >
                           <Minus className="w-4 h-4" />
@@ -910,7 +908,7 @@ function EventDetails() {
                           variant="ghost"
                           size="icon"
                           className="h-9 w-9 rounded-l-none"
-                          onClick={() => setProfShowTicketCount(profShowTicketCount + 1)}
+                          disabled
                           aria-label="Increase quantity"
                         >
                           <Plus className="w-4 h-4" />
