@@ -2,7 +2,7 @@ import { Link, useNavigate, useLoaderData } from "react-router-dom";
 import Navbar from "../ComComponent/Navbar/Navbar";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Calendar, Users } from "lucide-react";
+import { Calendar, Users, Music } from "lucide-react";
 import { apiBaseURL } from "../../global";
 import { handleApiErrorToast } from "../../assets/utils/toast.js";
 import {
@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 
 function Events() {
     const [eventList, setEventList] = useState(null);
+    const [profShowsList, setProfShowsList] = useState(null);
     const [loading, setLoading] = useState(true);
     const refreshToken = getRefreshToken();
     const accessToken = useLoaderData();
@@ -68,10 +69,11 @@ function Events() {
                 Authorization: `Bearer ${accessToken}`
             }
         }).then((response) => {
-            if (response.data.non_comp_events.length === 0) {
+            if (response.data.non_comp_events.length === 0 && response.data.prof_shows.length === 0) {
                 setEmptyEventsMsg("No events available at this moment.");
             } else {
                 setEventList(response.data.non_comp_events.reverse());
+                setProfShowsList(response.data.prof_shows.reverse());
             }
             setLoading(false);
         }).catch((errResponse) => {
@@ -122,6 +124,43 @@ function Events() {
         </Card>
     );
 
+    const ProfShowCard = ({ show }) => (
+        <Card className="group hover:shadow-lg transition-all duration-300 border hover:scale-105 hover:border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10">
+            <CardHeader className="space-y-1">
+                <div className="flex items-center justify-between">
+                    <CardTitle className="text-subheading group-hover:text-primary transition-colors flex items-center gap-2">
+                        <Music className="h-5 w-5 text-primary" />
+                        {show.name}
+                    </CardTitle>
+                    <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/30">
+                        Prof Show
+                    </Badge>
+                </div>
+                <CardDescription className="text-body-small line-clamp-2">
+                    {show.description || "No description available"}
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4 text-caption">
+                        <div className="flex items-center space-x-1">
+                            <Calendar className="h-4 w-4" />
+                            <span>Available</span>
+                        </div>
+                    </div>
+                    <Button 
+                        asChild 
+                        className="font-medium transition-all duration-300 hover:scale-105"
+                    >
+                        <Link to={`/EventDetails/prof-show/${show.id}`}>
+                            View Details
+                        </Link>
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+    );
+
     const LoadingSkeleton = () => (
         <Card>
             <CardHeader className="space-y-1">
@@ -159,7 +198,7 @@ function Events() {
             <Navbar />
             <div className="pt-20 pb-8">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="space-y-6">
+                    <div className="space-y-8">
                         {/* Header */}
                         <div className="text-center mb-8">
                             <h1 className="text-heading-primary mb-4">
@@ -170,23 +209,52 @@ function Events() {
                             </p>
                         </div>
                         
+                        {/* Prof Shows Section */}
                         {loading ? (
                             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                                 {[...Array(6)].map((_, i) => (
                                     <LoadingSkeleton key={i} />
                                 ))}
                             </div>
-                        ) : eventList && eventList.length > 0 ? (
-                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                                {eventList.map((event, index) => (
-                                    <EventCard 
-                                        key={index} 
-                                        event={event} 
-                                    />
-                                ))}
-                            </div>
                         ) : (
-                            <EmptyState message={emptyEventsMsg} />
+                            <>
+                                {profShowsList && profShowsList.length > 0 && (
+                                    <div className="space-y-4">
+                                        <h2 className="text-heading-secondary flex items-center gap-2">
+                                            <Music className="h-6 w-6 text-primary" />
+                                            Professional Shows
+                                        </h2>
+                                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                            {profShowsList.map((show, index) => (
+                                                <ProfShowCard 
+                                                    key={index} 
+                                                    show={show} 
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {eventList && eventList.length > 0 && (
+                                    <div className="space-y-4">
+                                        <h2 className="text-heading-secondary">
+                                            Non-Competitive Events
+                                        </h2>
+                                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                            {eventList.map((event, index) => (
+                                                <EventCard 
+                                                    key={index} 
+                                                    event={event} 
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {(!eventList || eventList.length === 0) && (!profShowsList || profShowsList.length === 0) && (
+                                    <EmptyState message={emptyEventsMsg} />
+                                )}
+                            </>
                         )}
                     </div>
                 </div>
