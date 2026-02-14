@@ -18,7 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Ticket, Calendar, IndianRupee, AlertCircle, CheckCircle, XCircle, MapPin, ShoppingBag, Package, Sparkles } from "lucide-react";
+import { Ticket, Calendar, IndianRupee, AlertCircle, CheckCircle, XCircle, MapPin, ShoppingBag, Package, Sparkles, Music } from "lucide-react";
 
 function YourSignings() {
   const [currentEvent, setcurrentEvent] = useState("A-1");
@@ -31,8 +31,9 @@ function YourSignings() {
 
   // Count active items
   const activeEventsCount = eventData?.data?.non_comp_tickets?.filter(t => !t.cancelled).length || 0;
+  const activeProfShowsCount = eventData?.data?.prof_show_tickets?.filter(t => !t.cancelled).length || 0;
   const activeMerchCount = eventData?.data?.merch_tickets?.filter(m => !m.cancelled).length || 0;
-  const totalActiveCount = activeEventsCount + activeMerchCount;
+  const totalActiveCount = activeEventsCount + activeProfShowsCount + activeMerchCount;
 
   // Show toast notifications for action results
   useEffect(() => {
@@ -64,6 +65,16 @@ function YourSignings() {
     setcurrentEvent(`non_comp-${index}`);
     const formData = new FormData();
     formData.append(`non_comp_ticket_id`, ticketId);
+    submit(formData, {
+      method: "post",
+      action: "/yoursignings",
+    });
+  };
+
+  const handleCancelProfShowTicket = (ticketId, index) => {
+    setcurrentEvent(`prof_show-${index}`);
+    const formData = new FormData();
+    formData.append(`prof_show_ticket_id`, ticketId);
     submit(formData, {
       method: "post",
       action: "/yoursignings",
@@ -183,6 +194,92 @@ function YourSignings() {
                 className="w-full"
                 disabled={isSubmitting}
                 onClick={() => handleCancelTicket(ticket.ticket_id, index)}
+              >
+                {isProcessing ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    Cancelling...
+                  </div>
+                ) : (
+                  "Cancel Ticket"
+                )}
+              </Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const ProfShowCard = ({ ticket, index }) => {
+    const isProcessing = isSubmitting && currentEvent === `prof_show-${index}`;
+    const canCancel = ticket.cancellable && !ticket.cancelled;
+
+    const formatTimestamp = (timestamp) => {
+      if (!timestamp) return '';
+      const date = new Date(timestamp);
+      return date.toLocaleString('en-US', { 
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+    };
+
+    return (
+      <Card className={`group card-interactive border animate-fade-in-up ${ticket.cancelled ? 'opacity-60' : ''}`} style={{ animationDelay: `${index * 50}ms` }}>
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between gap-3 min-w-0">
+            <div className="space-y-1 min-w-0 flex-1">
+              <CardTitle className="text-base font-semibold flex items-center gap-2 group-hover:text-primary transition-colors truncate">
+                <div className="shrink-0 p-1.5 rounded-lg bg-primary/10">
+                  <Music className="h-4 w-4 text-primary" />
+                </div>
+                <span className="truncate">{ticket.show_name}</span>
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Prof Show Ticket
+              </CardDescription>
+            </div>
+            {getStatusBadge(ticket.cancelled)}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3 pt-0">
+          <Separator />
+
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-1.5">
+              {ticket.price > 0 ? (
+                <>
+                  <IndianRupee className="h-3.5 w-3.5" />
+                  <span className="font-semibold">{ticket.price}</span>
+                </>
+              ) : (
+                <Badge variant="success" size="sm">Free</Badge>
+              )}
+            </div>
+            <span className="text-xs text-muted-foreground font-mono">
+              #{ticket.ticket_id}
+            </span>
+          </div>
+
+          {ticket.timestamp && (
+            <p className="text-xs text-muted-foreground">
+              Booked {formatTimestamp(ticket.timestamp)}
+            </p>
+          )}
+          
+          {canCancel && (
+            <>
+              <Separator />
+              <Button
+                variant="destructive"
+                size="sm"
+                className="w-full"
+                disabled={isSubmitting}
+                onClick={() => handleCancelProfShowTicket(ticket.ticket_id, index)}
               >
                 {isProcessing ? (
                   <div className="flex items-center gap-2">
@@ -332,6 +429,13 @@ function YourSignings() {
         ctaText: "Browse Events",
         ctaLink: "/",
       },
+      prof_shows: {
+        icon: <Music className="h-8 w-8 text-muted-foreground" />,
+        title: "No Prof Show Tickets",
+        description: "You haven't booked any prof shows yet.",
+        ctaText: "Browse Events",
+        ctaLink: "/",
+      },
       merch: {
         icon: <ShoppingBag className="h-8 w-8 text-muted-foreground" />,
         title: "No Merchandise Orders",
@@ -376,8 +480,10 @@ function YourSignings() {
 
   // Prepare data
   const eventTickets = eventData?.data?.non_comp_tickets || [];
+  const profShowTickets = eventData?.data?.prof_show_tickets || [];
   const merchTickets = eventData?.data?.merch_tickets || [];
   const hasEvents = eventTickets.length > 0;
+  const hasProfShows = profShowTickets.length > 0;
   const hasMerch = merchTickets.length > 0;
 
   return (
@@ -403,7 +509,7 @@ function YourSignings() {
 
           {/* Stats Summary */}
           {!eventData?.isError && totalActiveCount > 0 && (
-            <div className="grid grid-cols-2 gap-3 mb-6 animate-fade-in" style={{ animationDelay: '100ms' }}>
+            <div className="grid grid-cols-3 gap-3 mb-6 animate-fade-in" style={{ animationDelay: '100ms' }}>
               <Card className="border-0 bg-primary/5">
                 <CardContent className="p-4 flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-primary/10">
@@ -411,7 +517,18 @@ function YourSignings() {
                   </div>
                   <div>
                     <p className="text-2xl font-bold">{activeEventsCount}</p>
-                    <p className="text-xs text-muted-foreground">Active Events</p>
+                    <p className="text-xs text-muted-foreground">Events</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="border-0 bg-primary/5">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Music className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{activeProfShowsCount}</p>
+                    <p className="text-xs text-muted-foreground">Prof Shows</p>
                   </div>
                 </CardContent>
               </Card>
@@ -422,7 +539,7 @@ function YourSignings() {
                   </div>
                   <div>
                     <p className="text-2xl font-bold">{activeMerchCount}</p>
-                    <p className="text-xs text-muted-foreground">Merch Orders</p>
+                    <p className="text-xs text-muted-foreground">Merch</p>
                   </div>
                 </CardContent>
               </Card>
@@ -432,17 +549,26 @@ function YourSignings() {
           {/* Content */}
           {eventData?.isError ? (
             <ErrorState message={eventData.message} />
-          ) : !hasEvents && !hasMerch ? (
+          ) : !hasEvents && !hasProfShows && !hasMerch ? (
             <EmptyState type="all" />
           ) : (
-            <Tabs defaultValue={hasEvents ? "events" : "merch"} className="animate-fade-in" style={{ animationDelay: '150ms' }}>
-              <TabsList className="grid w-full grid-cols-2 mb-6">
+            <Tabs defaultValue={hasEvents ? "events" : hasProfShows ? "prof_shows" : "merch"} className="animate-fade-in" style={{ animationDelay: '150ms' }}>
+              <TabsList className="grid w-full grid-cols-3 mb-6">
                 <TabsTrigger value="events" className="flex items-center gap-2">
                   <Ticket className="h-4 w-4" />
                   Events
                   {hasEvents && (
                     <Badge variant="secondary" size="sm" className="ml-1">
                       {eventTickets.length}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="prof_shows" className="flex items-center gap-2">
+                  <Music className="h-4 w-4" />
+                  Prof Shows
+                  {hasProfShows && (
+                    <Badge variant="secondary" size="sm" className="ml-1">
+                      {profShowTickets.length}
                     </Badge>
                   )}
                 </TabsTrigger>
@@ -466,6 +592,18 @@ function YourSignings() {
                   </div>
                 ) : (
                   <EmptyState type="events" />
+                )}
+              </TabsContent>
+
+              <TabsContent value="prof_shows" className="mt-0">
+                {hasProfShows ? (
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {profShowTickets.map((ticket, index) => (
+                      <ProfShowCard key={ticket.ticket_id || index} ticket={ticket} index={index} />
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState type="prof_shows" />
                 )}
               </TabsContent>
 
@@ -547,6 +685,7 @@ export async function action({ request }) {
 
   try {
     const nonCompTicketId = formData.get("non_comp_ticket_id");
+    const profShowTicketId = formData.get("prof_show_ticket_id");
     const merchTicketId = formData.get("merch_ticket_id");
 
     if (nonCompTicketId) {
@@ -566,6 +705,21 @@ export async function action({ request }) {
       return {
         isError: false,
         message: "Ticket cancelled successfully",
+      };
+    } else if (profShowTicketId) {
+      await axios.post(
+        `${apiBaseURL}/api/prof-show-cancel/${profShowTicketId}/`,
+        {},
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      return {
+        isError: false,
+        message: "Prof show ticket cancelled successfully",
       };
     } else if (merchTicketId) {
       await axios.post(
