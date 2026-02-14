@@ -751,9 +751,11 @@ function EventDetails() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <h1 className="text-2xl font-bold tracking-tight">{profShow.name}</h1>
-                    <p className="text-muted-foreground text-sm mt-1">
-                      {profShow.description}
-                    </p>
+                    {profShow.description && (
+                      <p className="text-muted-foreground text-sm mt-1">
+                        {profShow.description}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -762,14 +764,14 @@ function EventDetails() {
               <Card>
                 <CardContent className="p-6 space-y-6">
                   {/* Artist */}
-                  {profShow.artist && (
+                  {(profShow.artist || profShow.Artist) && (
                     <div className="flex items-center gap-3">
                       <div className="shrink-0 p-2 rounded-lg bg-primary/10">
                         <Users className="h-5 w-5 text-primary" />
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground uppercase tracking-wider">Artist</p>
-                        <p className="font-medium">{profShow.artist}</p>
+                        <p className="font-medium">{profShow.artist || profShow.Artist}</p>
                       </div>
                     </div>
                   )}
