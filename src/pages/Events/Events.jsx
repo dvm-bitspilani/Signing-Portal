@@ -137,7 +137,7 @@ function Events() {
                     </Badge>
                 </div>
                 <CardDescription className="text-body-small line-clamp-2">
-                    {show.description || "No description available"}
+                    {show.description}
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
