@@ -784,19 +784,19 @@ function EventDetails() {
                           <Calendar className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider">Start Time</p>
-                          <p className="font-medium">{formatTime(profShow.start_time)}</p>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider">Date</p>
+                          <p className="font-medium">{formatDate(profShow.start_time)}</p>
                         </div>
                       </div>
                     )}
-                    {profShow.end_time && (
+                    {profShow.start_time && (
                       <div className="flex items-center gap-3">
                         <div className="shrink-0 p-2 rounded-lg bg-primary/10">
                           <Clock className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider">End Time</p>
-                          <p className="font-medium">{formatTime(profShow.end_time)}</p>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider">Time</p>
+                          <p className="font-medium">{formatTime(profShow.start_time)} - {formatTime(profShow.end_time)}</p>
                         </div>
                       </div>
                     )}

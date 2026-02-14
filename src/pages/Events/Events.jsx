@@ -136,17 +136,37 @@ function Events() {
                         Prof Show
                     </Badge>
                 </div>
-                <CardDescription className="text-body-small line-clamp-2">
-                    {show.description}
-                </CardDescription>
+                {show.description && (
+                    <CardDescription className="text-body-small line-clamp-2">
+                        {show.description}
+                    </CardDescription>
+                )}
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4 text-caption">
-                        <div className="flex items-center space-x-1">
-                            <Calendar className="h-4 w-4" />
-                            <span>Available</span>
-                        </div>
+                        {(show.start_time || show.Artist || show.artist) && (
+                            <div className="flex flex-wrap items-center gap-3">
+                                {(show.Artist || show.artist) && (
+                                    <div className="flex items-center space-x-1">
+                                        <Users className="h-4 w-4" />
+                                        <span>{show.Artist || show.artist}</span>
+                                    </div>
+                                )}
+                                {show.start_time && (
+                                    <div className="flex items-center space-x-1">
+                                        <Calendar className="h-4 w-4" />
+                                        <span>{new Date(show.start_time).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        {!show.start_time && !(show.Artist || show.artist) && (
+                            <div className="flex items-center space-x-1">
+                                <Calendar className="h-4 w-4" />
+                                <span>Available</span>
+                            </div>
+                        )}
                     </div>
                     <Button 
                         asChild 
