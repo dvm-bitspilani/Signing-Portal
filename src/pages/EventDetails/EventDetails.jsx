@@ -41,12 +41,14 @@ function EventDetails() {
   const navigate = useNavigate();
 
   const [event, setEvent] = useState(null);
+  const [profShow, setProfShow] = useState(null);
   const [merch, setMerch] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openSlotIds, setOpenSlotIds] = useState([]);
   const [selectedTicketType, setSelectedTicketType] = useState({});
   const [ticketCounts, setTicketCounts] = useState({});
+  const [profShowTicketCount, setProfShowTicketCount] = useState(1);
   const [activeDateTab, setActiveDateTab] = useState(0);
   const [purchaseLoading, setPurchaseLoading] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -79,6 +81,28 @@ function EventDetails() {
           setError("Event not found or unauthorized.");
           setLoading(false);
           handleApiErrorToast(err, "Failed to load event details. Please try again.");
+        });
+    } else if (eventType === "prof-show") {
+      const endpoint = `/api/prof-show/${eventIndex}/`;
+
+      axios
+        .get(`${apiBaseURL}${endpoint}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            accept: "application/json",
+          },
+        })
+        .then((response) => {
+          setProfShow(response.data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error("Failed to load prof show details:", err);
+          console.log("Prof show details error response:", err.response);
+          console.log("Prof show details error data:", err.response?.data);
+          setError("Prof show not found or unauthorized.");
+          setLoading(false);
+          handleApiErrorToast(err, "Failed to load prof show details. Please try again.");
         });
     } else if (eventType === "merch") {
       axios
@@ -200,6 +224,39 @@ function EventDetails() {
     }
   };
 
+  const handleProfShowBuy = async () => {
+    if (profShowTicketCount < 1) return;
+    
+    setPurchaseLoading(true);
+    const loadingToastId = showLoadingToast("Processing your ticket purchase...");
+    
+    try {
+      const formData = new FormData();
+      formData.append("tickets", profShowTicketCount);
+      await axios.post(
+        `${apiBaseURL}/api/prof-show/${eventIndex}/buy/`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            accept: "application/json",
+          },
+        }
+      );
+      dismissToast(loadingToastId);
+      showSuccessToast("Tickets purchased successfully! Redirecting to your signings...");
+      setTimeout(() => navigate("/yoursignings"), 1500);
+    } catch (err) {
+      console.error("Purchase failed:", err);
+      console.log("Purchase error response:", err.response);
+      console.log("Purchase error data:", err.response?.data);
+      dismissToast(loadingToastId);
+      handleApiErrorToast(err, "Failed to purchase tickets. Please try again.");
+    } finally {
+      setPurchaseLoading(false);
+    }
+  };
+
   const handleMerchBuy = async () => {
     if (merch.sizes && merch.sizes.length > 0 && !selectedSize) {
       showErrorToast("Please select a size");
@@ -290,7 +347,7 @@ function EventDetails() {
     );
   }
 
-  if (error || (!event && !merch)) {
+  if (error || (!event && !merch && !profShow)) {
     return (
       <div className="min-h-screen bg-app-gradient">
         <Navbar />
@@ -663,6 +720,210 @@ function EventDetails() {
               </Button>
             </CardContent>
           </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Prof Show Layout
+  if (eventType === "prof-show" && profShow) {
+    return (
+      <div className="min-h-screen bg-app-gradient">
+        <Navbar />
+        <div className="pt-20 pb-24 md:pb-8">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => navigate(-1)}
+              className="mb-6 -ml-2"
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Back
+            </Button>
+            
+            <div className="space-y-6 animate-fade-in">
+              {/* Header */}
+              <div className="space-y-2">
+                <div className="flex items-start gap-3">
+                  <div className="shrink-0 p-2 rounded-xl bg-primary/10">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h1 className="text-2xl font-bold tracking-tight">{profShow.name}</h1>
+                    <p className="text-muted-foreground text-sm mt-1">
+                      {profShow.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Show Details */}
+              <Card>
+                <CardContent className="p-6 space-y-6">
+                  {/* Artist */}
+                  {profShow.artist && (
+                    <div className="flex items-center gap-3">
+                      <div className="shrink-0 p-2 rounded-lg bg-primary/10">
+                        <Users className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider">Artist</p>
+                        <p className="font-medium">{profShow.artist}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Date & Time */}
+                  <div className="flex flex-wrap gap-4">
+                    {profShow.start_time && (
+                      <div className="flex items-center gap-3">
+                        <div className="shrink-0 p-2 rounded-lg bg-primary/10">
+                          <Calendar className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider">Start Time</p>
+                          <p className="font-medium">{formatTime(profShow.start_time)}</p>
+                        </div>
+                      </div>
+                    )}
+                    {profShow.end_time && (
+                      <div className="flex items-center gap-3">
+                        <div className="shrink-0 p-2 rounded-lg bg-primary/10">
+                          <Clock className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider">End Time</p>
+                          <p className="font-medium">{formatTime(profShow.end_time)}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <Separator />
+
+                  {/* Price & Purchase */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Ticket Price</p>
+                      {profShow.price > 0 ? (
+                        <div className="flex items-baseline gap-1">
+                          <IndianRupee className="w-5 h-5" />
+                          <span className="text-3xl font-bold">{profShow.price}</span>
+                        </div>
+                      ) : (
+                        <Badge variant="success" className="text-lg px-3 py-1">Free</Badge>
+                      )}
+                    </div>
+
+                    {/* Desktop Buy Section */}
+                    <div className="hidden md:block">
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center border rounded-lg bg-background">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-10 w-10 rounded-r-none"
+                            onClick={() => setProfShowTicketCount(Math.max(1, profShowTicketCount - 1))}
+                            disabled={profShowTicketCount <= 1}
+                            aria-label="Decrease quantity"
+                          >
+                            <Minus className="w-4 h-4" />
+                          </Button>
+                          <span className="w-12 text-center font-medium">
+                            {profShowTicketCount}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-10 w-10 rounded-l-none"
+                            onClick={() => setProfShowTicketCount(profShowTicketCount + 1)}
+                            aria-label="Increase quantity"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        <Button 
+                          onClick={handleProfShowBuy}
+                          disabled={purchaseLoading}
+                          size="lg"
+                        >
+                          {purchaseLoading ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                              Processing...
+                            </>
+                          ) : (
+                            <>
+                              <Ticket className="w-4 h-4 mr-2" />
+                              {profShow.price === 0 ? 'Get Tickets' : 'Buy Tickets'}
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Mobile Buy Section */}
+              <div className="fixed bottom-16 left-0 right-0 md:hidden z-40 px-4 pb-4 pt-2 bg-linear-to-t from-background via-background to-transparent">
+                <Card className="border shadow-lg">
+                  <CardContent className="p-3 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Total</p>
+                      <div className="flex items-baseline gap-0.5">
+                        <IndianRupee className="w-4 h-4" />
+                        <span className="text-xl font-bold">{profShow.price * profShowTicketCount}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center border rounded-lg bg-background">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9 rounded-r-none"
+                          onClick={() => setProfShowTicketCount(Math.max(1, profShowTicketCount - 1))}
+                          disabled={profShowTicketCount <= 1}
+                          aria-label="Decrease quantity"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </Button>
+                        <span className="w-8 text-center font-medium">
+                          {profShowTicketCount}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9 rounded-l-none"
+                          onClick={() => setProfShowTicketCount(profShowTicketCount + 1)}
+                          aria-label="Increase quantity"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <Button 
+                        onClick={handleProfShowBuy}
+                        disabled={purchaseLoading}
+                      >
+                        {purchaseLoading ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                            Processing...
+                          </>
+                        ) : (
+                          <>
+                            <Ticket className="w-4 h-4 mr-2" />
+                            {profShow.price === 0 ? 'Get' : 'Buy'}
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
