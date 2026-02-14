@@ -166,6 +166,18 @@ function EventDetails() {
     });
   };
 
+  const formatDate = (isoString) => {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) return isoString; // fallback to original if invalid
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'short',
+      month: 'short', 
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
   const handleSlotToggle = (slotId) => {
     setOpenSlotIds((prev) => (prev.includes(slotId) ? [] : [slotId]));
   };
