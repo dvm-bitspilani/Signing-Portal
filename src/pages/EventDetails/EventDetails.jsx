@@ -32,7 +32,8 @@ import {
   AlertCircle,
   ShoppingBag,
   Sparkles,
-  ZoomIn
+  ZoomIn,
+  Loader2
 } from "lucide-react";
 
 function EventDetails() {
@@ -323,38 +324,8 @@ function EventDetails() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-app-gradient">
-        <Navbar />
-        <div className="pt-20 pb-24 md:pb-8">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => navigate("/")}
-              className="mb-6 -ml-2"
-            >
-              <ChevronLeft className="w-4 h-4 mr-1" />
-              Back
-            </Button>
-            
-            <div className="space-y-6 animate-fade-in">
-              <div className="space-y-2">
-                <Skeleton className="h-8 w-3/4" />
-                <Skeleton className="h-5 w-1/3" />
-              </div>
-              <Card>
-                <CardContent className="p-6">
-                  <Skeleton className="aspect-4/3 w-full rounded-lg" />
-                  <div className="mt-6 space-y-4">
-                    <Skeleton className="h-6 w-1/4" />
-                    <Skeleton className="h-10 w-full" />
-                    <Skeleton className="h-12 w-full" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
+      <div className="min-h-screen bg-app-gradient flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-white" />
       </div>
     );
   }
@@ -368,7 +339,7 @@ function EventDetails() {
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => navigate("/")}
+              onClick={() => navigate(eventType === "merch" ? "/merch" : "/")}
               className="mb-6 -ml-2"
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
@@ -417,7 +388,7 @@ function EventDetails() {
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/merch")}
               className="mb-6 -ml-2"
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
