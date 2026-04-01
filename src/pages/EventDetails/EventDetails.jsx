@@ -383,133 +383,146 @@ function EventDetails() {
     return (
       <div className="min-h-screen bg-app-gradient">
         <Navbar />
-        <div className="pt-20 pb-40 md:pb-8">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6">
-            <Button 
-              variant="ghost" 
+        <div className="pt-20 pb-40 lg:pb-4">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+
+            <Button
+              variant="ghost"
               size="sm"
               onClick={() => navigate("/merch")}
-              className="mb-6 -ml-2"
+              className="mb-6 -ml-2 hidden lg:inline-flex"
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
               Back
             </Button>
-            
-            <div className="space-y-6 animate-fade-in">
-              {/* Header */}
-              <div className="space-y-2">
-                <div className="flex items-start gap-3">
-                  <div className="shrink-0 p-2 rounded-xl bg-warning/10">
-                    <ShoppingBag className="h-5 w-5 text-warning" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h1 className="text-2xl font-bold tracking-tight">{merch.name}</h1>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="warning">Merchandise</Badge>
-                      {merch.price === 0 && <Badge variant="success">Free</Badge>}
+
+            <div className="space-y-6 animate-fade-in lg:space-y-0 lg:flex lg:gap-8 lg:h-[calc(100vh-8rem)]">
+
+              <div className="lg:w-[55%] lg:flex lg:items-center lg:justify-center">
+                <Card className="overflow-hidden lg:border-0 lg:shadow-none lg:bg-transparent">
+                  <Dialog open={imageZoomOpen} onOpenChange={setImageZoomOpen}>
+                    <DialogTrigger asChild>
+                      <div className="relative aspect-square bg-muted cursor-pointer group lg:aspect-auto lg:h-[calc(100vh-10rem)] lg:rounded-xl">
+                        <img
+                          src={images[currentImageIndex]}
+                          alt={merch.name}
+                          className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                        />
+                        {images.length > 1 && (
+                          <>
+                            <Button
+                              variant="secondary"
+                              size="icon"
+                              className="absolute left-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                prevImage();
+                              }}
+                              aria-label="Previous image"
+                            >
+                              <ChevronLeft className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="secondary"
+                              size="icon"
+                              className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                nextImage();
+                              }}
+                              aria-label="Next image"
+                            >
+                              <ChevronRight className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
+                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                          {images.map((_, idx) => (
+                            <button
+                              key={idx}
+                              className={`h-1.5 rounded-full transition-all ${
+                                idx === currentImageIndex
+                                  ? 'bg-foreground w-4'
+                                  : 'bg-foreground/30 w-1.5'
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setCurrentImageIndex(idx);
+                              }}
+                              aria-label={`Go to image ${idx + 1}`}
+                            />
+                          ))}
+                        </div>
+                        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex items-center gap-1.5 text-xs bg-black/60 text-white px-2 py-1 rounded-full">
+                            <ZoomIn className="h-3 w-3" />
+                            Zoom
+                          </div>
+                        </div>
+                      </div>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-5xl w-full h-[90vh] p-0 bg-black/95">
+                      <div className="relative w-full h-full flex items-center justify-center">
+                        <img
+                          src={images[currentImageIndex]}
+                          alt={merch.name}
+                          className="max-w-full max-h-full object-contain"
+                        />
+                        {images.length > 1 && (
+                          <>
+                            <Button
+                              variant="secondary"
+                              size="icon"
+                              className="absolute left-4 top-1/2 -translate-y-1/2"
+                              onClick={prevImage}
+                              aria-label="Previous image"
+                            >
+                              <ChevronLeft className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="secondary"
+                              size="icon"
+                              className="absolute right-4 top-1/2 -translate-y-1/2"
+                              onClick={nextImage}
+                              aria-label="Next image"
+                            >
+                              <ChevronRight className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </Card>
+              </div>
+
+              <div className="lg:w-[45%] lg:flex lg:flex-col lg:overflow-y-auto lg:pr-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate("/merch")}
+                  className="mb-2 -ml-2 lg:hidden"
+                >
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  Back
+                </Button>
+
+                <div className="space-y-2 lg:space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="shrink-0 p-2 rounded-xl bg-warning/10">
+                      <ShoppingBag className="h-5 w-5 text-warning" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h1 className="text-2xl font-bold tracking-tight">{merch.name}</h1>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="warning">Merchandise</Badge>
+                        {merch.price === 0 && <Badge variant="success">Free</Badge>}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Image Gallery */}
-              <Card className="overflow-hidden">
-                <Dialog open={imageZoomOpen} onOpenChange={setImageZoomOpen}>
-                  <DialogTrigger asChild>
-                    <div className="relative aspect-square bg-muted cursor-pointer group">
-                      <img 
-                        src={images[currentImageIndex]} 
-                        alt={merch.name}
-                        className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
-                      />
-                      {images.length > 1 && (
-                        <>
-                          <Button
-                            variant="secondary"
-                            size="icon"
-                            className="absolute left-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              prevImage();
-                            }}
-                            aria-label="Previous image"
-                          >
-                            <ChevronLeft className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            size="icon"
-                            className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              nextImage();
-                            }}
-                            aria-label="Next image"
-                          >
-                            <ChevronRight className="h-4 w-4" />
-                          </Button>
-                        </>
-                      )}
-                      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-                        {images.map((_, idx) => (
-                          <button
-                            key={idx}
-                            className={`h-1.5 rounded-full transition-all ${
-                              idx === currentImageIndex 
-                                ? 'bg-foreground w-4' 
-                                : 'bg-foreground/30 w-1.5'
-                            }`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setCurrentImageIndex(idx);
-                            }}
-                            aria-label={`Go to image ${idx + 1}`}
-                          />
-                        ))}
-                      </div>
-                      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="flex items-center gap-1.5 text-xs bg-black/60 text-white px-2 py-1 rounded-full">
-                          <ZoomIn className="h-3 w-3" />
-                          Zoom
-                        </div>
-                      </div>
-                    </div>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-5xl w-full h-[90vh] p-0 bg-black/95">
-                    <div className="relative w-full h-full flex items-center justify-center">
-                      <img 
-                        src={images[currentImageIndex]} 
-                        alt={merch.name}
-                        className="max-w-full max-h-full object-contain"
-                      />
-                      {images.length > 1 && (
-                        <>
-                          <Button
-                            variant="secondary"
-                            size="icon"
-                            className="absolute left-4 top-1/2 -translate-y-1/2"
-                            onClick={prevImage}
-                            aria-label="Previous image"
-                          >
-                            <ChevronLeft className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            size="icon"
-                            className="absolute right-4 top-1/2 -translate-y-1/2"
-                            onClick={nextImage}
-                            aria-label="Next image"
-                          >
-                            <ChevronRight className="h-4 w-4" />
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </DialogContent>
-                </Dialog>
-
-                <CardContent className="p-4 sm:p-6 space-y-5">
-                  {/* Price */}
+                <div className="space-y-5 mt-4">
                   {merch.price > 0 && (
                     <div className="flex items-baseline gap-1">
                       <IndianRupee className="w-5 h-5" />
@@ -517,7 +530,6 @@ function EventDetails() {
                     </div>
                   )}
 
-                  {/* Sizes Selection */}
                   {merch.sizes && merch.sizes.length > 0 && (
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
@@ -533,9 +545,9 @@ function EventDetails() {
                             <div className="space-y-4">
                               <h3 className="text-lg font-semibold">Size Chart</h3>
                               <div className="relative bg-muted rounded-lg overflow-hidden">
-                                <img 
+                                <img
                                   src={
-                                    merch.name.toLowerCase().includes('hoodie') || 
+                                    merch.name.toLowerCase().includes('hoodie') ||
                                     merch.name.toLowerCase().includes('sweatshirt')
                                       ? "https://res.cloudinary.com/dmcy7qqn7/image/upload/v1760604890/hoodie_n8sah7.jpg"
                                       : "https://res.cloudinary.com/dmcy7qqn7/image/upload/v1760604896/tee_zmxxfx.jpg"
@@ -566,7 +578,6 @@ function EventDetails() {
                     </div>
                   )}
 
-                  {/* Customization Section */}
                   {merch.is_customisable && (
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
@@ -593,7 +604,6 @@ function EventDetails() {
                     </div>
                   )}
 
-                  {/* Quantity Selection */}
                   <div className="space-y-3">
                     <label className="text-sm font-medium">Quantity</label>
                     <div className="flex items-center gap-4">
@@ -625,54 +635,55 @@ function EventDetails() {
                       <span className="text-xs text-muted-foreground">Max 25</span>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
 
-              {/* Desktop Buy Section */}
-              <Card className="hidden md:block">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-center justify-between">
-                    {merch.price > 0 && (
-                      <div>
-                        <p className="text-sm text-muted-foreground">Total</p>
-                        <div className="flex items-baseline gap-1">
-                          <IndianRupee className="w-5 h-5" />
-                          <span className="text-2xl font-bold">{totalPrice}</span>
-                        </div>
-                        {customizationEnabled && merch.is_customisable && merch.customisation_price > 0 && (
-                          <p className="text-xs text-muted-foreground">
-                            Incl. ₹{merch.customisation_price * merchQuantity} customization
-                          </p>
+                <div className="mt-auto pt-6">
+                  <Card className="hidden lg:block">
+                    <CardContent className="p-4 sm:p-6">
+                      <div className="flex items-center justify-between">
+                        {merch.price > 0 && (
+                          <div>
+                            <p className="text-sm text-muted-foreground">Total</p>
+                            <div className="flex items-baseline gap-1">
+                              <IndianRupee className="w-5 h-5" />
+                              <span className="text-2xl font-bold">{totalPrice}</span>
+                            </div>
+                            {customizationEnabled && merch.is_customisable && merch.customisation_price > 0 && (
+                              <p className="text-xs text-muted-foreground">
+                                Incl. ₹{merch.customisation_price * merchQuantity} customization
+                              </p>
+                            )}
+                          </div>
                         )}
+                        <Button
+                          onClick={handleMerchBuy}
+                          disabled={purchaseLoading || (merch.sizes && merch.sizes.length > 0 && !selectedSize)}
+                          size="lg"
+                          className={merch.price === 0 ? 'w-full' : ''}
+                        >
+                          {purchaseLoading ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                              Processing...
+                            </>
+                          ) : (
+                            <>
+                              <ShoppingBag className="w-4 h-4 mr-2" />
+                              {merch.price === 0 ? 'Get Now' : 'Buy Now'}
+                            </>
+                          )}
+                        </Button>
                       </div>
-                    )}
-                    <Button 
-                      onClick={handleMerchBuy}
-                      disabled={purchaseLoading || (merch.sizes && merch.sizes.length > 0 && !selectedSize)}
-                      size="lg"
-                      className={merch.price === 0 ? 'w-full' : ''}
-                    >
-                      {purchaseLoading ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                          Processing...
-                        </>
-                      ) : (
-                        <>
-                          <ShoppingBag className="w-4 h-4 mr-2" />
-                          {merch.price === 0 ? 'Get Now' : 'Buy Now'}
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                    </CardContent>
+                  </Card>
+                </div>
+
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Mobile Floating Bottom CTA */}
-        <div className="fixed bottom-16 left-0 right-0 md:hidden z-40 px-4 pb-4 pt-2 bg-linear-to-t from-background via-background to-transparent">
+        <div className="fixed bottom-16 left-0 right-0 lg:hidden z-40 px-4 pb-4 pt-2 bg-linear-to-t from-background via-background to-transparent">
           <Card className="border shadow-lg">
             <CardContent className="p-3 flex items-center justify-between gap-3">
               {merch.price > 0 && (
@@ -684,7 +695,7 @@ function EventDetails() {
                   </div>
                 </div>
               )}
-              <Button 
+              <Button
                 onClick={handleMerchBuy}
                 disabled={purchaseLoading || (merch.sizes && merch.sizes.length > 0 && !selectedSize)}
                 className={merch.price === 0 ? 'flex-1' : ''}
