@@ -579,8 +579,9 @@ function EventDetails() {
                               onClick={() => setSelectedSize(size.id.toString())}
                             >
                               {size.name === "A" ? "One Size" : size.name}
-                          </button>
-                        ))}
+                            </button>
+                          ));
+                        })()}
                       </div>
                     </div>
                   )}
