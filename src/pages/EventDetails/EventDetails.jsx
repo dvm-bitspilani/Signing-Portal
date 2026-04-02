@@ -561,17 +561,24 @@ function EventDetails() {
                         </Dialog>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {merch.sizes.map((size) => (
-                          <button
-                            key={size.id}
-                            className={`min-w-12 px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
-                              selectedSize === size.id.toString()
-                                ? 'border-primary bg-primary/10 text-primary'
-                                : 'border-border hover:border-primary/50'
-                            }`}
-                            onClick={() => setSelectedSize(size.id.toString())}
-                          >
-                            {size.name === "A" ? "One Size" : size.name}
+                        {(() => {
+                          const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL"];
+                          const sortedSizes = [...merch.sizes].sort((a, b) => {
+                            const orderA = SIZE_ORDER.indexOf(a.name);
+                            const orderB = SIZE_ORDER.indexOf(b.name);
+                            return (orderA === -1 ? Infinity : orderA) - (orderB === -1 ? Infinity : orderB);
+                          });
+                          return sortedSizes.map((size) => (
+                            <button
+                              key={size.id}
+                              className={`min-w-12 px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
+                                selectedSize === size.id.toString()
+                                  ? 'border-primary bg-primary/10 text-primary'
+                                  : 'border-border hover:border-primary/50'
+                              }`}
+                              onClick={() => setSelectedSize(size.id.toString())}
+                            >
+                              {size.name === "A" ? "One Size" : size.name}
                           </button>
                         ))}
                       </div>

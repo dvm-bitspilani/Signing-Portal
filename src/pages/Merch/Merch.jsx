@@ -209,7 +209,15 @@ function Merch() {
                         </h3>
                         {merch.sizes && merch.sizes.length > 0 && (
                             <p className="text-xs text-muted-foreground">
-                                {merch.sizes.join(' • ')}
+                                {(() => {
+                                    const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL"];
+                                    const sortedSizes = [...merch.sizes].sort((a, b) => {
+                                        const orderA = SIZE_ORDER.indexOf(a);
+                                        const orderB = SIZE_ORDER.indexOf(b);
+                                        return (orderA === -1 ? Infinity : orderA) - (orderB === -1 ? Infinity : orderB);
+                                    });
+                                    return sortedSizes.join(' • ');
+                                })()}
                             </p>
                         )}
                     </div>
