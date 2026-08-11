@@ -38,20 +38,21 @@ const Layout = () => {
   const hideBottomNav = location.pathname === "/signin";
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Main content area with bottom padding on mobile for bottom nav */}
-      <main className={`flex-1 ${!hideBottomNav ? 'pb-20 md:pb-0' : ''}`}>
+    <div className="flex min-h-dvh flex-col">
+      {/* Clears the fixed bottom nav and the phone's home indicator. */}
+      <main
+        className={`flex flex-1 flex-col ${!hideBottomNav ? "pb-shell md:pb-0" : ""}`}
+      >
         <Outlet />
       </main>
 
-      {/* Footer - hidden on sign-in, and on mobile when bottom nav is visible */}
+      {/* On mobile the bottom nav already anchors the screen. */}
       {!hideFooter && (
         <div className="hidden md:block">
           <Footer />
         </div>
       )}
 
-      {/* Mobile Bottom Navigation */}
       {!hideBottomNav && <MobileBottomNav />}
     </div>
   );

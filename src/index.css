@@ -1,253 +1,129 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300..800&display=swap");
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-  
-  /* Typography Hierarchy */
-  h1 {
-    @apply text-4xl font-bold tracking-tight;
-  }
-  
-  h2 {
-    @apply text-3xl font-semibold tracking-tight;
-  }
-  
-  h3 {
-    @apply text-2xl font-semibold tracking-tight;
-  }
-  
-  h4 {
-    @apply text-xl font-semibold tracking-tight;
-  }
-  
-  h5 {
-    @apply text-lg font-semibold tracking-tight;
-  }
-  
-  h6 {
-    @apply text-base font-semibold tracking-tight;
-  }
-  
-  p {
-    @apply text-base leading-relaxed;
-  }
-  
-  /* Custom Typography Classes */
-  .text-heading-primary {
-    @apply text-4xl font-bold text-foreground tracking-tight;
-  }
-  
-  .text-heading-secondary {
-    @apply text-3xl font-semibold text-foreground tracking-tight;
-  }
-  
-  .text-heading-tertiary {
-    @apply text-2xl font-semibold text-foreground tracking-tight;
-  }
-  
-  .text-subheading {
-    @apply text-xl font-semibold text-foreground tracking-tight;
-  }
-  
-  .text-body-large {
-    @apply text-lg text-foreground leading-relaxed;
-  }
-  
-  .text-body {
-    @apply text-base text-foreground leading-relaxed;
-  }
-  
-  .text-body-small {
-    @apply text-sm text-foreground leading-relaxed;
-  }
-  
-  .text-caption {
-    @apply text-xs text-muted-foreground leading-relaxed;
-  }
-  
-  .text-label {
-    @apply text-sm font-medium text-foreground;
-  }
-  
-  .text-label-small {
-    @apply text-xs font-medium text-foreground;
-  }
-  
-  /* Navigation specific typography */
-  .nav-brand {
-    @apply text-xl font-bold text-foreground tracking-tight;
-  }
-  
-  .nav-link {
-    @apply text-sm font-semibold text-foreground transition-colors hover:text-primary;
-  }
-  
-  .nav-text-muted {
-    @apply text-sm text-muted-foreground;
-  }
-  
-  /* Utility classes for consistent spacing and styling */
-  .text-emphasis {
-    @apply font-semibold text-foreground;
-  }
-  
-  .text-muted {
-    @apply text-muted-foreground;
-  }
-  
-  .text-error {
-    @apply text-destructive;
-  }
-  
-  .text-success {
-    @apply text-green-600 dark:text-green-400;
-  }
-  
-  .text-warning {
-    @apply text-yellow-600 dark:text-yellow-400;
-  }
-}
+/* =========================================================================
+   Oasis Signings Portal — design tokens
+   Palette is lifted from the Oasis logo: vermilion #E23016, sky #3596DE,
+   leaf #43AF37, brass #EE6A0C. Surfaces are warm (brown cast), never
+   blue-black, because the fest happens at night around a fire.
+   ========================================================================= */
 
 :root {
-  /* New Indigo/Amber Color Palette */
-  --background: oklch(0.985 0 0);
-  --foreground: oklch(0.145 0.015 265);
+  /* Surfaces — warm paper */
+  --background: oklch(0.973 0.008 85);
+  --foreground: oklch(0.22 0.014 55);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0.015 265);
+  --card-foreground: oklch(0.22 0.014 55);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.35 0 0);
-  --primary: oklch(0.511 0.262 276);
-  --primary-foreground: oklch(0.985 0.002 265);
-  --secondary: oklch(0.965 0 0);
-  --secondary-foreground: oklch(0.205 0.015 265);
-  --muted: oklch(0.955 0.005 265);
-  --muted-foreground: oklch(0.45 0.02 265);
-  --accent: oklch(0.955 0.01 265);
-  --accent-foreground: oklch(0.205 0.015 265);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.915 0.005 265);
-  --input: oklch(0.915 0.005 265);
-  --ring: oklch(0.511 0.262 276);
-  
-  /* Semantic Colors */
-  --success: oklch(0.627 0.194 149.214);
-  --success-foreground: oklch(0.985 0 0);
-  --warning: oklch(0.769 0.188 70.08);
-  --warning-foreground: oklch(0.21 0.034 46.534);
-  --pending: oklch(0.769 0.188 70.08);
-  --pending-foreground: oklch(0.21 0.034 46.534);
-  
-  /* Chart Colors */
-  --chart-1: oklch(0.511 0.262 276);
-  --chart-2: oklch(0.769 0.188 70.08);
-  --chart-3: oklch(0.627 0.194 149.214);
-  --chart-4: oklch(0.577 0.245 27.325);
-  --chart-5: oklch(0.398 0.195 277.366);
-  
-  /* Sidebar */
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.45 0 0);
-  --sidebar-primary: oklch(0.511 0.262 276);
-  --sidebar-primary-foreground: oklch(0.985 0.002 265);
-  --sidebar-accent: oklch(0.955 0.01 265);
-  --sidebar-accent-foreground: oklch(0.205 0.015 265);
-  --sidebar-border: oklch(0.915 0.005 265);
-  --sidebar-ring: oklch(0.511 0.262 276);
-  
-  /* Typography */
-  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-  
-  /* Spacing & Radius */
-  --radius: 0.625rem;
-  --spacing: 0.25rem;
-  
-  /* Shadows */
-  --shadow-2xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.05);
-  --shadow-xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.06);
-  --shadow-sm: 0px 1px 3px 0px hsl(0 0% 0% / 0.1), 0px 1px 2px -1px hsl(0 0% 0% / 0.1);
-  --shadow: 0px 2px 4px 0px hsl(0 0% 0% / 0.1), 0px 1px 2px -1px hsl(0 0% 0% / 0.1);
-  --shadow-md: 0px 4px 6px -1px hsl(0 0% 0% / 0.1), 0px 2px 4px -2px hsl(0 0% 0% / 0.1);
-  --shadow-lg: 0px 10px 15px -3px hsl(0 0% 0% / 0.1), 0px 4px 6px -4px hsl(0 0% 0% / 0.1);
-  --shadow-xl: 0px 20px 25px -5px hsl(0 0% 0% / 0.1), 0px 8px 10px -6px hsl(0 0% 0% / 0.1);
-  --shadow-2xl: 0px 25px 50px -12px hsl(0 0% 0% / 0.25);
-  
-  --tracking-normal: 0em;
+  --popover-foreground: oklch(0.22 0.014 55);
+
+  --secondary: oklch(0.945 0.010 82);
+  --secondary-foreground: oklch(0.28 0.014 55);
+  --muted: oklch(0.945 0.010 82);
+  --muted-foreground: oklch(0.505 0.014 62);
+  --accent: oklch(0.928 0.012 80);
+  --accent-foreground: oklch(0.24 0.014 55);
+
+  --border: oklch(0.885 0.011 80);
+  --input: oklch(0.885 0.011 80);
+
+  /* Brand hues */
+  --flame: oklch(0.558 0.209 33);
+  --flame-foreground: oklch(0.99 0.008 85);
+  --sky: oklch(0.585 0.135 245);
+  --sky-foreground: oklch(0.99 0.008 85);
+  --leaf: oklch(0.545 0.148 145);
+  --leaf-foreground: oklch(0.99 0.008 85);
+  --brass: oklch(0.635 0.163 55);
+  --brass-foreground: oklch(0.99 0.008 85);
+
+  --primary: var(--flame);
+  --primary-foreground: var(--flame-foreground);
+  --ring: var(--flame);
+
+  /* Status. Destructive is deliberately never a large red fill in this app —
+     cancelling is a quiet, reversible-looking action, not an error state. */
+  --success: var(--leaf);
+  --success-foreground: var(--leaf-foreground);
+  --warning: var(--brass);
+  --warning-foreground: var(--brass-foreground);
+  --pending: var(--brass);
+  --pending-foreground: var(--brass-foreground);
+  --destructive: oklch(0.505 0.185 16);
+  --destructive-foreground: oklch(0.99 0.008 85);
+
+  --sidebar: var(--card);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--flame);
+  --sidebar-primary-foreground: var(--flame-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--flame);
+
+  /* One variable superfamily. Display uses the width axis, body doesn't. */
+  --font-sans: "Archivo", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+  --font-serif: ui-serif, Georgia, Cambria, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
+
+  --radius: 0.75rem;
+
+  /* Shadows exist only for things that genuinely float. */
+  --shadow-2xs: 0 1px 1px 0 oklch(0.22 0.014 55 / 0.04);
+  --shadow-xs: 0 1px 2px 0 oklch(0.22 0.014 55 / 0.05);
+  --shadow-sm: 0 1px 2px 0 oklch(0.22 0.014 55 / 0.06);
+  --shadow: 0 2px 4px -1px oklch(0.22 0.014 55 / 0.07);
+  --shadow-md: 0 4px 10px -2px oklch(0.22 0.014 55 / 0.09);
+  --shadow-lg: 0 10px 24px -6px oklch(0.22 0.014 55 / 0.12);
+  --shadow-xl: 0 18px 40px -12px oklch(0.22 0.014 55 / 0.16);
+  --shadow-2xl: 0 28px 60px -16px oklch(0.22 0.014 55 / 0.22);
+
+  /* Shared by the shell and every sticky action bar, so a buy bar always
+     lands exactly on top of the bottom nav instead of guessing. */
+  --bottom-nav-h: 4rem;
+  --safe-b: env(safe-area-inset-bottom, 0px);
 }
 
 .dark {
-  /* Dark Mode - Indigo/Amber Palette */
-  --background: oklch(0.13 0.02 265);
-  --foreground: oklch(0.985 0.002 265);
-  --card: oklch(0.17 0.02 265);
-  --card-foreground: oklch(0.985 0.002 265);
-  --popover: oklch(0.2 0.02 265);
-  --popover-foreground: oklch(0.75 0 0);
-  --primary: oklch(0.585 0.233 277);
-  --primary-foreground: oklch(0.985 0.002 265);
-  --secondary: oklch(0.22 0.02 265);
-  --secondary-foreground: oklch(0.965 0 0);
-  --muted: oklch(0.22 0.015 265);
-  --muted-foreground: oklch(0.65 0.01 265);
-  --accent: oklch(0.26 0.02 265);
-  --accent-foreground: oklch(0.965 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.28 0.015 265);
-  --input: oklch(0.22 0.02 265);
-  --ring: oklch(0.585 0.233 277);
-  
-  /* Dark Semantic Colors */
-  --success: oklch(0.627 0.194 149.214);
-  --success-foreground: oklch(0.985 0 0);
-  --warning: oklch(0.769 0.188 70.08);
-  --warning-foreground: oklch(0.21 0.034 46.534);
-  --pending: oklch(0.769 0.188 70.08);
-  --pending-foreground: oklch(0.21 0.034 46.534);
-  
-  /* Dark Chart Colors */
-  --chart-1: oklch(0.585 0.233 277);
-  --chart-2: oklch(0.769 0.188 70.08);
-  --chart-3: oklch(0.627 0.194 149.214);
-  --chart-4: oklch(0.577 0.245 27.325);
-  --chart-5: oklch(0.5 0.22 277);
-  
-  /* Dark Sidebar */
-  --sidebar: oklch(0.13 0.02 265);
-  --sidebar-foreground: oklch(0.55 0 0);
-  --sidebar-primary: oklch(0.585 0.233 277);
-  --sidebar-primary-foreground: oklch(0.985 0.002 265);
-  --sidebar-accent: oklch(0.26 0.02 265);
-  --sidebar-accent-foreground: oklch(0.965 0 0);
-  --sidebar-border: oklch(0.28 0.015 265);
-  --sidebar-ring: oklch(0.585 0.233 277);
-  
-  /* Typography */
-  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-  
-  /* Spacing & Radius */
-  --radius: 0.625rem;
-  
-  /* Shadows for dark mode */
-  --shadow-2xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.3);
-  --shadow-xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.35);
-  --shadow-sm: 0px 1px 3px 0px hsl(0 0% 0% / 0.4), 0px 1px 2px -1px hsl(0 0% 0% / 0.4);
-  --shadow: 0px 2px 4px 0px hsl(0 0% 0% / 0.4), 0px 1px 2px -1px hsl(0 0% 0% / 0.4);
-  --shadow-md: 0px 4px 6px -1px hsl(0 0% 0% / 0.45), 0px 2px 4px -2px hsl(0 0% 0% / 0.4);
-  --shadow-lg: 0px 10px 15px -3px hsl(0 0% 0% / 0.5), 0px 4px 6px -4px hsl(0 0% 0% / 0.45);
-  --shadow-xl: 0px 20px 25px -5px hsl(0 0% 0% / 0.5), 0px 8px 10px -6px hsl(0 0% 0% / 0.45);
-  --shadow-2xl: 0px 25px 50px -12px hsl(0 0% 0% / 0.6);
+  --background: oklch(0.158 0.008 58);
+  --foreground: oklch(0.955 0.006 80);
+  --card: oklch(0.198 0.010 58);
+  --card-foreground: oklch(0.955 0.006 80);
+  --popover: oklch(0.222 0.010 58);
+  --popover-foreground: oklch(0.955 0.006 80);
+
+  --secondary: oklch(0.248 0.010 58);
+  --secondary-foreground: oklch(0.955 0.006 80);
+  --muted: oklch(0.238 0.010 58);
+  --muted-foreground: oklch(0.712 0.013 72);
+  --accent: oklch(0.272 0.011 58);
+  --accent-foreground: oklch(0.965 0.006 80);
+
+  --border: oklch(0.302 0.011 58);
+  --input: oklch(0.272 0.011 58);
+
+  --flame: oklch(0.665 0.196 36);
+  --flame-foreground: oklch(0.16 0.014 40);
+  --sky: oklch(0.712 0.122 243);
+  --sky-foreground: oklch(0.16 0.014 40);
+  --leaf: oklch(0.715 0.153 147);
+  --leaf-foreground: oklch(0.16 0.014 40);
+  --brass: oklch(0.762 0.148 62);
+  --brass-foreground: oklch(0.16 0.014 40);
+
+  --destructive: oklch(0.638 0.188 18);
+  --destructive-foreground: oklch(0.16 0.014 40);
+
+  --shadow-2xs: 0 1px 1px 0 oklch(0 0 0 / 0.3);
+  --shadow-xs: 0 1px 2px 0 oklch(0 0 0 / 0.35);
+  --shadow-sm: 0 1px 2px 0 oklch(0 0 0 / 0.4);
+  --shadow: 0 2px 4px -1px oklch(0 0 0 / 0.45);
+  --shadow-md: 0 4px 10px -2px oklch(0 0 0 / 0.5);
+  --shadow-lg: 0 10px 24px -6px oklch(0 0 0 / 0.55);
+  --shadow-xl: 0 18px 40px -12px oklch(0 0 0 / 0.6);
+  --shadow-2xl: 0 28px 60px -16px oklch(0 0 0 / 0.65);
 }
 
 @theme inline {
@@ -270,23 +146,23 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  
-  /* Semantic Colors */
+
+  --color-flame: var(--flame);
+  --color-flame-foreground: var(--flame-foreground);
+  --color-sky: var(--sky);
+  --color-sky-foreground: var(--sky-foreground);
+  --color-leaf: var(--leaf);
+  --color-leaf-foreground: var(--leaf-foreground);
+  --color-brass: var(--brass);
+  --color-brass-foreground: var(--brass-foreground);
+
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
   --color-pending: var(--pending);
   --color-pending-foreground: var(--pending-foreground);
-  
-  /* Chart Colors */
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  
-  /* Sidebar Colors */
+
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -296,19 +172,16 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Typography */
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
 
-  /* Border Radius */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
 
-  /* Shadows */
   --shadow-2xs: var(--shadow-2xs);
   --shadow-xs: var(--shadow-xs);
   --shadow-sm: var(--shadow-sm);
@@ -318,189 +191,217 @@
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
 
-  /* Tracking */
-  --tracking-tighter: -0.05em;
-  --tracking-tight: -0.025em;
-  --tracking-normal: var(--tracking-normal);
-  --tracking-wide: 0.025em;
-  --tracking-wider: 0.05em;
-  --tracking-widest: 0.1em;
-  
-  /* Custom Animations */
-  --animate-fade-in: fade-in 0.3s ease-out;
-  --animate-fade-in-up: fade-in-up 0.4s ease-out;
-  --animate-slide-in-bottom: slide-in-bottom 0.3s ease-out;
-  --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
-  --animate-spin-slow: spin 2s linear infinite;
+  --tracking-tighter: -0.045em;
+  --tracking-tight: -0.02em;
+  --tracking-wide: 0.03em;
+  --tracking-wider: 0.06em;
+  --tracking-widest: 0.14em;
 }
 
-body {
-  letter-spacing: var(--tracking-normal);
-}
+@layer base {
+  * {
+    @apply border-border;
+  }
 
-/* Animation Keyframes */
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
 
-@keyframes fade-in-up {
-  from { 
-    opacity: 0; 
-    transform: translateY(10px); 
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    /* Deliberately no `overflow-x: hidden` here — it makes <body> the scroll
+       container and breaks the sticky top bar. Wide content is contained at
+       the source instead, with min-w-0/truncate and scrollable strips. */
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
-  }
-}
 
-@keyframes slide-in-bottom {
-  from { 
-    opacity: 0; 
-    transform: translateY(100%); 
+  /* Display type is the same family at a wider width — the width contrast is
+     the pairing. Reserved for page titles and marquee numerals. */
+  .display {
+    font-family: var(--font-sans);
+    font-stretch: 112%;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+    line-height: 1.02;
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
-  }
-}
 
-@keyframes pulse-glow {
-  0%, 100% { 
-    box-shadow: 0 0 0 0 var(--color-success); 
+  /* Small uppercase mono labels: kinds, statuses, field names. */
+  .label-mono {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
   }
-  50% { 
-    box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-success) 25%, transparent); 
+
+  /* Numerals that stand for something a human reads aloud: prices, serials,
+     times, quantities. Tabular so columns of them line up. */
+  .numeral {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
   }
 }
 
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+@layer components {
+  /* ---------------------------------------------------------------------
+     The stub. A booking is physically a ticket stub, so the card that
+     represents one is die-cut: a dashed tear with half-moon notches
+     punched out of both edges. Used only where something is genuinely
+     tearable — a confirmed booking, or the panel you are about to claim.
+     --------------------------------------------------------------------- */
+  .stub {
+    @apply relative rounded-xl border bg-card;
+    /* Clips the notch circles to the card edge, leaving true half-moons. */
+    overflow: hidden;
+  }
+
+  .stub-tear {
+    --notch: 9px;
+    @apply relative;
+    border-top: 1px dashed var(--border);
+  }
+
+  .stub-tear::before,
+  .stub-tear::after {
+    content: "";
+    position: absolute;
+    top: calc(var(--notch) * -1);
+    width: calc(var(--notch) * 2);
+    height: calc(var(--notch) * 2);
+    border-radius: 9999px;
+    background: var(--background);
+    border: 1px solid var(--border);
+  }
+
+  .stub-tear::before {
+    left: calc(var(--notch) * -1);
+  }
+
+  .stub-tear::after {
+    right: calc(var(--notch) * -1);
+  }
+
+  /* A stub sitting on a card-coloured surface punches card-coloured notches. */
+  .stub-on-card .stub-tear::before,
+  .stub-on-card .stub-tear::after {
+    background: var(--card);
+  }
+
+  /* ---------------------------------------------------------------------
+     Kind rule. The left edge of a browse card carries the one fact that
+     changes what the card does: what kind of thing it is.
+     --------------------------------------------------------------------- */
+  .kind-rule {
+    @apply relative overflow-hidden rounded-xl border bg-card;
+  }
+
+  .kind-rule::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--kind, var(--flame));
+  }
+
+  /* The Oasis logo's palette as a banner stripe. Appears once per screen,
+     under the top bar, and nowhere else. */
+  .brand-rule {
+    background: linear-gradient(
+      90deg,
+      #e23016 0%,
+      #ee6a0c 22%,
+      #fef605 44%,
+      #43af37 68%,
+      #3596de 100%
+    );
+  }
+
+  /* ---------------------------------------------------------------------
+     Sign-in entrance. The only orchestrated motion in the app: mark,
+     wordmark, the Oasis stripe drawing across, then the control. Lists and
+     cards elsewhere appear immediately — staggering content the user is
+     waiting for just makes it arrive late.
+     --------------------------------------------------------------------- */
+  .rise {
+    animation: rise 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: var(--delay, 0ms);
+  }
+
+  .draw {
+    transform-origin: left center;
+    animation: draw 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: var(--delay, 0ms);
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes draw {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  /* Press feedback for whole-card tap targets on touch devices. */
+  .pressable {
+    @apply transition-[transform,background-color,border-color] duration-150 ease-out;
+  }
+
+  .pressable:active {
+    transform: scale(0.99);
+  }
 }
 
 @layer utilities {
-  /* Animation Utilities */
-  .animate-fade-in {
-    animation: fade-in 0.3s ease-out;
-  }
-  
-  .animate-fade-in-up {
-    animation: fade-in-up 0.4s ease-out;
-  }
-  
-  .animate-slide-in-bottom {
-    animation: slide-in-bottom 0.3s ease-out;
-  }
-  
-  .animate-pulse-glow {
-    animation: pulse-glow 2s ease-in-out infinite;
-  }
-  
-  .animate-shimmer {
-    background: linear-gradient(90deg, transparent 0%, var(--color-muted) 50%, transparent 100%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-  }
-  
-  /* Hover Utilities */
-  .hover-lift {
-    @apply transition-all duration-300 ease-out;
-  }
-  
-  .hover-lift:hover {
-    @apply -translate-y-1 shadow-lg;
-  }
-  
-  .hover-scale {
-    @apply transition-transform duration-200 ease-out;
-  }
-  
-  .hover-scale:hover {
-    @apply scale-[1.02];
-  }
-  
-  /* Card Utilities */
-  .card-interactive {
-    @apply transition-all duration-300 ease-out cursor-pointer;
-    @apply hover:shadow-lg hover:border-primary/20 hover:-translate-y-0.5;
-  }
-  
-  /* Focus Utilities */
-  .focus-ring {
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
-  }
-  
-  /* Status Badges */
-  .status-confirmed {
-    @apply bg-success/15 text-success border-success/30;
-  }
-  
-  .status-cancelled {
-    @apply bg-destructive/15 text-destructive border-destructive/30 line-through;
-  }
-  
-  .status-pending {
-    @apply bg-warning/15 text-warning-foreground border-warning/30;
-  }
-  
-  /* Gradient Backgrounds */
-  .bg-app-gradient {
-    background-color: var(--color-background);
-    background-image:
-      radial-gradient(1200px 800px at -10% -10%, color-mix(in oklab, var(--color-primary) 12%, transparent) 0%, transparent 60%),
-      radial-gradient(1000px 600px at 110% 10%, color-mix(in oklab, var(--color-primary) 8%, transparent) 0%, transparent 65%),
-      radial-gradient(900px 700px at 0% 110%, color-mix(in oklab, var(--color-muted) 15%, transparent) 0%, transparent 60%);
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-  }
-
-  .dark .bg-app-gradient {
-    background-image:
-      radial-gradient(1200px 800px at -10% -10%, color-mix(in oklab, var(--color-primary) 18%, transparent) 0%, transparent 60%),
-      radial-gradient(1000px 600px at 110% 10%, color-mix(in oklab, var(--color-primary) 12%, transparent) 0%, transparent 65%),
-      radial-gradient(900px 700px at 0% 110%, color-mix(in oklab, var(--color-muted) 20%, transparent) 0%, transparent 60%);
-  }
-  
-  /* Glass Effect */
-  .glass {
-    @apply bg-background/80 backdrop-blur-md border border-border/50;
-  }
-  
-  /* Hide scrollbar but allow scrolling */
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
-  
-  /* Safe area padding for mobile */
-  .pb-safe {
-    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+
+  /* Clears the fixed bottom nav plus the phone's home indicator. */
+  .pb-shell {
+    padding-bottom: calc(var(--bottom-nav-h) + var(--safe-b));
   }
-  
-  .pt-safe {
-    padding-top: max(1rem, env(safe-area-inset-top));
+
+  .bottom-shell {
+    bottom: calc(var(--bottom-nav-h) + var(--safe-b));
+  }
+
+  .pb-safe {
+    padding-bottom: var(--safe-b);
   }
 }
 
-/* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-  .animate-fade-in,
-  .animate-fade-in-up,
-  .animate-slide-in-bottom,
-  .animate-pulse-glow,
-  .animate-shimmer {
-    animation: none;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
-  
-  .hover-lift:hover,
-  .hover-scale:hover,
-  .card-interactive:hover {
+
+  .pressable:active {
     transform: none;
   }
 }

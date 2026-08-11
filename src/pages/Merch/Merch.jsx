@@ -1,332 +1,199 @@
 import { Link, useNavigate, useLoaderData } from "react-router-dom";
-import Navbar from "../ComComponent/Navbar/Navbar";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { ShoppingBag, ChevronLeft, ChevronRight, Sparkles, Package } from "lucide-react";
+import { PackageOpen } from "lucide-react";
 import { merchBaseURL } from "../../global";
 import { handleApiErrorToast } from "../../assets/utils/toast.js";
 import {
-    getRefreshToken,
-    UpdateAccessToken,
-    logoutAction,
-    accessTokenDuration,
-    refreshTokenDuration,
-    checkAccessToken,
-    checkRefreshToken,
+  getRefreshToken,
+  UpdateAccessToken,
+  logoutAction,
+  accessTokenDuration,
+  refreshTokenDuration,
+  checkAccessToken,
+  checkRefreshToken,
 } from "../../assets/utils/auth.js";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Page, PageHeader, EmptyState, ErrorState, Price } from "@/components/Page";
+import { sortSizes } from "@/lib/sizes";
 import { cn } from "@/lib/utils";
 
+/**
+ * Browse shows one image per product; the carousel lives on the detail page.
+ * Arrow buttons here were hover-only, so on a phone they were invisible
+ * controls nested inside a link.
+ */
+function MerchCard({ merch }) {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <Link
+      to={`/EventDetails/merch/${merch.id}`}
+      className="pressable group flex flex-col overflow-hidden rounded-xl border border-border bg-card hover:border-foreground/25"
+    >
+      <div className="relative aspect-square overflow-hidden bg-muted">
+        {!loaded && <div className="absolute inset-0 animate-pulse bg-muted" />}
+        <img
+          src={merch.front_image_url}
+          alt=""
+          loading="lazy"
+          onLoad={() => setLoaded(true)}
+          className={cn(
+            "size-full object-cover transition-opacity duration-300",
+            loaded ? "opacity-100" : "opacity-0",
+          )}
+        />
+        {merch.is_customisable && (
+          <span className="label-mono absolute left-2 top-2 rounded bg-background/90 px-1.5 py-1 text-brass backdrop-blur-sm">
+            Custom
+          </span>
+        )}
+      </div>
+
+      <div className="flex flex-1 flex-col gap-1 p-3 sm:p-4">
+        <h3 className="line-clamp-2 text-sm font-semibold leading-snug tracking-[-0.01em] sm:text-[0.9375rem]">
+          {merch.name}
+        </h3>
+
+        {merch.sizes?.length > 0 && (
+          <p className="numeral text-[0.6875rem] tracking-wide text-muted-foreground">
+            {sortSizes(merch.sizes).join(" · ")}
+          </p>
+        )}
+
+        <div className="mt-auto flex items-baseline gap-1.5 pt-2">
+          <Price amount={merch.price} size="md" />
+          {merch.is_customisable && merch.customisation_price > 0 && (
+            <span className="numeral text-[0.6875rem] text-muted-foreground">
+              +₹{merch.customisation_price}
+            </span>
+          )}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function CardSkeleton() {
+  return (
+    <div className="overflow-hidden rounded-xl border border-border">
+      <Skeleton className="aspect-square rounded-none" />
+      <div className="p-3 sm:p-4">
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="mt-2 h-3 w-1/2" />
+        <Skeleton className="mt-4 h-5 w-16" />
+      </div>
+    </div>
+  );
+}
+
 function Merch() {
-    const [merchList, setMerchList] = useState(null);
-    const [merchLoading, setMerchLoading] = useState(true);
-    const refreshToken = getRefreshToken();
-    const accessToken = useLoaderData();
-    const [emptyMerchMsg, setEmptyMerchMsg] = useState("Loading available merch...");
+  const [merchList, setMerchList] = useState(null);
+  const [merchLoading, setMerchLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+  const refreshToken = getRefreshToken();
+  const accessToken = useLoaderData();
 
-    const navigate = useNavigate();
-    
-    useEffect(() => {
-        if (!refreshToken || !accessToken) {
-            logoutAction();
-            navigate("/signin");
-            return;
-        }
+  const navigate = useNavigate();
 
-        checkAccessToken();
+  useEffect(() => {
+    if (!refreshToken || !accessToken) {
+      logoutAction();
+      navigate("/signin");
+      return;
+    }
 
-        if (checkRefreshToken() === "EXPIRED") {
-            logoutAction();
-            navigate("/signin");
-            return;
-        }
+    checkAccessToken();
 
-        const accessTokenTimer = setTimeout(() => {
-            UpdateAccessToken();
-        }, accessTokenDuration());
+    if (checkRefreshToken() === "EXPIRED") {
+      logoutAction();
+      navigate("/signin");
+      return;
+    }
 
-        const refreshTokenTimer = setTimeout(() => {
-            if (checkRefreshToken() === "EXPIRED") {
-                logoutAction();
-                navigate("/signin");
-            }
-        }, refreshTokenDuration());
+    const accessTokenTimer = setTimeout(() => {
+      UpdateAccessToken();
+    }, accessTokenDuration());
 
-        return () => {
-            clearTimeout(accessTokenTimer);
-            clearTimeout(refreshTokenTimer);
-        };
-    }, [refreshToken, accessToken, navigate]);
+    const refreshTokenTimer = setTimeout(() => {
+      if (checkRefreshToken() === "EXPIRED") {
+        logoutAction();
+        navigate("/signin");
+      }
+    }, refreshTokenDuration());
 
-    useEffect(() => {
-        setMerchLoading(true);
-        axios.get(`${merchBaseURL}/merch_list`, {
-            headers: {
-                accept: 'application/json',
-                Authorization: `Bearer ${accessToken}`
-            }
-        }).then((response) => {
-            if (response.data.length === 0) {
-                setEmptyMerchMsg("No merch available at this moment.");
-            } else {
-                setMerchList(response.data);
-            }
-            setMerchLoading(false);
-        }).catch((errResponse) => {
-            setEmptyMerchMsg("Something went wrong while fetching merch.");
-            setMerchLoading(false);
-            handleApiErrorToast(errResponse, "Failed to load merch. Please try again.");
-            console.log(errResponse);
-        });
-    }, [accessToken]);
-
-    const MerchCard = ({ merch, index }) => {
-        const [currentImageIndex, setCurrentImageIndex] = useState(0);
-        const [imageLoaded, setImageLoaded] = useState(false);
-        const images = merch.extra_images_url 
-            ? [merch.front_image_url, ...merch.extra_images_url] 
-            : [merch.front_image_url];
-
-        const nextImage = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setCurrentImageIndex((prev) => (prev + 1) % images.length);
-        };
-
-        const prevImage = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
-        };
-
-        return (
-            <Card 
-                className={cn(
-                    "group overflow-hidden border-0 bg-card shadow-sm",
-                    "transition-all duration-300 ease-out",
-                    "hover:shadow-xl hover:-translate-y-1",
-                    "animate-fade-in-up"
-                )}
-                style={{ animationDelay: `${index * 50}ms` }}
-            >
-                {/* Image Section */}
-                <div className="relative aspect-square overflow-hidden bg-muted">
-                    {/* Loading placeholder */}
-                    {!imageLoaded && (
-                        <div className="absolute inset-0 animate-pulse bg-linear-to-br from-muted to-muted-foreground/10" />
-                    )}
-                    
-                    <img 
-                        src={images[currentImageIndex]} 
-                        alt={merch.name}
-                        className={cn(
-                            "w-full h-full object-cover transition-all duration-500",
-                            "group-hover:scale-105",
-                            imageLoaded ? "opacity-100" : "opacity-0"
-                        )}
-                        onLoad={() => setImageLoaded(true)}
-                        loading="lazy"
-                    />
-                    
-                    {/* Gradient overlay for text readability */}
-                    <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    
-                    {/* Badge */}
-                    {merch.is_customisable && (
-                        <Badge 
-                            variant="secondary" 
-                            className="absolute top-3 left-3 bg-warning/90 text-warning-foreground border-0 gap-1"
-                        >
-                            <Sparkles className="h-3 w-3" />
-                            Customizable
-                        </Badge>
-                    )}
-                    
-                    {/* Image Navigation */}
-                    {images.length > 1 && (
-                        <>
-                            <button
-                                onClick={prevImage}
-                                className={cn(
-                                    "absolute left-2 top-1/2 -translate-y-1/2",
-                                    "h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm",
-                                    "flex items-center justify-center",
-                                    "opacity-0 group-hover:opacity-100 transition-all duration-200",
-                                    "hover:bg-background hover:scale-110",
-                                    "focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring"
-                                )}
-                                aria-label="Previous image"
-                            >
-                                <ChevronLeft className="h-4 w-4" />
-                            </button>
-                            <button
-                                onClick={nextImage}
-                                className={cn(
-                                    "absolute right-2 top-1/2 -translate-y-1/2",
-                                    "h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm",
-                                    "flex items-center justify-center",
-                                    "opacity-0 group-hover:opacity-100 transition-all duration-200",
-                                    "hover:bg-background hover:scale-110",
-                                    "focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring"
-                                )}
-                                aria-label="Next image"
-                            >
-                                <ChevronRight className="h-4 w-4" />
-                            </button>
-                            
-                            {/* Image indicators */}
-                            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-                                {images.map((_, idx) => (
-                                    <button
-                                        key={idx}
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            setCurrentImageIndex(idx);
-                                        }}
-                                        className={cn(
-                                            "h-1.5 rounded-full transition-all duration-200",
-                                            idx === currentImageIndex 
-                                                ? 'bg-white w-4' 
-                                                : 'bg-white/50 w-1.5 hover:bg-white/75'
-                                        )}
-                                        aria-label={`View image ${idx + 1}`}
-                                    />
-                                ))}
-                            </div>
-                        </>
-                    )}
-                </div>
-                
-                {/* Content Section */}
-                <CardContent className="p-4 space-y-3">
-                    <div className="space-y-1">
-                        <h3 className="font-semibold text-lg leading-tight line-clamp-1 group-hover:text-primary transition-colors">
-                            {merch.name}
-                        </h3>
-                        {merch.sizes && merch.sizes.length > 0 && (
-                            <p className="text-xs text-muted-foreground">
-                                {(() => {
-                                    const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL"];
-                                    const sortedSizes = [...merch.sizes].sort((a, b) => {
-                                        const orderA = SIZE_ORDER.indexOf(a);
-                                        const orderB = SIZE_ORDER.indexOf(b);
-                                        return (orderA === -1 ? Infinity : orderA) - (orderB === -1 ? Infinity : orderB);
-                                    });
-                                    return sortedSizes.join(' • ');
-                                })()}
-                            </p>
-                        )}
-                    </div>
-                    
-                    <div className="flex items-center justify-between pt-1">
-                        <div className="flex items-baseline gap-1">
-                            <span className="text-2xl font-bold tracking-tight">
-                                {merch.price === 0 ? 'Free' : `₹${merch.price}`}
-                            </span>
-                            {merch.is_customisable && merch.customisation_price > 0 && (
-                                <span className="text-xs text-muted-foreground">
-                                    +₹{merch.customisation_price} custom
-                                </span>
-                            )}
-                        </div>
-                        <Button 
-                            asChild 
-                            size="sm"
-                            className="gap-1.5"
-                        >
-                            <Link to={`/EventDetails/merch/${merch.id}`}>
-                                View
-                                <ChevronRight className="h-4 w-4" />
-                            </Link>
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
-        );
+    return () => {
+      clearTimeout(accessTokenTimer);
+      clearTimeout(refreshTokenTimer);
     };
+  }, [refreshToken, accessToken, navigate]);
 
-    const LoadingSkeleton = () => (
-        <Card className="overflow-hidden border-0">
-            <div className="aspect-square">
-                <Skeleton className="w-full h-full" />
-            </div>
-            <CardContent className="p-4 space-y-3">
-                <div className="space-y-2">
-                    <Skeleton className="h-5 w-3/4" />
-                    <Skeleton className="h-3 w-1/2" />
-                </div>
-                <div className="flex items-center justify-between pt-1">
-                    <Skeleton className="h-7 w-16" />
-                    <Skeleton className="h-9 w-20" />
-                </div>
-            </CardContent>
-        </Card>
-    );
+  useEffect(() => {
+    setMerchLoading(true);
+    axios
+      .get(`${merchBaseURL}/merch_list`, {
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+      .then((response) => {
+        setMerchList(response.data);
+        setLoadError(null);
+        setMerchLoading(false);
+      })
+      .catch((errResponse) => {
+        setLoadError("Couldn't reach the merch server.");
+        setMerchLoading(false);
+        handleApiErrorToast(errResponse, "Couldn't load merch.");
+        console.log(errResponse);
+      });
+  }, [accessToken]);
 
-    const EmptyState = () => (
-        <div className="flex flex-col items-center justify-center py-16 text-center animate-fade-in">
-            <div className="rounded-2xl bg-muted/50 p-6 mb-6">
-                <Package className="h-12 w-12 text-muted-foreground" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">No merchandise available</h3>
-            <p className="text-muted-foreground max-w-sm mb-6">
-                {emptyMerchMsg}
-            </p>
-            <Button asChild variant="outline">
-                <Link to="/events">Browse Events Instead</Link>
+  const count = merchList?.length ?? 0;
+
+  return (
+    <Page>
+      <PageHeader
+        title="Merch"
+        meta={
+          merchLoading
+            ? "Loading"
+            : loadError
+              ? "Unavailable"
+              : count === 0
+                ? "Nothing in stock"
+                : `${count} item${count === 1 ? "" : "s"}`
+        }
+      />
+
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
+        {merchLoading &&
+          Array.from({ length: 8 }, (_, i) => <CardSkeleton key={i} />)}
+        {!merchLoading &&
+          !loadError &&
+          merchList?.map((merch) => <MerchCard key={merch.id} merch={merch} />)}
+      </div>
+
+      {!merchLoading && loadError && (
+        <ErrorState title="Couldn't load merch" body={loadError} />
+      )}
+
+      {!merchLoading && !loadError && count === 0 && (
+        <EmptyState
+          icon={PackageOpen}
+          title="Nothing in stock"
+          body="Merch goes up before the fest. Events are open in the meantime."
+          action={
+            <Button asChild variant="outline" size="sm">
+              <Link to="/events">Browse events</Link>
             </Button>
-        </div>
-    );
-
-    return (
-        <div className="min-h-screen bg-app-gradient">
-            <Navbar />
-            
-            <div className="pt-6 pb-8">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    {/* Header */}
-                    <header className="mb-8 animate-fade-in">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2 rounded-xl bg-primary/10">
-                                <ShoppingBag className="h-6 w-6 text-primary" />
-                            </div>
-                            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
-                                Merchandise
-                            </h1>
-                        </div>
-                        <p className="text-muted-foreground text-lg max-w-2xl">
-                            Explore our exclusive collection of fest merchandise
-                        </p>
-                    </header>
-                    
-                    {/* Grid */}
-                    {merchLoading ? (
-                        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                            {[...Array(8)].map((_, i) => (
-                                <LoadingSkeleton key={i} />
-                            ))}
-                        </div>
-                    ) : merchList && merchList.length > 0 ? (
-                        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                            {merchList.map((merch, index) => (
-                                <MerchCard 
-                                    key={merch.id || index} 
-                                    merch={merch}
-                                    index={index}
-                                />
-                            ))}
-                        </div>
-                    ) : (
-                        <EmptyState />
-                    )}
-                </div>
-            </div>
-        </div>
-    );
+          }
+        />
+      )}
+    </Page>
+  );
 }
 
 export default Merch;

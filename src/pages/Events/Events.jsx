@@ -1,286 +1,252 @@
 import { Link, useNavigate, useLoaderData } from "react-router-dom";
-import Navbar from "../ComComponent/Navbar/Navbar";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Calendar, Users, Music } from "lucide-react";
+import { CalendarX2, ChevronRight } from "lucide-react";
 import { apiBaseURL } from "../../global";
 import { handleApiErrorToast } from "../../assets/utils/toast.js";
 import {
-    getRefreshToken,
-    UpdateAccessToken,
-    logoutAction,
-    accessTokenDuration,
-    refreshTokenDuration,
-    checkAccessToken,
-    checkRefreshToken,
+  getRefreshToken,
+  UpdateAccessToken,
+  logoutAction,
+  accessTokenDuration,
+  refreshTokenDuration,
+  checkAccessToken,
+  checkRefreshToken,
 } from "../../assets/utils/auth.js";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
+import { Page, PageHeader, EmptyState, ErrorState } from "@/components/Page";
+
+const dateLabel = (iso) =>
+  new Date(iso).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+  });
+
+const timeLabel = (iso) =>
+  new Date(iso).toLocaleTimeString("en-IN", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+/**
+ * The whole card is the link. On a phone the old layout put a 90px "View
+ * Details" button inside an otherwise dead 300px card; here the target is
+ * the card and the chevron just says so.
+ *
+ * The left rule carries the one fact that changes what happens next: what
+ * kind of thing this is.
+ */
+function BrowseCard({ to, kind, kindColor, title, description, meta }) {
+  return (
+    <Link
+      to={to}
+      className="kind-rule pressable group flex flex-col hover:border-foreground/25"
+      style={{ "--kind": kindColor }}
+    >
+      <div className="flex flex-1 flex-col gap-2 p-4 pl-5 sm:p-5 sm:pl-6">
+        <span className="label-mono" style={{ color: kindColor }}>
+          {kind}
+        </span>
+
+        <h3 className="text-[1.0625rem] font-semibold leading-snug tracking-[-0.01em]">
+          {title}
+        </h3>
+
+        {description && (
+          <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+            {description}
+          </p>
+        )}
+
+        <div className="mt-auto flex items-center justify-between gap-3 pt-3">
+          <span className="numeral truncate text-xs text-muted-foreground">
+            {meta}
+          </span>
+          <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-foreground" />
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function CardSkeleton() {
+  return (
+    <div className="rounded-xl border border-border p-4 sm:p-5">
+      <Skeleton className="h-3 w-16" />
+      <Skeleton className="mt-3 h-5 w-3/4" />
+      <Skeleton className="mt-3 h-3.5 w-full" />
+      <Skeleton className="mt-1.5 h-3.5 w-2/3" />
+      <Skeleton className="mt-6 h-3 w-24" />
+    </div>
+  );
+}
+
+const Grid = ({ children }) => (
+  <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+    {children}
+  </div>
+);
+
+const SectionLabel = ({ children, count }) => (
+  <div className="mb-3 flex items-baseline gap-2">
+    <h2 className="label-mono text-foreground">{children}</h2>
+    <span className="numeral text-xs text-muted-foreground">{count}</span>
+  </div>
+);
 
 function Events() {
-    const [eventList, setEventList] = useState(null);
-    const [profShowsList, setProfShowsList] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const refreshToken = getRefreshToken();
-    const accessToken = useLoaderData();
-    const [emptyEventsMsg, setEmptyEventsMsg] = useState("Loading available events...");
+  const [eventList, setEventList] = useState(null);
+  const [profShowsList, setProfShowsList] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+  const refreshToken = getRefreshToken();
+  const accessToken = useLoaderData();
 
-    const navigate = useNavigate();
-    
-    useEffect(() => {
-        if (!refreshToken || !accessToken) {
-            logoutAction();
-            navigate("/signin");
-            return;
-        }
+  const navigate = useNavigate();
 
-        checkAccessToken();
+  useEffect(() => {
+    if (!refreshToken || !accessToken) {
+      logoutAction();
+      navigate("/signin");
+      return;
+    }
 
-        if (checkRefreshToken() === "EXPIRED") {
-            logoutAction();
-            navigate("/signin");
-            return;
-        }
+    checkAccessToken();
 
-        const accessTokenTimer = setTimeout(() => {
-            UpdateAccessToken();
-        }, accessTokenDuration());
+    if (checkRefreshToken() === "EXPIRED") {
+      logoutAction();
+      navigate("/signin");
+      return;
+    }
 
-        const refreshTokenTimer = setTimeout(() => {
-            if (checkRefreshToken() === "EXPIRED") {
-                logoutAction();
-                navigate("/signin");
-            }
-        }, refreshTokenDuration());
+    const accessTokenTimer = setTimeout(() => {
+      UpdateAccessToken();
+    }, accessTokenDuration());
 
-        return () => {
-            clearTimeout(accessTokenTimer);
-            clearTimeout(refreshTokenTimer);
-        };
-    }, [refreshToken, accessToken, navigate]);
+    const refreshTokenTimer = setTimeout(() => {
+      if (checkRefreshToken() === "EXPIRED") {
+        logoutAction();
+        navigate("/signin");
+      }
+    }, refreshTokenDuration());
 
-    useEffect(() => {
-        setLoading(true);
-        axios.get(`${apiBaseURL}/api/shows`, {
-            headers: {
-                accept: 'application/json',
-                Authorization: `Bearer ${accessToken}`
-            }
-        }).then((response) => {
-            if (response.data.non_comp_events.length === 0 && response.data.prof_shows.length === 0) {
-                setEmptyEventsMsg("No events available at this moment.");
-            } else {
-                setEventList(response.data.non_comp_events.reverse());
-                setProfShowsList(response.data.prof_shows.reverse());
-            }
-            setLoading(false);
-        }).catch((errResponse) => {
-            setEmptyEventsMsg("Something went wrong while fetching events.");
-            setLoading(false);
-            handleApiErrorToast(errResponse, "Failed to load events. Please try again.");
-            console.log(errResponse);
-        });
-    }, [accessToken]);
+    return () => {
+      clearTimeout(accessTokenTimer);
+      clearTimeout(refreshTokenTimer);
+    };
+  }, [refreshToken, accessToken, navigate]);
 
-    const EventCard = ({ event }) => (
-        <Card className="group hover:shadow-lg transition-all duration-300 border hover:scale-105 hover:border-primary/30">
-            <CardHeader className="space-y-1">
-                <div className="flex items-center justify-between">
-                    <CardTitle className="text-subheading group-hover:text-primary transition-colors">
-                        {event.name}
-                    </CardTitle>
-                    <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/30">
-                        Event
-                    </Badge>
-                </div>
-                <CardDescription className="text-body-small line-clamp-2">
-                    {event.description || "No description available"}
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4 text-caption">
-                        <div className="flex items-center space-x-1">
-                            <Calendar className="h-4 w-4" />
-                            <span>Available</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                            <Users className="h-4 w-4" />
-                            <span>Open</span>
-                        </div>
-                    </div>
-                    <Button 
-                        asChild 
-                        className="font-medium transition-all duration-300 hover:scale-105"
-                    >
-                        <Link to={`/EventDetails/non-comp/${event.id}`}>
-                            View Details
-                        </Link>
-                    </Button>
-                </div>
-            </CardContent>
-        </Card>
-    );
+  useEffect(() => {
+    setLoading(true);
+    axios
+      .get(`${apiBaseURL}/api/shows`, {
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+      .then((response) => {
+        setEventList([...response.data.non_comp_events].reverse());
+        setProfShowsList([...response.data.prof_shows].reverse());
+        setLoadError(null);
+        setLoading(false);
+      })
+      .catch((errResponse) => {
+        setLoadError("Couldn't reach the signings server.");
+        setLoading(false);
+        handleApiErrorToast(errResponse, "Couldn't load events.");
+        console.log(errResponse);
+      });
+  }, [accessToken]);
 
-    const ProfShowCard = ({ show }) => (
-        <Card className="group hover:shadow-lg transition-all duration-300 border hover:scale-105 hover:border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10">
-            <CardHeader className="space-y-1">
-                <div className="flex items-center justify-between">
-                    <CardTitle className="text-subheading group-hover:text-primary transition-colors flex items-center gap-2">
-                        <Music className="h-5 w-5 text-primary" />
-                        {show.name}
-                    </CardTitle>
-                    <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/30">
-                        Prof Show
-                    </Badge>
-                </div>
-                {show.description && (
-                    <CardDescription className="text-body-small line-clamp-2">
-                        {show.description}
-                    </CardDescription>
-                )}
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4 text-caption">
-                        {(show.start_time || show.Artist || show.artist) && (
-                            <div className="flex flex-wrap items-center gap-3">
-                                {(show.Artist || show.artist) && (
-                                    <div className="flex items-center space-x-1">
-                                        <Users className="h-4 w-4" />
-                                        <span>{show.Artist || show.artist}</span>
-                                    </div>
-                                )}
-                                {show.start_time && (
-                                    <div className="flex items-center space-x-1">
-                                        <Calendar className="h-4 w-4" />
-                                        <span>{new Date(show.start_time).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                        {!show.start_time && !(show.Artist || show.artist) && (
-                            <div className="flex items-center space-x-1">
-                                <Calendar className="h-4 w-4" />
-                                <span>Available</span>
-                            </div>
-                        )}
-                    </div>
-                    <Button 
-                        asChild 
-                        className="font-medium transition-all duration-300 hover:scale-105"
-                    >
-                        <Link to={`/EventDetails/prof-show/${show.id}`}>
-                            View Details
-                        </Link>
-                    </Button>
-                </div>
-            </CardContent>
-        </Card>
-    );
+  const eventCount = eventList?.length ?? 0;
+  const showCount = profShowsList?.length ?? 0;
+  const total = eventCount + showCount;
 
-    const LoadingSkeleton = () => (
-        <Card>
-            <CardHeader className="space-y-1">
-                <div className="flex items-center justify-between">
-                    <Skeleton className="h-6 w-2/3" />
-                    <Skeleton className="h-5 w-16" />
-                </div>
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <div className="flex space-x-4">
-                        <Skeleton className="h-4 w-20" />
-                        <Skeleton className="h-4 w-16" />
-                    </div>
-                    <Skeleton className="h-9 w-24" />
-                </div>
-            </CardContent>
-        </Card>
-    );
+  const meta = loading
+    ? "Loading"
+    : loadError
+      ? "Unavailable"
+      : total === 0
+        ? "Nothing open yet"
+        : [
+            showCount > 0 &&
+              `${showCount} prof show${showCount === 1 ? "" : "s"}`,
+            eventCount > 0 && `${eventCount} event${eventCount === 1 ? "" : "s"}`,
+          ]
+            .filter(Boolean)
+            .join(" · ");
 
-    const EmptyState = ({ message }) => (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="rounded-full bg-muted p-3 mb-4">
-                <Calendar className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <h3 className="text-heading-tertiary mb-2">No events found</h3>
-            <p className="text-body text-muted-foreground max-w-md">{message}</p>
+  const profShowMeta = (show) => {
+    const artist = show.Artist || show.artist;
+    const when = show.start_time
+      ? `${dateLabel(show.start_time)} · ${timeLabel(show.start_time)}`
+      : null;
+    return [artist, when].filter(Boolean).join("  ·  ") || "Open for signings";
+  };
+
+  return (
+    <Page>
+      <PageHeader title="Events" meta={meta} />
+
+      {loading ? (
+        <Grid>
+          {Array.from({ length: 6 }, (_, i) => (
+            <CardSkeleton key={i} />
+          ))}
+        </Grid>
+      ) : loadError ? (
+        <ErrorState title="Couldn't load events" body={loadError} />
+      ) : total === 0 ? (
+        <EmptyState
+          icon={CalendarX2}
+          title="Nothing open yet"
+          body="Signings open closer to the fest. Check back then."
+        />
+      ) : (
+        <div className="space-y-9">
+          {showCount > 0 && (
+            <section>
+              <SectionLabel count={showCount}>Prof shows</SectionLabel>
+              <Grid>
+                {profShowsList.map((show) => (
+                  <BrowseCard
+                    key={show.id}
+                    to={`/EventDetails/prof-show/${show.id}`}
+                    kind="Prof show"
+                    kindColor="var(--sky)"
+                    title={show.name}
+                    description={show.description}
+                    meta={profShowMeta(show)}
+                  />
+                ))}
+              </Grid>
+            </section>
+          )}
+
+          {eventCount > 0 && (
+            <section>
+              <SectionLabel count={eventCount}>Events</SectionLabel>
+              <Grid>
+                {eventList.map((event) => (
+                  <BrowseCard
+                    key={event.id}
+                    to={`/EventDetails/non-comp/${event.id}`}
+                    kind="Event"
+                    kindColor="var(--flame)"
+                    title={event.name}
+                    description={event.description}
+                    meta="Pick a slot"
+                  />
+                ))}
+              </Grid>
+            </section>
+          )}
         </div>
-    );
-
-    return (
-        <div className="min-h-screen bg-app-gradient">
-            <Navbar />
-            <div className="pt-20 pb-8">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="space-y-8">
-                        {/* Header */}
-                        <div className="text-center mb-8">
-                            <h1 className="text-heading-primary mb-4">
-                                Available Events
-                            </h1>
-                            <p className="text-body-large text-muted-foreground max-w-2xl mx-auto">
-                                Browse our curated list of events. Select the ones that spark your interest.
-                            </p>
-                        </div>
-                        
-                        {/* Prof Shows Section */}
-                        {loading ? (
-                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                                {[...Array(6)].map((_, i) => (
-                                    <LoadingSkeleton key={i} />
-                                ))}
-                            </div>
-                        ) : (
-                            <>
-                                {profShowsList && profShowsList.length > 0 && (
-                                    <div className="space-y-4">
-                                        <h2 className="text-heading-secondary flex items-center gap-2">
-                                            <Music className="h-6 w-6 text-primary" />
-                                            Professional Shows
-                                        </h2>
-                                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                                            {profShowsList.map((show, index) => (
-                                                <ProfShowCard 
-                                                    key={index} 
-                                                    show={show} 
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {eventList && eventList.length > 0 && (
-                                    <div className="space-y-4">
-                                        <h2 className="text-heading-secondary">
-                                            Non-Competitive Events
-                                        </h2>
-                                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                                            {eventList.map((event, index) => (
-                                                <EventCard 
-                                                    key={index} 
-                                                    event={event} 
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {(!eventList || eventList.length === 0) && (!profShowsList || profShowsList.length === 0) && (
-                                    <EmptyState message={emptyEventsMsg} />
-                                )}
-                            </>
-                        )}
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
+      )}
+    </Page>
+  );
 }
 
 export default Events;

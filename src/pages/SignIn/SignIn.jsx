@@ -1,15 +1,17 @@
-import { React, useState } from "react";
+import { useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import { GoogleLogin } from "@react-oauth/google";
 import { useLocation, useNavigate } from "react-router-dom";
 import { apiBaseURL } from "../../global";
 import axios from "axios";
-import { handleApiErrorToast, showLoadingToast, dismissToast } from "../../assets/utils/toast.js";
-import { Card, CardContent } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  handleApiErrorToast,
+  showLoadingToast,
+  dismissToast,
+} from "../../assets/utils/toast.js";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Shield, Sparkles } from "lucide-react";
 import { ThemeToggle } from "../../components/theme-toggle";
+import { BrandMark } from "../ComComponent/Navbar/Navbar";
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -20,47 +22,33 @@ const SignIn = () => {
 
   const handleLoginSuccess = (credentialResponse) => {
     setIsLoading(true);
-    const loadingToastId = showLoadingToast("Signing you in...");
+    const loadingToastId = showLoadingToast("Signing you in…");
 
     axios
       .post(
         `${apiBaseURL}/api/auth/`,
-        {
-          token: credentialResponse.credential,
-        },
-        {
-          headers: {
-            accept: "application/json",
-          },
-        }
+        { token: credentialResponse.credential },
+        { headers: { accept: "application/json" } },
       )
       .then((response) => {
         setIsLoading(false);
         dismissToast(loadingToastId);
 
-        localStorage.setItem(
-          "username",
-          jwtDecode(credentialResponse.credential).name
-        );
-        localStorage.setItem(
-          "profilePicURL",
-          jwtDecode(credentialResponse.credential).picture
-        );
+        const claims = jwtDecode(credentialResponse.credential);
+        localStorage.setItem("username", claims.name);
+        localStorage.setItem("profilePicURL", claims.picture);
 
         localStorage.setItem("accessToken", response.data.tokens.access);
         localStorage.setItem("refreshToken", response.data.tokens.refresh);
+
         const accessTokenExpiry = new Date();
         accessTokenExpiry.setDate(accessTokenExpiry.getDate() + 1);
-        localStorage.setItem(
-          "accessTokenExpiry",
-          accessTokenExpiry.toISOString()
-        );
+        localStorage.setItem("accessTokenExpiry", accessTokenExpiry.toISOString());
+
         const refreshTokenExpiry = new Date();
         refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 30);
-        localStorage.setItem(
-          "refreshTokenExpiry",
-          refreshTokenExpiry.toISOString()
-        );
+        localStorage.setItem("refreshTokenExpiry", refreshTokenExpiry.toISOString());
+
         navigate(redirectTo, { replace: true });
       })
       .catch((error) => {
@@ -71,104 +59,85 @@ const SignIn = () => {
   };
 
   const handleError = (error) => {
-    handleApiErrorToast(error, "Please use your BITS email ID to sign in. If your BITS email ID is not working, please contact support.");
+    handleApiErrorToast(
+      error,
+      "Sign in with your BITS email. If it still won't work, check the Help page.",
+    );
   };
 
   return (
-    <div className="min-h-screen bg-app-gradient flex flex-col">
-      {/* Minimal header with theme toggle */}
-      <header className="absolute top-4 right-4 z-10">
+    <div className="flex min-h-dvh flex-col bg-background">
+      <div className="absolute right-4 top-4 z-10">
         <ThemeToggle />
-      </header>
+      </div>
 
-      <main className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-sm space-y-8 animate-fade-in">
-          {/* Logo and Branding */}
-          <div className="text-center space-y-4">
-            <div className="flex justify-center">
-              <div className="relative">
-                <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-150" />
-                <img
-                  src="/oasis-logo.svg"
-                  alt="BITS Oasis Logo"
-                  draggable="false"
-                  className="relative h-20 w-20 select-none rounded-xl bg-gradient-to-br from-violet-950/95 via-blue-900/95 to-purple-900/95 p-3 dark:bg-none dark:p-0 transition-all"
-                  style={{ userSelect: "none", WebkitUserDrag: "none" }}
-                />
-              </div>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">
-                Signings Portal
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                BITS Pilani, Pilani Campus
-              </p>
-            </div>
+      <main className="flex flex-1 items-center justify-center px-6 py-16">
+        {/* The one orchestrated moment in the app: mark, wordmark, the Oasis
+            stripe drawing across, then the control. */}
+        <div className="w-full max-w-[19rem]">
+          <div className="rise" style={{ "--delay": "0ms" }}>
+            <BrandMark className="size-14 rounded-lg" />
           </div>
 
-          {/* Sign In Card */}
-          <Card className="border-0 shadow-xl bg-card/95 backdrop-blur-sm">
-            <CardContent className="pt-4 pb-8 px-6 space-y-6">
-              <div className="text-center space-y-2">
-                <h2 className="text-xl font-semibold">
-                  Sign in to continue
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Access events, merchandise, and your bookings
+          <h1
+            className="display rise mt-6 text-[2.1rem] uppercase leading-[0.95]"
+            style={{ "--delay": "80ms" }}
+          >
+            Oasis
+            <br />
+            Signings
+          </h1>
+
+          <p
+            className="label-mono rise mt-3 text-muted-foreground"
+            style={{ "--delay": "140ms" }}
+          >
+            BITS Pilani · Pilani campus
+          </p>
+
+          <div
+            className="brand-rule draw mt-7 h-0.5 w-full"
+            style={{ "--delay": "200ms" }}
+            aria-hidden="true"
+          />
+
+          <div className="rise mt-7" style={{ "--delay": "280ms" }}>
+            {isLoading ? (
+              <div>
+                <Skeleton className="h-10 w-full rounded-full" />
+                <p className="mt-3 text-sm text-muted-foreground">
+                  Checking your account…
                 </p>
               </div>
-
-              {isLoading ? (
-                <div className="space-y-4 py-2">
-                  <Skeleton className="h-11 w-full rounded-full" />
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground">
-                      Authenticating...
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-5">
-                  {/* Google Sign-In Button Container */}
-                  <div className="flex justify-center">
-                    <GoogleLogin
-                      onSuccess={handleLoginSuccess}
-                      onError={handleError}
-                      auto_select={true}
-                      shape="pill"
-                      theme="outline"
-                      text="continue_with"
-                      size="large"
-                      width="280"
-                      logo_alignment="center"
-                    />
-                  </div>
-
-                  {/* Info Alert */}
-                  <Alert className="border-border bg-muted/50">
-                    <Shield className="h-4 w-4 text-primary" />
-                    <AlertDescription className="text-xs text-muted-foreground ml-2">
-                      Use your official <span className="font-medium text-foreground">@pilani.bits-pilani.ac.in</span> email address
-                    </AlertDescription>
-                  </Alert>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Privacy Note
-          <p className="text-center text-xs text-muted-foreground px-4">
-            By signing in, you agree to our event booking terms and conditions.
-            Your data is secured and used only for fest activities.
-          </p> */}
+            ) : (
+              <>
+                <GoogleLogin
+                  onSuccess={handleLoginSuccess}
+                  onError={handleError}
+                  auto_select
+                  shape="pill"
+                  theme="outline"
+                  text="continue_with"
+                  size="large"
+                  width="304"
+                  logo_alignment="center"
+                />
+                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                  Use your{" "}
+                  <span className="numeral text-foreground">
+                    @pilani.bits-pilani.ac.in
+                  </span>{" "}
+                  address. Personal accounts won't get through.
+                </p>
+              </>
+            )}
+          </div>
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="py-6 text-center">
-        <p className="text-xs text-muted-foreground">
-          Made with ❤️ by <span className="font-medium">DVM</span>, BITS Pilani
+      <footer className="px-6 py-8">
+        <p className="label-mono text-center text-muted-foreground">
+          Built by DVM
         </p>
       </footer>
     </div>

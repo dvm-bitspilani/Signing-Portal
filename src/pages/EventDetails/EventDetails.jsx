@@ -1,40 +1,156 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import Navbar from "../ComComponent/Navbar/Navbar";
 import { apiBaseURL, merchBaseURL } from "../../global";
 import { getAccessToken } from "../../assets/utils/auth.js";
-import { handleApiErrorToast, showSuccessToast, showLoadingToast, dismissToast, showErrorToast } from "../../assets/utils/toast.js";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  handleApiErrorToast,
+  showSuccessToast,
+  showLoadingToast,
+  dismissToast,
+  showErrorToast,
+} from "../../assets/utils/toast.js";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-import { 
-  ChevronLeft, 
-  ChevronRight,
-  Calendar, 
-  Clock, 
-  MapPin, 
-  Users, 
-  IndianRupee, 
-  Plus, 
-  Minus,
-  Ticket,
-  Info,
-  CheckCircle,
-  AlertCircle,
-  ShoppingBag,
-  Sparkles,
-  ZoomIn,
-  Loader2
-} from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ChevronDown, Minus, Plus, ZoomIn } from "lucide-react";
+import { Page, BackLink, ErrorState, Price } from "@/components/Page";
+import { sortSizes } from "@/lib/sizes";
+import { cn } from "@/lib/utils";
+
+const SIZE_CHARTS = {
+  hoodie: "https://res.cloudinary.com/dmcy7qqn7/image/upload/v1760604890/hoodie_n8sah7.jpg",
+  tee: "https://res.cloudinary.com/dmcy7qqn7/image/upload/v1760604896/tee_zmxxfx.jpg",
+};
+
+/* ---------------------------------------------------------------- pieces */
+
+function Eyebrow({ children, color }) {
+  return (
+    <span className="label-mono" style={{ color }}>
+      {children}
+    </span>
+  );
+}
+
+function Title({ kind, kindColor, name, description }) {
+  return (
+    <div className="mb-6">
+      <Eyebrow color={kindColor}>{kind}</Eyebrow>
+      <h1 className="display mt-2 text-[1.6rem] sm:text-[2rem]">{name}</h1>
+      {description && (
+        <p className="mt-2.5 max-w-prose text-sm leading-relaxed text-muted-foreground">
+          {description}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** Label/value rows set like a printed ticket: mono field name, plain value. */
+function Field({ label, value }) {
+  if (!value) return null;
+  return (
+    <div className="flex items-baseline justify-between gap-4 py-2.5">
+      <span className="label-mono shrink-0 text-muted-foreground">{label}</span>
+      <span className="numeral truncate text-right text-sm">{value}</span>
+    </div>
+  );
+}
+
+function QuantityStepper({ value, onChange, min = 1, max = 25, label }) {
+  return (
+    <div className="inline-flex items-center rounded-lg border border-border">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="rounded-r-none"
+        onClick={() => onChange(Math.max(min, value - 1))}
+        disabled={value <= min}
+        aria-label={`Decrease ${label}`}
+      >
+        <Minus className="size-4" />
+      </Button>
+      <span
+        className="numeral w-10 text-center text-sm font-semibold"
+        aria-live="polite"
+      >
+        {value}
+      </span>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="rounded-l-none"
+        onClick={() => onChange(Math.min(max, value + 1))}
+        disabled={value >= max}
+        aria-label={`Increase ${label}`}
+      >
+        <Plus className="size-4" />
+      </Button>
+    </div>
+  );
+}
+
+/**
+ * The panel you are about to tear off. Same die-cut as a booked stub, so the
+ * thing you're claiming and the thing you end up holding look like each other.
+ */
+function ClaimPanel({ total, note, children, className }) {
+  return (
+    <div className={cn("stub", className)}>
+      {children && <div className="p-4 sm:p-5">{children}</div>}
+      <div
+        className={cn(
+          "flex items-end justify-between gap-4 px-4 pb-4 pt-4 sm:px-5 sm:pb-5",
+          children && "stub-tear",
+        )}
+      >
+        <div className="min-w-0">
+          <p className="label-mono text-muted-foreground">Total</p>
+          <div className="mt-1">
+            <Price amount={total} size="xl" />
+          </div>
+          {note && (
+            <p className="numeral mt-1 text-xs text-muted-foreground">{note}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Mobile action bar. Sits above the bottom nav, never on top of it. */
+function StickyBar({ children, className }) {
+  return (
+    <div
+      className={cn(
+        "bottom-shell fixed inset-x-0 z-40 border-t border-border bg-background px-4 py-3",
+        className,
+      )}
+    >
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ page */
 
 function EventDetails() {
   const { eventType, eventIndex } = useParams();
@@ -49,7 +165,7 @@ function EventDetails() {
   const [openSlotIds, setOpenSlotIds] = useState([]);
   const [selectedTicketType, setSelectedTicketType] = useState({});
   const [ticketCounts, setTicketCounts] = useState({});
-  const [profShowTicketCount, setProfShowTicketCount] = useState(1);
+  const [profShowTicketCount] = useState(1);
   const [activeDateTab, setActiveDateTab] = useState(0);
   const [purchaseLoading, setPurchaseLoading] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -77,11 +193,9 @@ function EventDetails() {
         })
         .catch((err) => {
           console.error("Failed to load event details:", err);
-          console.log("Event details error response:", err.response);
-          console.log("Event details error data:", err.response?.data);
-          setError("Event not found or unauthorized.");
+          setError("This event isn't available.");
           setLoading(false);
-          handleApiErrorToast(err, "Failed to load event details. Please try again.");
+          handleApiErrorToast(err, "Couldn't load this event.");
         });
     } else if (eventType === "prof-show") {
       const endpoint = `/api/prof-show/${eventIndex}/`;
@@ -99,11 +213,9 @@ function EventDetails() {
         })
         .catch((err) => {
           console.error("Failed to load prof show details:", err);
-          console.log("Prof show details error response:", err.response);
-          console.log("Prof show details error data:", err.response?.data);
-          setError("Prof show not found or unauthorized.");
+          setError("This show isn't available.");
           setLoading(false);
-          handleApiErrorToast(err, "Failed to load prof show details. Please try again.");
+          handleApiErrorToast(err, "Couldn't load this show.");
         });
     } else if (eventType === "merch") {
       axios
@@ -119,11 +231,9 @@ function EventDetails() {
         })
         .catch((err) => {
           console.error("Failed to load merch details:", err);
-          console.log("Merch details error response:", err.response);
-          console.log("Merch details error data:", err.response?.data);
-          setError("Merch not found or unauthorized.");
+          setError("This item isn't available.");
           setLoading(false);
-          handleApiErrorToast(err, "Failed to load merch details. Please try again.");
+          handleApiErrorToast(err, "Couldn't load this item.");
         });
     } else {
       setError("Invalid event type.");
@@ -131,13 +241,13 @@ function EventDetails() {
     }
   }, [eventType, eventIndex, accessToken]);
 
-  // Set default open slot
+  // Open the first bookable slot by default.
   useEffect(() => {
     if (event?.dates && event.dates.length > 0) {
-      // Find the first date with slots
-      const firstDateWithSlots = event.dates.find(d => d.slots && d.slots.length > 0);
+      const firstDateWithSlots = event.dates.find(
+        (d) => d.slots && d.slots.length > 0,
+      );
       if (firstDateWithSlots) {
-        // Take the first slot from the first available date
         const firstSlot = firstDateWithSlots.slots[0];
         if (firstSlot && firstSlot.is_openforsignings) {
           setOpenSlotIds([firstSlot.slot_id]);
@@ -146,36 +256,36 @@ function EventDetails() {
     }
   }, [event]);
 
-  // Preload size chart images for merch
+  // Preload size charts so the dialog opens instantly.
   useEffect(() => {
     if (eventType === "merch" && merch) {
-      const tshirtImg = new Image();
-      const hoodieImg = new Image();
-      tshirtImg.src = "https://res.cloudinary.com/dmcy7qqn7/image/upload/v1760604896/tee_zmxxfx.jpg";
-      hoodieImg.src = "https://res.cloudinary.com/dmcy7qqn7/image/upload/v1760604890/hoodie_n8sah7.jpg";
+      Object.values(SIZE_CHARTS).forEach((src) => {
+        const img = new Image();
+        img.src = src;
+      });
     }
   }, [eventType, merch]);
 
   const formatTime = (isoString) => {
-    if (!isoString) return '';
+    if (!isoString) return "";
     const date = new Date(isoString);
-    if (isNaN(date.getTime())) return isoString; // fallback to original if invalid
-    return date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
-      minute: '2-digit',
-      hour12: true 
+    if (isNaN(date.getTime())) return isoString;
+    return date.toLocaleTimeString("en-IN", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
     });
   };
 
   const formatDate = (isoString) => {
-    if (!isoString) return '';
+    if (!isoString) return "";
     const date = new Date(isoString);
-    if (isNaN(date.getTime())) return isoString; // fallback to original if invalid
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'short',
-      month: 'short', 
-      day: 'numeric',
-      year: 'numeric'
+    if (isNaN(date.getTime())) return isoString;
+    return date.toLocaleDateString("en-IN", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
     });
   };
 
@@ -184,32 +294,18 @@ function EventDetails() {
   };
 
   const handleTicketTypeChange = (slotId, ticketTypeId) => {
-    setSelectedTicketType((prev) => ({
-      ...prev,
-      [slotId]: ticketTypeId,
-    }));
-    setTicketCounts((prev) => ({
-      ...prev,
-      [slotId]: 1,
-    }));
-  };
-
-  const handleTicketCount = (slotId, delta) => {
-    setTicketCounts((prev) => {
-      const current = prev[slotId] || 0;
-      const next = Math.max(0, current + delta);
-      return { ...prev, [slotId]: next };
-    });
+    setSelectedTicketType((prev) => ({ ...prev, [slotId]: ticketTypeId }));
+    setTicketCounts((prev) => ({ ...prev, [slotId]: 1 }));
   };
 
   const handleNonCompBuy = async (slot) => {
     const selectedTypeId = selectedTicketType[slot.slot_id];
     const count = ticketCounts[slot.slot_id] || 1;
     if (!selectedTypeId || count < 1) return;
-    
+
     setPurchaseLoading(true);
-    const loadingToastId = showLoadingToast("Processing your ticket purchase...");
-    
+    const loadingToastId = showLoadingToast("Signing you up…");
+
     try {
       const formData = new FormData();
       formData.append("tickets", count);
@@ -221,17 +317,15 @@ function EventDetails() {
             Authorization: `Bearer ${accessToken}`,
             accept: "application/json",
           },
-        }
+        },
       );
       dismissToast(loadingToastId);
-      showSuccessToast("Tickets purchased successfully! Redirecting to your signings...");
-      setTimeout(() => navigate("/yoursignings"), 1500);
+      showSuccessToast("Signed up. Taking you to your signings.");
+      setTimeout(() => navigate("/yoursignings"), 1200);
     } catch (err) {
       console.error("Purchase failed:", err);
-      console.log("Purchase error response:", err.response);
-      console.log("Purchase error data:", err.response?.data);
       dismissToast(loadingToastId);
-      handleApiErrorToast(err, "Failed to purchase tickets. Please try again.");
+      handleApiErrorToast(err, "Couldn't complete the sign-up.");
     } finally {
       setPurchaseLoading(false);
     }
@@ -239,10 +333,10 @@ function EventDetails() {
 
   const handleProfShowBuy = async () => {
     if (profShowTicketCount < 1) return;
-    
+
     setPurchaseLoading(true);
-    const loadingToastId = showLoadingToast("Processing your ticket purchase...");
-    
+    const loadingToastId = showLoadingToast("Booking your ticket…");
+
     try {
       const formData = new FormData();
       formData.append("tickets", profShowTicketCount);
@@ -254,17 +348,15 @@ function EventDetails() {
             Authorization: `Bearer ${accessToken}`,
             accept: "application/json",
           },
-        }
+        },
       );
       dismissToast(loadingToastId);
-      showSuccessToast("Tickets purchased successfully! Redirecting to your signings...");
-      setTimeout(() => navigate("/yoursignings"), 1500);
+      showSuccessToast("Booked. Taking you to your signings.");
+      setTimeout(() => navigate("/yoursignings"), 1200);
     } catch (err) {
       console.error("Purchase failed:", err);
-      console.log("Purchase error response:", err.response);
-      console.log("Purchase error data:", err.response?.data);
       dismissToast(loadingToastId);
-      handleApiErrorToast(err, "Failed to purchase tickets. Please try again.");
+      handleApiErrorToast(err, "Couldn't book the ticket.");
     } finally {
       setPurchaseLoading(false);
     }
@@ -272,7 +364,7 @@ function EventDetails() {
 
   const handleMerchBuy = async () => {
     if (merch.sizes && merch.sizes.length > 0 && !selectedSize) {
-      showErrorToast("Please select a size");
+      showErrorToast("Pick a size first");
       return;
     }
     if (merchQuantity < 1 || merchQuantity > 25) {
@@ -280,896 +372,616 @@ function EventDetails() {
       return;
     }
     if (customizationEnabled && merch.is_customisable && !customizationText.trim()) {
-      showErrorToast(`Please enter ${merch.customisation_type || "customization text"}`);
+      showErrorToast(`Enter your ${merch.customisation_type || "customisation"}`);
       return;
     }
-    
+
     setPurchaseLoading(true);
-    const loadingToastId = showLoadingToast("Processing your merch purchase...");
-    
+    const loadingToastId = showLoadingToast("Placing your order…");
+
     try {
-      const purchaseData = [{
-        id: merch.sizes && merch.sizes.length > 0 ? selectedSize : merch.id,
-        quantity: merchQuantity,
-        ...(merch.is_customisable && {
-          is_customised: customizationEnabled && customizationText.trim() ? true : false,
-          customisation_text: customizationEnabled && customizationText.trim() ? customizationText.trim() : ""
-        })
-      }];
-      
-      await axios.post(
-        `${merchBaseURL}/buy_merch`,
-        purchaseData,
+      const purchaseData = [
         {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
+          id: merch.sizes && merch.sizes.length > 0 ? selectedSize : merch.id,
+          quantity: merchQuantity,
+          ...(merch.is_customisable && {
+            is_customised:
+              customizationEnabled && customizationText.trim() ? true : false,
+            customisation_text:
+              customizationEnabled && customizationText.trim()
+                ? customizationText.trim()
+                : "",
+          }),
+        },
+      ];
+
+      await axios.post(`${merchBaseURL}/buy_merch`, purchaseData, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      });
       dismissToast(loadingToastId);
-      showSuccessToast("Merch purchased successfully! Redirecting to your signings...");
-      setTimeout(() => navigate("/yoursignings"), 1500);
+      showSuccessToast("Ordered. Taking you to your signings.");
+      setTimeout(() => navigate("/yoursignings"), 1200);
     } catch (err) {
       console.error("Merch purchase failed:", err);
-      console.log("Merch purchase error response:", err.response);
-      console.log("Merch purchase error data:", err.response?.data);
       dismissToast(loadingToastId);
-      handleApiErrorToast(err, "Failed to purchase merch. Please try again.");
+      handleApiErrorToast(err, "Couldn't place the order.");
     } finally {
       setPurchaseLoading(false);
     }
   };
 
+  /* ------------------------------------------------------------ states */
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-app-gradient flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-white" />
-      </div>
+      <Page width="narrow">
+        <Skeleton className="h-3 w-20" />
+        <Skeleton className="mt-3 h-9 w-2/3" />
+        <Skeleton className="mt-3 h-4 w-full" />
+        <Skeleton className="mt-1.5 h-4 w-1/2" />
+        <Skeleton className="mt-8 h-48 w-full rounded-xl" />
+      </Page>
     );
   }
 
   if (error || (!event && !merch && !profShow)) {
     return (
-      <div className="min-h-screen bg-app-gradient">
-        <Navbar />
-        <div className="pt-20 pb-24 md:pb-8">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => navigate(eventType === "merch" ? "/merch" : "/")}
-              className="mb-6 -ml-2"
-            >
-              <ChevronLeft className="w-4 h-4 mr-1" />
-              Back
-            </Button>
-            
-            <div className="flex flex-col items-center justify-center py-16 text-center animate-fade-in">
-              <div className="rounded-2xl bg-destructive/10 p-4 mb-4">
-                <AlertCircle className="h-8 w-8 text-destructive" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">Not Found</h3>
-              <p className="text-sm text-muted-foreground max-w-xs mb-6">
-                {error || "The item you're looking for doesn't exist or has been removed."}
-              </p>
-              <Button onClick={() => navigate("/")} size="sm">
-                Go to Home
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Page width="narrow">
+        <BackLink to={eventType === "merch" ? "/merch" : "/events"} />
+        <ErrorState
+          title="Not available"
+          body={error || "This item doesn't exist or has been taken down."}
+          onRetry={() => navigate(eventType === "merch" ? "/merch" : "/events")}
+        />
+      </Page>
     );
   }
 
-  // Merch Layout
+  /* ------------------------------------------------------------- merch */
+
   if (eventType === "merch" && merch) {
-    const images = merch.extra_images_url 
-      ? [merch.front_image_url, ...merch.extra_images_url] 
+    const images = merch.extra_images_url
+      ? [merch.front_image_url, ...merch.extra_images_url]
       : [merch.front_image_url];
 
-    const nextImage = () => {
-      setCurrentImageIndex((prev) => (prev + 1) % images.length);
-    };
+    const unitPrice =
+      merch.price +
+      (customizationEnabled && merch.is_customisable
+        ? merch.customisation_price || 0
+        : 0);
+    const totalPrice = unitPrice * merchQuantity;
+    const needsSize = merch.sizes?.length > 0 && !selectedSize;
+    const isSizeChartHoodie = /hoodie|sweatshirt/i.test(merch.name || "");
 
-    const prevImage = () => {
-      setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
-    };
-
-    const totalPrice = (merch.price + (customizationEnabled && merch.is_customisable ? (merch.customisation_price || 0) : 0)) * merchQuantity;
+    const buyLabel = merch.price === 0 ? "Get it" : "Buy now";
 
     return (
-      <div className="min-h-screen bg-app-gradient">
-        <Navbar />
-        <div className="pt-20 pb-40 lg:pb-4">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+      /* Breakpoints track the bottom nav, which disappears at md. Anchoring
+         the action bar above a nav that isn't there would leave it floating. */
+      <Page className="pb-32 md:pb-10">
+        <BackLink to="/merch" />
 
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/merch")}
-              className="mb-6 -ml-2 hidden lg:inline-flex"
-            >
-              <ChevronLeft className="w-4 h-4 mr-1" />
-              Back
-            </Button>
-
-            <div className="space-y-6 animate-fade-in lg:space-y-0 lg:flex lg:gap-8 lg:h-[calc(100vh-8rem)]">
-
-              <div className="lg:w-[55%] lg:flex lg:items-center lg:justify-center">
-                <Card className="overflow-hidden lg:border-0 lg:shadow-none lg:bg-transparent">
-                  <Dialog open={imageZoomOpen} onOpenChange={setImageZoomOpen}>
-                    <DialogTrigger asChild>
-                      <div className="relative aspect-square bg-muted cursor-pointer group lg:aspect-auto lg:h-[calc(100vh-10rem)] lg:rounded-xl">
-                        <img
-                          src={images[currentImageIndex]}
-                          alt={merch.name}
-                          className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
-                        />
-                        {images.length > 1 && (
-                          <>
-                            <Button
-                              variant="secondary"
-                              size="icon"
-                              className="absolute left-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                prevImage();
-                              }}
-                              aria-label="Previous image"
-                            >
-                              <ChevronLeft className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="secondary"
-                              size="icon"
-                              className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                nextImage();
-                              }}
-                              aria-label="Next image"
-                            >
-                              <ChevronRight className="h-4 w-4" />
-                            </Button>
-                          </>
-                        )}
-                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-                          {images.map((_, idx) => (
-                            <button
-                              key={idx}
-                              className={`h-1.5 rounded-full transition-all ${
-                                idx === currentImageIndex
-                                  ? 'bg-foreground w-4'
-                                  : 'bg-foreground/30 w-1.5'
-                              }`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setCurrentImageIndex(idx);
-                              }}
-                              aria-label={`Go to image ${idx + 1}`}
-                            />
-                          ))}
-                        </div>
-                        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <div className="flex items-center gap-1.5 text-xs bg-black/60 text-white px-2 py-1 rounded-full">
-                            <ZoomIn className="h-3 w-3" />
-                            Zoom
-                          </div>
-                        </div>
-                      </div>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-5xl w-full h-[90vh] p-0 bg-black/95">
-                      <div className="relative w-full h-full flex items-center justify-center">
-                        <img
-                          src={images[currentImageIndex]}
-                          alt={merch.name}
-                          className="max-w-full max-h-full object-contain"
-                        />
-                        {images.length > 1 && (
-                          <>
-                            <Button
-                              variant="secondary"
-                              size="icon"
-                              className="absolute left-4 top-1/2 -translate-y-1/2"
-                              onClick={prevImage}
-                              aria-label="Previous image"
-                            >
-                              <ChevronLeft className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="secondary"
-                              size="icon"
-                              className="absolute right-4 top-1/2 -translate-y-1/2"
-                              onClick={nextImage}
-                              aria-label="Next image"
-                            >
-                              <ChevronRight className="h-4 w-4" />
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </Card>
-              </div>
-
-              <div className="lg:w-[45%] lg:flex lg:flex-col lg:overflow-y-auto lg:pr-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate("/merch")}
-                  className="mb-2 -ml-2 lg:hidden"
+        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_26rem] lg:items-start lg:gap-10">
+          {/* Gallery */}
+          <div className="lg:sticky lg:top-28">
+            <Dialog open={imageZoomOpen} onOpenChange={setImageZoomOpen}>
+              <DialogTrigger asChild>
+                <button
+                  type="button"
+                  className="group relative block aspect-square w-full overflow-hidden rounded-xl border border-border bg-muted"
+                  aria-label="Open full size image"
                 >
-                  <ChevronLeft className="w-4 h-4 mr-1" />
-                  Back
-                </Button>
+                  <img
+                    src={images[currentImageIndex]}
+                    alt={merch.name}
+                    className="size-full object-contain"
+                  />
+                  <span className="label-mono absolute right-3 top-3 flex items-center gap-1.5 rounded bg-background/90 px-2 py-1.5 backdrop-blur-sm">
+                    <ZoomIn className="size-3" />
+                    Zoom
+                  </span>
+                </button>
+              </DialogTrigger>
+              {/* flex, not the base grid: a grid item sized `h-full` against
+                  an auto-sized row can't resolve, so the image collapses. */}
+              <DialogContent className="flex h-[90dvh] w-[95vw] max-w-5xl items-center justify-center p-2">
+                <DialogTitle className="sr-only">{merch.name}</DialogTitle>
+                <img
+                  src={images[currentImageIndex]}
+                  alt={merch.name}
+                  className="max-h-full max-w-full object-contain"
+                />
+              </DialogContent>
+            </Dialog>
 
-                <div className="space-y-2 lg:space-y-3">
-                  <div className="flex items-start gap-3">
-                    <div className="shrink-0 p-2 rounded-xl bg-warning/10">
-                      <ShoppingBag className="h-5 w-5 text-warning" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h1 className="text-2xl font-bold tracking-tight">{merch.name}</h1>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="warning">Merchandise</Badge>
-                        {merch.price === 0 && <Badge variant="success">Free</Badge>}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-5 mt-4">
-                  {merch.price > 0 && (
-                    <div className="flex items-baseline gap-1">
-                      <IndianRupee className="w-5 h-5" />
-                      <span className="text-3xl font-bold">{merch.price}</span>
-                    </div>
-                  )}
-
-                  {merch.sizes && merch.sizes.length > 0 && (
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <label className="text-sm font-medium">Size</label>
-                        <Dialog open={sizeChartOpen} onOpenChange={setSizeChartOpen}>
-                          <DialogTrigger asChild>
-                            <Button variant="link" size="sm" className="h-auto p-0 text-primary">
-                              <Info className="w-3 h-3 mr-1" />
-                              Size Chart
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-3xl">
-                            <div className="space-y-4">
-                              <h3 className="text-lg font-semibold">Size Chart</h3>
-                              <div className="relative bg-muted rounded-lg overflow-hidden">
-                                <img
-                                  src={
-                                    merch.name.toLowerCase().includes('hoodie') ||
-                                    merch.name.toLowerCase().includes('sweatshirt')
-                                      ? "https://res.cloudinary.com/dmcy7qqn7/image/upload/v1760604890/hoodie_n8sah7.jpg"
-                                      : "https://res.cloudinary.com/dmcy7qqn7/image/upload/v1760604896/tee_zmxxfx.jpg"
-                                  }
-                                  alt="Size Chart"
-                                  className="w-full h-auto"
-                                />
-                              </div>
-                            </div>
-                          </DialogContent>
-                        </Dialog>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {(() => {
-                          const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL"];
-                          const sortedSizes = [...merch.sizes].sort((a, b) => {
-                            const orderA = SIZE_ORDER.indexOf(a.name);
-                            const orderB = SIZE_ORDER.indexOf(b.name);
-                            return (orderA === -1 ? Infinity : orderA) - (orderB === -1 ? Infinity : orderB);
-                          });
-                          return sortedSizes.map((size) => (
-                            <button
-                              key={size.id}
-                              className={`min-w-12 px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
-                                selectedSize === size.id.toString()
-                                  ? 'border-primary bg-primary/10 text-primary'
-                                  : 'border-border hover:border-primary/50'
-                              }`}
-                              onClick={() => setSelectedSize(size.id.toString())}
-                            >
-                              {size.name === "A" ? "One Size" : size.name}
-                            </button>
-                          ));
-                        })()}
-                      </div>
-                    </div>
-                  )}
-
-                  {merch.is_customisable && (
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <label className="text-sm font-medium">Add Customization</label>
-                          <p className="text-xs text-muted-foreground">
-                            +₹{merch.customisation_price || 0} per item
-                          </p>
-                        </div>
-                        <Switch
-                          checked={customizationEnabled}
-                          onCheckedChange={setCustomizationEnabled}
-                        />
-                      </div>
-                      {customizationEnabled && (
-                        <Input
-                          type="text"
-                          placeholder={`Enter your ${merch.customisation_type || "text"}...`}
-                          value={customizationText}
-                          onChange={(e) => setCustomizationText(e.target.value)}
-                          className="w-full"
-                        />
-                      )}
-                    </div>
-                  )}
-
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium">Quantity</label>
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center border rounded-lg">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-10 w-10 rounded-r-none"
-                          onClick={() => setMerchQuantity(Math.max(1, merchQuantity - 1))}
-                          disabled={merchQuantity <= 1}
-                          aria-label="Decrease quantity"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </Button>
-                        <span className="w-12 text-center font-medium">
-                          {merchQuantity}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-10 w-10 rounded-l-none"
-                          onClick={() => setMerchQuantity(Math.min(25, merchQuantity + 1))}
-                          disabled={merchQuantity >= 25}
-                          aria-label="Increase quantity"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </Button>
-                      </div>
-                      <span className="text-xs text-muted-foreground">Max 25</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-auto pt-6">
-                  <Card className="hidden lg:block">
-                    <CardContent className="p-4 sm:p-6">
-                      <div className="flex items-center justify-between">
-                        {merch.price > 0 && (
-                          <div>
-                            <p className="text-sm text-muted-foreground">Total</p>
-                            <div className="flex items-baseline gap-1">
-                              <IndianRupee className="w-5 h-5" />
-                              <span className="text-2xl font-bold">{totalPrice}</span>
-                            </div>
-                            {customizationEnabled && merch.is_customisable && merch.customisation_price > 0 && (
-                              <p className="text-xs text-muted-foreground">
-                                Incl. ₹{merch.customisation_price * merchQuantity} customization
-                              </p>
-                            )}
-                          </div>
-                        )}
-                        <Button
-                          onClick={handleMerchBuy}
-                          disabled={purchaseLoading || (merch.sizes && merch.sizes.length > 0 && !selectedSize)}
-                          size="lg"
-                          className={merch.price === 0 ? 'w-full' : ''}
-                        >
-                          {purchaseLoading ? (
-                            <>
-                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                              Processing...
-                            </>
-                          ) : (
-                            <>
-                              <ShoppingBag className="w-4 h-4 mr-2" />
-                              {merch.price === 0 ? 'Get Now' : 'Buy Now'}
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
+            {/* Thumbnails beat hover arrows: every option is visible and each
+                one is a real 64px tap target. */}
+            {images.length > 1 && (
+              <div className="scrollbar-hide mt-3 flex gap-2 overflow-x-auto">
+                {images.map((src, idx) => (
+                  <button
+                    key={src + idx}
+                    type="button"
+                    onClick={() => setCurrentImageIndex(idx)}
+                    aria-label={`View image ${idx + 1}`}
+                    aria-current={idx === currentImageIndex}
+                    className={cn(
+                      "size-16 shrink-0 overflow-hidden rounded-lg border-2 transition-colors",
+                      idx === currentImageIndex
+                        ? "border-primary"
+                        : "border-border hover:border-foreground/30",
+                    )}
+                  >
+                    <img src={src} alt="" className="size-full object-cover" />
+                  </button>
+                ))}
               </div>
+            )}
+          </div>
+
+          {/* Options */}
+          <div className="mt-6 lg:mt-0">
+            <Title
+              kind="Merch"
+              kindColor="var(--brass)"
+              name={merch.name}
+              description={merch.description}
+            />
+
+            <div className="mb-6">
+              <Price amount={merch.price} size="xl" />
+            </div>
+
+            <div className="space-y-7">
+              {merch.sizes?.length > 0 && (
+                <section>
+                  <div className="mb-2.5 flex items-center justify-between">
+                    <h2 className="label-mono text-foreground">Size</h2>
+                    <Dialog open={sizeChartOpen} onOpenChange={setSizeChartOpen}>
+                      <DialogTrigger asChild>
+                        <button
+                          type="button"
+                          className="text-xs font-medium text-primary underline-offset-4 hover:underline"
+                        >
+                          Size chart
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-3xl">
+                        <DialogTitle className="label-mono">
+                          Size chart
+                        </DialogTitle>
+                        <img
+                          src={isSizeChartHoodie ? SIZE_CHARTS.hoodie : SIZE_CHARTS.tee}
+                          alt="Size chart with measurements"
+                          className="w-full rounded-lg"
+                        />
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {sortSizes(merch.sizes, (s) => s.name).map((size) => {
+                      const active = selectedSize === size.id.toString();
+                      return (
+                        <button
+                          key={size.id}
+                          type="button"
+                          onClick={() => setSelectedSize(size.id.toString())}
+                          aria-pressed={active}
+                          className={cn(
+                            "numeral h-11 min-w-12 rounded-lg border px-4 text-sm font-semibold transition-colors",
+                            active
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-border hover:border-foreground/30",
+                          )}
+                        >
+                          {size.name === "A" ? "One size" : size.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
+              )}
+
+              {merch.is_customisable && (
+                <section>
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <h2 className="label-mono text-foreground">
+                        Add your {merch.customisation_type || "text"}
+                      </h2>
+                      <p className="numeral mt-1 text-xs text-muted-foreground">
+                        +₹{merch.customisation_price || 0} per item
+                      </p>
+                    </div>
+                    <Switch
+                      checked={customizationEnabled}
+                      onCheckedChange={setCustomizationEnabled}
+                      aria-label="Add customisation"
+                    />
+                  </div>
+                  {customizationEnabled && (
+                    <Input
+                      type="text"
+                      placeholder={`Your ${merch.customisation_type || "text"}`}
+                      value={customizationText}
+                      onChange={(e) => setCustomizationText(e.target.value)}
+                      className="mt-3 h-11"
+                    />
+                  )}
+                </section>
+              )}
+
+              <section>
+                <h2 className="label-mono mb-2.5 text-foreground">Quantity</h2>
+                <div className="flex items-center gap-3">
+                  <QuantityStepper
+                    value={merchQuantity}
+                    onChange={setMerchQuantity}
+                    max={25}
+                    label="quantity"
+                  />
+                  <span className="numeral text-xs text-muted-foreground">
+                    Max 25
+                  </span>
+                </div>
+              </section>
+            </div>
+
+            {/* Desktop claim panel */}
+            <ClaimPanel
+              className="mt-8 hidden md:block"
+              total={totalPrice}
+              note={
+                customizationEnabled &&
+                merch.is_customisable &&
+                merch.customisation_price > 0
+                  ? `Includes ₹${merch.customisation_price * merchQuantity} customisation`
+                  : null
+              }
+            >
+              <Field label="Item" value={merch.name} />
+              {merch.sizes?.length > 0 && (
+                <Field
+                  label="Size"
+                  value={
+                    merch.sizes.find((s) => s.id.toString() === selectedSize)
+                      ?.name || "Not picked"
+                  }
+                />
+              )}
+              <Field label="Quantity" value={merchQuantity} />
+            </ClaimPanel>
+
+            <div className="mt-4 hidden md:block">
+              <Button
+                onClick={handleMerchBuy}
+                disabled={needsSize}
+                loading={purchaseLoading}
+                size="lg"
+                className="w-full"
+              >
+                {purchaseLoading ? "Working" : needsSize ? "Pick a size" : buyLabel}
+              </Button>
             </div>
           </div>
         </div>
 
-        <div className="fixed bottom-16 left-0 right-0 lg:hidden z-40 px-4 pb-4 pt-2 bg-linear-to-t from-background via-background to-transparent">
-          <Card className="border shadow-lg">
-            <CardContent className="p-3 flex items-center justify-between gap-3">
-              {merch.price > 0 && (
-                <div>
-                  <p className="text-xs text-muted-foreground">Total</p>
-                  <div className="flex items-baseline gap-0.5">
-                    <IndianRupee className="w-4 h-4" />
-                    <span className="text-xl font-bold">{totalPrice}</span>
-                  </div>
-                </div>
-              )}
-              <Button
-                onClick={handleMerchBuy}
-                disabled={purchaseLoading || (merch.sizes && merch.sizes.length > 0 && !selectedSize)}
-                className={merch.price === 0 ? 'flex-1' : ''}
-              >
-                {purchaseLoading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <ShoppingBag className="w-4 h-4 mr-2" />
-                    {merch.price === 0 ? 'Get Now' : 'Buy Now'}
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+        {/* Mobile action bar */}
+        <StickyBar className="md:hidden">
+          <div className="min-w-0">
+            <p className="label-mono text-muted-foreground">Total</p>
+            <Price amount={totalPrice} size="lg" className="mt-0.5 block" />
+          </div>
+          <Button
+            onClick={handleMerchBuy}
+            disabled={needsSize}
+            loading={purchaseLoading}
+            className="min-w-32"
+          >
+            {purchaseLoading ? "Working" : needsSize ? "Pick a size" : buyLabel}
+          </Button>
+        </StickyBar>
+      </Page>
     );
   }
 
-  // Prof Show Layout
+  /* --------------------------------------------------------- prof show */
+
   if (eventType === "prof-show" && profShow) {
+    const artist = profShow.artist || profShow.Artist;
+    const buyLabel = profShow.price === 0 ? "Get ticket" : "Buy ticket";
+
     return (
-      <div className="min-h-screen bg-app-gradient">
-        <Navbar />
-        <div className="pt-20 pb-24 md:pb-8">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => navigate(-1)}
-              className="mb-6 -ml-2"
-            >
-              <ChevronLeft className="w-4 h-4 mr-1" />
-              Back
-            </Button>
-            
-            <div className="space-y-6 animate-fade-in">
-              {/* Header */}
-              <div className="space-y-2">
-                <div className="flex items-start gap-3">
-                  <div className="shrink-0 p-2 rounded-xl bg-primary/10">
-                    <Sparkles className="h-5 w-5 text-primary" />
-                  </div>
+      <Page width="narrow" className="pb-32 md:pb-10">
+        <BackLink onClick={() => navigate(-1)} />
+
+        <Title
+          kind="Prof show"
+          kindColor="var(--sky)"
+          name={profShow.name}
+          description={profShow.description}
+        />
+
+        <ClaimPanel total={profShow.price}>
+          <div className="divide-y divide-border">
+            <Field label="Artist" value={artist} />
+            <Field label="Date" value={formatDate(profShow.start_time)} />
+            <Field
+              label="Time"
+              value={
+                profShow.start_time
+                  ? `${formatTime(profShow.start_time)} – ${formatTime(profShow.end_time)}`
+                  : null
+              }
+            />
+            {/* The old stepper here was permanently disabled. Stating the rule
+                is more useful than showing two controls that never move. */}
+            <Field label="Limit" value="1 per person" />
+          </div>
+        </ClaimPanel>
+
+        <div className="mt-4 hidden md:block">
+          <Button
+            onClick={handleProfShowBuy}
+            loading={purchaseLoading}
+            size="lg"
+            className="w-full"
+          >
+            {purchaseLoading ? "Working" : buyLabel}
+          </Button>
+        </div>
+
+        <StickyBar className="md:hidden">
+          <div className="min-w-0">
+            <p className="label-mono text-muted-foreground">Total</p>
+            <Price amount={profShow.price} size="lg" className="mt-0.5 block" />
+          </div>
+          <Button
+            onClick={handleProfShowBuy}
+            loading={purchaseLoading}
+            className="min-w-32"
+          >
+            {purchaseLoading ? "Working" : buyLabel}
+          </Button>
+        </StickyBar>
+      </Page>
+    );
+  }
+
+  /* ---------------------------------------------------------- non-comp */
+
+  const MONTHS = {
+    Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
+    Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11,
+  };
+
+  const sortedDates = [...event.dates].sort((a, b) => {
+    const parse = (dateStr) => {
+      const [day, month] = dateStr.split(" ");
+      return new Date(new Date().getFullYear(), MONTHS[month], parseInt(day));
+    };
+    return parse(a.date) - parse(b.date);
+  });
+
+  const activeDate = sortedDates[activeDateTab] || sortedDates[0];
+
+  return (
+    <Page width="narrow">
+      <BackLink onClick={() => navigate(-1)} />
+
+      <Title
+        kind="Event"
+        kindColor="var(--flame)"
+        name={event.non_comp_name}
+        description={event.description}
+      />
+
+      {/* Date strip. Horizontally scrollable, bled to the screen edges so it
+          reads as scrollable on a phone instead of looking clipped. */}
+      <div className="scrollbar-hide -mx-4 mb-5 overflow-x-auto px-4 sm:-mx-6 sm:px-6">
+        <div className="flex gap-2" role="group" aria-label="Pick a date">
+          {sortedDates.map((dateObj, idx) => {
+            const active = idx === activeDateTab;
+            const open = dateObj.slots?.some((s) => s.is_openforsignings);
+            return (
+              <button
+                key={dateObj.date}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setActiveDateTab(idx)}
+                className={cn(
+                  "numeral flex h-11 shrink-0 items-center gap-2 rounded-lg border px-4 text-sm font-semibold transition-colors",
+                  active
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border hover:border-foreground/30",
+                )}
+              >
+                {dateObj.date}
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "size-1.5 rounded-full",
+                    active
+                      ? "bg-primary-foreground/60"
+                      : open
+                        ? "bg-leaf"
+                        : "bg-muted-foreground/40",
+                  )}
+                />
+                <span className="sr-only">
+                  {open ? "has open slots" : "no open slots"}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        {activeDate?.slots?.length > 0 ? (
+          activeDate.slots.map((slot) => {
+            const isOpen = openSlotIds.includes(slot.slot_id);
+            const types = slot.ticket_types || [];
+            const selectedId = selectedTicketType[slot.slot_id];
+            const selected = types.find((t) => t.ticket_type_id === selectedId);
+            const count = ticketCounts[slot.slot_id] || 1;
+            const unit = selected?.price || 0;
+
+            return (
+              <div
+                key={slot.slot_id}
+                className={cn(
+                  "overflow-hidden rounded-xl border border-border bg-card",
+                  !slot.is_openforsignings && "opacity-55",
+                )}
+              >
+                <button
+                  type="button"
+                  onClick={() =>
+                    slot.is_openforsignings && handleSlotToggle(slot.slot_id)
+                  }
+                  disabled={!slot.is_openforsignings}
+                  aria-expanded={isOpen}
+                  className="flex w-full items-center gap-3 p-4 text-left disabled:cursor-default"
+                >
                   <div className="min-w-0 flex-1">
-                    <h1 className="text-2xl font-bold tracking-tight">{profShow.name}</h1>
-                    {profShow.description && (
-                      <p className="text-muted-foreground text-sm mt-1">
-                        {profShow.description}
+                    <div className="numeral text-[0.9375rem] font-semibold">
+                      {formatTime(slot.start_time)} – {formatTime(slot.end_time)}
+                    </div>
+                    <div className="mt-1 truncate text-xs text-muted-foreground">
+                      {slot.venue}
+                    </div>
+                  </div>
+
+                  <Badge
+                    variant={slot.is_openforsignings ? "success" : "cancelled"}
+                    size="sm"
+                  >
+                    {slot.is_openforsignings ? "Open" : "Closed"}
+                  </Badge>
+
+                  {slot.is_openforsignings && (
+                    <ChevronDown
+                      className={cn(
+                        "size-4 shrink-0 text-muted-foreground transition-transform duration-200",
+                        isOpen && "rotate-180",
+                      )}
+                      aria-hidden="true"
+                    />
+                  )}
+                </button>
+
+                {isOpen && slot.is_openforsignings && (
+                  <div className="border-t border-border p-4">
+                    {types.length > 0 ? (
+                      <div className="space-y-4">
+                        <div>
+                          <label
+                            className="label-mono mb-2 block text-muted-foreground"
+                            htmlFor={`type-${slot.slot_id}`}
+                          >
+                            Ticket type
+                          </label>
+                          <Select
+                            value={selectedId || ""}
+                            onValueChange={(value) =>
+                              handleTicketTypeChange(slot.slot_id, value)
+                            }
+                          >
+                            <SelectTrigger
+                              id={`type-${slot.slot_id}`}
+                              className="h-11 w-full"
+                            >
+                              <SelectValue placeholder="Pick a ticket type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {types.map((tt) => (
+                                <SelectItem
+                                  key={tt.ticket_type_id}
+                                  value={tt.ticket_type_id}
+                                >
+                                  {tt.ticket_type_name}
+                                  {tt.price > 0 ? ` — ₹${tt.price}` : " — Free"}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {selected && (
+                          <>
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="label-mono text-muted-foreground">
+                                Tickets
+                              </span>
+                              <QuantityStepper
+                                value={count}
+                                onChange={(next) =>
+                                  setTicketCounts((prev) => ({
+                                    ...prev,
+                                    [slot.slot_id]: next,
+                                  }))
+                                }
+                                max={25}
+                                label="tickets"
+                              />
+                            </div>
+
+                            <ClaimPanel
+                              className="stub-on-card"
+                              total={unit * count}
+                            >
+                              <div className="divide-y divide-border">
+                                <Field
+                                  label="Type"
+                                  value={selected.ticket_type_name}
+                                />
+                                <Field
+                                  label="Slot"
+                                  value={`${activeDate.date}, ${formatTime(slot.start_time)}`}
+                                />
+                                <Field label="Venue" value={slot.venue} />
+                              </div>
+                            </ClaimPanel>
+
+                            <Button
+                              onClick={() => handleNonCompBuy(slot)}
+                              disabled={count === 0}
+                              loading={purchaseLoading}
+                              className="w-full"
+                            >
+                              {purchaseLoading
+                                ? "Working"
+                                : unit === 0
+                                  ? "Sign up"
+                                  : "Buy tickets"}
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        No tickets have been set up for this slot yet.
                       </p>
                     )}
                   </div>
-                </div>
+                )}
               </div>
-
-              {/* Show Details */}
-              <Card>
-                <CardContent className="p-6 space-y-6">
-                  {/* Artist */}
-                  {(profShow.artist || profShow.Artist) && (
-                    <div className="flex items-center gap-3">
-                      <div className="shrink-0 p-2 rounded-lg bg-primary/10">
-                        <Users className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground uppercase tracking-wider">Artist</p>
-                        <p className="font-medium">{profShow.artist || profShow.Artist}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Date & Time */}
-                  <div className="flex flex-wrap gap-4">
-                    {profShow.start_time && (
-                      <div className="flex items-center gap-3">
-                        <div className="shrink-0 p-2 rounded-lg bg-primary/10">
-                          <Calendar className="h-5 w-5 text-primary" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider">Date</p>
-                          <p className="font-medium">{formatDate(profShow.start_time)}</p>
-                        </div>
-                      </div>
-                    )}
-                    {profShow.start_time && (
-                      <div className="flex items-center gap-3">
-                        <div className="shrink-0 p-2 rounded-lg bg-primary/10">
-                          <Clock className="h-5 w-5 text-primary" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider">Time</p>
-                          <p className="font-medium">{formatTime(profShow.start_time)} - {formatTime(profShow.end_time)}</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <Separator />
-
-                  {/* Price & Purchase */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Ticket Price</p>
-                      {profShow.price > 0 ? (
-                        <div className="flex items-baseline gap-1">
-                          <IndianRupee className="w-5 h-5" />
-                          <span className="text-3xl font-bold">{profShow.price}</span>
-                        </div>
-                      ) : (
-                        <Badge variant="success" className="text-lg px-3 py-1">Free</Badge>
-                      )}
-                    </div>
-
-                    {/* Desktop Buy Section */}
-                    <div className="hidden md:block">
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center border rounded-lg bg-background">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-10 w-10 rounded-r-none"
-                            disabled
-                            aria-label="Decrease quantity"
-                          >
-                            <Minus className="w-4 h-4" />
-                          </Button>
-                          <span className="w-12 text-center font-medium">
-                            {profShowTicketCount}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-10 w-10 rounded-l-none"
-                            disabled
-                            aria-label="Increase quantity"
-                          >
-                            <Plus className="w-4 h-4" />
-                          </Button>
-                        </div>
-                        <Button 
-                          onClick={handleProfShowBuy}
-                          disabled={purchaseLoading}
-                          size="lg"
-                        >
-                          {purchaseLoading ? (
-                            <>
-                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                              Processing...
-                            </>
-                          ) : (
-                            <>
-                              <Ticket className="w-4 h-4 mr-2" />
-                              {profShow.price === 0 ? 'Get Tickets' : 'Buy Tickets'}
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Mobile Buy Section */}
-              <div className="fixed bottom-16 left-0 right-0 md:hidden z-40 px-4 pb-4 pt-2 bg-linear-to-t from-background via-background to-transparent">
-                <Card className="border shadow-lg">
-                  <CardContent className="p-3 flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Total</p>
-                      <div className="flex items-baseline gap-0.5">
-                        <IndianRupee className="w-4 h-4" />
-                        <span className="text-xl font-bold">{profShow.price * profShowTicketCount}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center border rounded-lg bg-background">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-9 w-9 rounded-r-none"
-                          disabled
-                          aria-label="Decrease quantity"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </Button>
-                        <span className="w-8 text-center font-medium">
-                          {profShowTicketCount}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-9 w-9 rounded-l-none"
-                          disabled
-                          aria-label="Increase quantity"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </Button>
-                      </div>
-                      <Button 
-                        onClick={handleProfShowBuy}
-                        disabled={purchaseLoading}
-                      >
-                        {purchaseLoading ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                            Processing...
-                          </>
-                        ) : (
-                          <>
-                            <Ticket className="w-4 h-4 mr-2" />
-                            {profShow.price === 0 ? 'Get' : 'Buy'}
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+            );
+          })
+        ) : (
+          <div className="rounded-xl border border-dashed border-border px-6 py-12 text-center">
+            <p className="text-sm text-muted-foreground">
+              No slots on this date. Try another one above.
+            </p>
           </div>
-        </div>
+        )}
       </div>
-    );
-  }
-
-  // Non-Comp Layout
-  // Sort dates in ascending chronological order
-  const sortedDates = [...event.dates].sort((a, b) => {
-    const parseDate = (dateStr) => {
-      const [day, month] = dateStr.split(' ');
-      const monthMap = {
-        'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
-        'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
-      };
-      return new Date(new Date().getFullYear(), monthMap[month], parseInt(day));
-    };
-    return parseDate(a.date) - parseDate(b.date);
-  });
-
-  return (
-    <div className="min-h-screen bg-app-gradient">
-      <Navbar />
-      <div className="pt-20 pb-24 md:pb-8">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={() => navigate(-1)}
-            className="mb-6 -ml-2"
-          >
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            Back
-          </Button>
-          
-          <div className="space-y-6 animate-fade-in">
-            {/* Header */}
-            <div className="space-y-2">
-              <div className="flex items-start gap-3">
-                <div className="shrink-0 p-2 rounded-xl bg-primary/10">
-                  <Ticket className="h-5 w-5 text-primary" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h1 className="text-2xl font-bold tracking-tight">{event.non_comp_name}</h1>
-                  <p className="text-muted-foreground text-sm mt-1">
-                    {event.description}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Date Tabs */}
-            <Tabs value={activeDateTab.toString()} onValueChange={(value) => setActiveDateTab(parseInt(value))}>
-              {/* Date Pills - Horizontal scrollable */}
-              <div className="overflow-x-auto -mx-4 px-4 pb-2">
-                <TabsList className="inline-flex h-auto p-1 bg-muted/50 gap-1">
-                  {sortedDates.map((dateObj, idx) => (
-                    <TabsTrigger 
-                      key={dateObj.date} 
-                      value={idx.toString()} 
-                      className="px-4 py-2 text-sm whitespace-nowrap rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                    >
-                      <Calendar className="w-3.5 h-3.5 mr-1.5" />
-                      {dateObj.date}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </div>
-              
-              {sortedDates.map((dateObj, idx) => (
-                <TabsContent key={dateObj.date} value={idx.toString()} className="mt-4">
-                  <div className="space-y-3">
-                    {dateObj.slots.length > 0 ? (
-                      dateObj.slots.map((slot, slotIdx) => (
-                        <Card 
-                          key={slot.slot_id} 
-                          className={`transition-all animate-fade-in-up ${!slot.is_openforsignings ? 'opacity-50' : 'card-interactive'}`}
-                          style={{ animationDelay: `${slotIdx * 50}ms` }}
-                        >
-                          <CardHeader 
-                            className="cursor-pointer pb-3"
-                            onClick={() => slot.is_openforsignings && handleSlotToggle(slot.slot_id)}
-                          >
-                            <div className="flex items-center justify-between gap-3">
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <Badge variant={slot.is_openforsignings ? "success" : "secondary"} size="sm">
-                                    {slot.is_openforsignings ? "Open" : "Closed"}
-                                  </Badge>
-                                </div>
-                                <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                                  <div className="flex items-center">
-                                    <Clock className="w-3.5 h-3.5 mr-1.5 shrink-0" />
-                                    {formatTime(slot.start_time)} - {formatTime(slot.end_time)}
-                                  </div>
-                                  <div className="flex items-center">
-                                    <MapPin className="w-3.5 h-3.5 mr-1.5 shrink-0" />
-                                    {slot.venue}
-                                  </div>
-                                </div>
-                              </div>
-                              {slot.is_openforsignings && (
-                                <ChevronLeft className={`w-5 h-5 text-muted-foreground transition-transform ${openSlotIds.includes(slot.slot_id) ? 'rotate-90' : '-rotate-90'}`} />
-                              )}
-                            </div>
-                          </CardHeader>
-                          
-                          {openSlotIds.includes(slot.slot_id) && (
-                            <CardContent className="pt-0 border-t">
-                              {slot.is_openforsignings ? (
-                                slot.ticket_types && slot.ticket_types.length > 0 ? (
-                                  <div className="pt-4 space-y-4">
-                                    <Select
-                                      value={selectedTicketType[slot.slot_id] || ""}
-                                      onValueChange={(value) => handleTicketTypeChange(slot.slot_id, value)}
-                                    >
-                                      <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="Select ticket type" />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        {slot.ticket_types.map((tt) => (
-                                          <SelectItem key={tt.ticket_type_id} value={tt.ticket_type_id}>
-                                            <div className="flex items-center justify-between w-full">
-                                              <span>{tt.ticket_type_name}</span>
-                                              {tt.price > 0 && (
-                                                <span className="text-muted-foreground ml-2">₹{tt.price}</span>
-                                              )}
-                                            </div>
-                                          </SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
-                                    
-                                    {selectedTicketType[slot.slot_id] && (
-                                      <div className="p-4 bg-muted/50 rounded-lg space-y-4">
-                                        <div className="flex items-center justify-between">
-                                          <div>
-                                            <p className="font-medium">
-                                              {slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.ticket_type_name}
-                                            </p>
-                                            {(slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0) > 0 && (
-                                              <div className="flex items-center text-lg font-semibold">
-                                                <IndianRupee className="w-4 h-4" />
-                                                {slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price}
-                                              </div>
-                                            )}
-                                            {(slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0) === 0 && (
-                                              <Badge variant="success" size="sm">Free</Badge>
-                                            )}
-                                          </div>
-                                          <div className="flex items-center border rounded-lg bg-background">
-                                            <Button
-                                              variant="ghost"
-                                              size="icon"
-                                              className="h-9 w-9 rounded-r-none"
-                                              onClick={() => handleTicketCount(slot.slot_id, -1)}
-                                              disabled={(ticketCounts[slot.slot_id] || 1) <= 1}
-                                              aria-label="Decrease quantity"
-                                            >
-                                              <Minus className="w-4 h-4" />
-                                            </Button>
-                                            <span className="w-10 text-center font-medium">
-                                              {ticketCounts[slot.slot_id] || 1}
-                                            </span>
-                                            <Button
-                                              variant="ghost"
-                                              size="icon"
-                                              className="h-9 w-9 rounded-l-none"
-                                              onClick={() => handleTicketCount(slot.slot_id, 1)}
-                                              aria-label="Increase quantity"
-                                            >
-                                              <Plus className="w-4 h-4" />
-                                            </Button>
-                                          </div>
-                                        </div>
-
-                                        <Separator />
-
-                                        <div className="flex items-center justify-between">
-                                          {(slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0) > 0 && (
-                                            <div>
-                                              <p className="text-xs text-muted-foreground">Total</p>
-                                              <div className="flex items-center text-xl font-bold">
-                                                <IndianRupee className="w-4 h-4" />
-                                                {(ticketCounts[slot.slot_id] || 1) * (slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0)}
-                                              </div>
-                                            </div>
-                                          )}
-                                          <Button 
-                                            onClick={() => handleNonCompBuy(slot)}
-                                            disabled={(ticketCounts[slot.slot_id] || 1) === 0 || purchaseLoading}
-                                            className={(slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0) === 0 ? 'w-full' : ''}
-                                          >
-                                            {purchaseLoading ? (
-                                              <>
-                                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                                                Processing...
-                                              </>
-                                            ) : (
-                                              <>
-                                                <Ticket className="w-4 h-4 mr-2" />
-                                                {(slot.ticket_types.find(t => t.ticket_type_id === selectedTicketType[slot.slot_id])?.price || 0) === 0 ? 'Participate' : 'Buy Tickets'}
-                                              </>
-                                            )}
-                                          </Button>
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                ) : (
-                                  <Alert className="mt-4">
-                                    <Info className="h-4 w-4" />
-                                    <AlertDescription>
-                                      No tickets available for this slot.
-                                    </AlertDescription>
-                                  </Alert>
-                                )
-                              ) : (
-                                <Alert className="mt-4">
-                                  <AlertCircle className="h-4 w-4" />
-                                  <AlertDescription>
-                                    Signings are not open for this slot.
-                                  </AlertDescription>
-                                </Alert>
-                              )}
-                            </CardContent>
-                          )}
-                        </Card>
-                      ))
-                    ) : (
-                      <Card className="animate-fade-in">
-                        <CardContent className="py-8 text-center">
-                          <Info className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                          <p className="text-muted-foreground">No slots available for this date.</p>
-                        </CardContent>
-                      </Card>
-                    )}
-                  </div>
-                </TabsContent>
-              ))}
-            </Tabs>
-          </div>
-        </div>
-      </div>
-    </div>
+    </Page>
   );
 }
 
