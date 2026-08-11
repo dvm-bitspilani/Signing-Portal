@@ -54,7 +54,7 @@ const Navbar = () => {
             className="flex items-center gap-3 transition-all duration-200 hover:opacity-80"
           >
             <img
-              src="https://ca.bits-apogee.org/assets/apogee-logo-b58bcc05.svg"
+              src="/oasis-logo.svg"
               alt="Signings Portal Logo"
               draggable="false"
               className="h-9 w-9 select-none rounded-lg bg-gradient-to-br from-violet-950/95 via-blue-900/95 to-purple-900/95 p-1.5 dark:bg-none dark:p-0 transition-all"
