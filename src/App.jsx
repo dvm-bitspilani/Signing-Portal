@@ -22,6 +22,7 @@ import EventDetails from "./pages/EventDetails/EventDetails.jsx";
 import YourSignings from "./pages/YourSignings/YourSignings.jsx";
 import Contact from "./pages/Contact/Contact.jsx";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { GOOGLE_CLIENT_ID } from "../keyconfig.js";
 // import { loginAction } from "./pages/SignIn/SignIn.jsx";
 import { logoutAction, checkauth, checkLogin } from "./assets/utils/auth.js";
 import {
@@ -112,7 +113,7 @@ const App = () => {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="signings-portal-theme">
       <AppContext.Provider value={{ globalAppStates, setGlobalAppStates }}>
-        <GoogleOAuthProvider clientId="650062736141-pb64o0ubh8ejek13gogejjb9t5r6sdf0.apps.googleusercontent.com">
+        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
           <RouterProvider router={router} />
           <Toaster
             position="top-center"

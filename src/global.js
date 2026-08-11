@@ -1,8 +1,8 @@
 import React from "react";
+import { API_BASE_URL, MERCH_BASE_URL } from "../keyconfig.js";
 
-export const apiBaseURL = "https://www.bits-apogee.org/2026/main/signings";
-export const merchBaseURL =
-  "https://www.bits-apogee.org/2026/main/tickets-manager";
+export const apiBaseURL = API_BASE_URL;
+export const merchBaseURL = MERCH_BASE_URL;
 //* Adds/sets a key-value pair to an 'object' state
 export function setStateItem(state, key, value) {
   const object = { ...state };
