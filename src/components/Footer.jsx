@@ -6,7 +6,11 @@ const Footer = () => {
           Oasis · BITS Pilani, Pilani campus
         </p>
         <p className="text-sm text-muted-foreground">
-          Built by{" "}
+          Made with{" "}
+          <span className="text-flame" aria-label="love">
+            ♥
+          </span>{" "}
+          by{" "}
           <a
             href="https://bits-dvm.org"
             target="_blank"

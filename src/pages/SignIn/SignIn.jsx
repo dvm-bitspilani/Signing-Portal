@@ -137,7 +137,7 @@ const SignIn = () => {
 
       <footer className="px-6 py-8">
         <p className="label-mono text-center text-muted-foreground">
-          Built by DVM
+          Made with <span className="text-flame not-italic">♥</span> by DVM
         </p>
       </footer>
     </div>
