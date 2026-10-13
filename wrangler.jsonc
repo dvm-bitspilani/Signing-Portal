@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "oasis-signings",
+  "compatibility_date": "2026-10-01",
+  // Static-only Worker: serves the Vite build from Cloudflare's edge.
+  // SPA mode returns index.html for unknown paths so react-router can handle them.
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}
