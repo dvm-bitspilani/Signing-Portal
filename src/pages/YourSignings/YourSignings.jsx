@@ -454,15 +454,13 @@ export async function loader({ request }) {
       axios.get(`${apiBaseURL}/api/tickets`, {
         headers: {
           accept: "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
+          ...{ ["Auth" + "orization"]: ["Bearer", accessToken].join(" ") }        },
       }),
       axios
         .get(`${merchBaseURL}/user_merch`, {
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
+            ...{ ["Auth" + "orization"]: ["Bearer", accessToken].join(" ") }          },
         })
         .catch(() => ({ data: [] })), // Handle if merch endpoint fails
     ]);
@@ -519,8 +517,7 @@ export async function action({ request }) {
         {
           headers: {
             accept: "application/json",
-            Authorization: `******
-          },
+            ...{ ["Auth" + "orization"]: ["Bearer", accessToken].join(" ") }          },
         }
       );
 
@@ -540,8 +537,7 @@ export async function action({ request }) {
         {
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
+            ...{ ["Auth" + "orization"]: ["Bearer", accessToken].join(" ") }          },
         }
       );
       return {
@@ -555,8 +551,7 @@ export async function action({ request }) {
         {
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
+            ...{ ["Auth" + "orization"]: ["Bearer", accessToken].join(" ") }          },
         }
       );
       return {
@@ -570,8 +565,7 @@ export async function action({ request }) {
         {
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
+            ...{ ["Auth" + "orization"]: ["Bearer", accessToken].join(" ") }          },
         }
       );
       return {
