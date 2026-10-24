@@ -44,13 +44,21 @@ function Stub({
   thumb,
   price,
   serial,
+  status,
   cancelled,
   onCancel,
+  onConfirm,
+  onReject,
   cancelling,
+  confirming,
+  rejecting,
   cancelLabel = "Cancel ticket",
 }) {
+  const isPending = status === "pending";
+  const isCancelled = cancelled || status === "cancelled";
+
   return (
-    <article className={cn("stub flex flex-col", cancelled && "opacity-60")}>
+    <article className={cn("stub flex flex-col", isCancelled && "opacity-60")}>
       <div className="flex gap-3 p-4">
         {thumb && (
           <img
@@ -65,19 +73,22 @@ function Stub({
           <div className="flex items-start justify-between gap-3">
             <span
               className="label-mono"
-              style={{ color: cancelled ? "var(--muted-foreground)" : kindColor }}
+              style={{ color: isCancelled ? "var(--muted-foreground)" : kindColor }}
             >
               {kind}
             </span>
-            <Badge variant={cancelled ? "cancelled" : "success"} size="sm">
-              {cancelled ? "Void" : "Confirmed"}
+            <Badge
+              variant={isCancelled ? "cancelled" : isPending ? "pending" : "success"}
+              size="sm"
+            >
+              {isCancelled ? "Void" : isPending ? "Awaiting your confirmation" : "Confirmed"}
             </Badge>
           </div>
 
           <h3
             className={cn(
               "mt-1.5 text-[0.9375rem] font-semibold leading-snug tracking-[-0.01em]",
-              cancelled && "line-through decoration-1",
+              isCancelled && "line-through decoration-1",
             )}
           >
             {title}
@@ -107,7 +118,28 @@ function Stub({
         )}
       </div>
 
-      {onCancel && !cancelled && (
+      {isPending ? (
+        <div className="flex gap-2 px-4 pb-4">
+          <Button
+            variant="success"
+            size="sm"
+            className="flex-1"
+            loading={confirming}
+            onClick={onConfirm}
+          >
+            {confirming ? "Confirming" : "Confirm"}
+          </Button>
+          <Button
+            variant="quiet"
+            size="sm"
+            className="flex-1"
+            loading={rejecting}
+            onClick={onReject}
+          >
+            {rejecting ? "Declining" : "Decline"}
+          </Button>
+        </div>
+      ) : onCancel && !isCancelled ? (
         <div className="px-4 pb-4">
           <Button
             variant="quiet"
@@ -119,7 +151,7 @@ function Stub({
             {cancelling ? "Cancelling" : cancelLabel}
           </Button>
         </div>
-      )}
+      ) : null}
     </article>
   );
 }
@@ -148,10 +180,12 @@ function YourSignings() {
     if (navigation.state === "idle") setPending(null);
   }, [navigation.state]);
 
-  const cancel = (key, field, id) => {
+  const submitAction = (key, fields) => {
     setPending(key);
     const formData = new FormData();
-    formData.append(field, id);
+    Object.entries(fields).forEach(([field, value]) => {
+      formData.append(field, String(value));
+    });
     submit(formData, { method: "post", action: "/yoursignings" });
   };
 
@@ -160,8 +194,9 @@ function YourSignings() {
   const merchTickets = eventData?.data?.merch_tickets || [];
 
   const all = [...eventTickets, ...profShowTickets, ...merchTickets];
-  const confirmed = all.filter((t) => !t.cancelled).length;
-  const voided = all.length - confirmed;
+  const confirmed = all.filter((t) => t.status === "confirmed" || (!t.status && !t.cancelled)).length;
+  const pendingCount = all.filter((t) => t.status === "pending").length;
+  const voided = all.filter((t) => t.cancelled || t.status === "cancelled").length;
 
   const meta = eventData?.isError
     ? "Unavailable"
@@ -169,6 +204,7 @@ function YourSignings() {
       ? "Nothing booked yet"
       : [
           `${confirmed} confirmed`,
+          pendingCount > 0 && `${pendingCount} pending`,
           voided > 0 && `${voided} void`,
         ]
           .filter(Boolean)
@@ -238,12 +274,33 @@ function YourSignings() {
                       lines={[stamp(ticket.time_slot), ticket.venue].filter(Boolean)}
                       price={ticket.price}
                       serial={ticket.ticket_id}
+                      status={ticket.status}
                       cancelled={ticket.cancelled}
                       cancelling={isPending(key)}
+                      confirming={isPending(key) && navigation.formData?.get("pending_action") === "confirm"}
+                      rejecting={isPending(key) && navigation.formData?.get("pending_action") === "reject"}
+                      onConfirm={() =>
+                        submitAction(key, {
+                          pending_kind: "non_comp",
+                          pending_ticket_id: ticket.ticket_id,
+                          pending_action: "confirm",
+                        })
+                      }
+                      onReject={() => {
+                        if (window.confirm("Decline this ticket? This can't be undone.")) {
+                          submitAction(key, {
+                            pending_kind: "non_comp",
+                            pending_ticket_id: ticket.ticket_id,
+                            pending_action: "reject",
+                          });
+                        }
+                      }}
                       onCancel={
                         ticket.cancellable && !ticket.cancelled
                           ? () =>
-                              cancel(key, "non_comp_ticket_id", ticket.ticket_id)
+                              submitAction(key, {
+                                non_comp_ticket_id: ticket.ticket_id,
+                              })
                           : null
                       }
                     />
@@ -277,12 +334,33 @@ function YourSignings() {
                       lines={[stamp(ticket.timestamp) && `Booked ${stamp(ticket.timestamp)}`].filter(Boolean)}
                       price={ticket.price}
                       serial={ticket.ticket_id}
+                      status={ticket.status}
                       cancelled={ticket.cancelled}
                       cancelling={isPending(key)}
+                      confirming={isPending(key) && navigation.formData?.get("pending_action") === "confirm"}
+                      rejecting={isPending(key) && navigation.formData?.get("pending_action") === "reject"}
+                      onConfirm={() =>
+                        submitAction(key, {
+                          pending_kind: "prof_show",
+                          pending_ticket_id: ticket.ticket_id,
+                          pending_action: "confirm",
+                        })
+                      }
+                      onReject={() => {
+                        if (window.confirm("Decline this ticket? This can't be undone.")) {
+                          submitAction(key, {
+                            pending_kind: "prof_show",
+                            pending_ticket_id: ticket.ticket_id,
+                            pending_action: "reject",
+                          });
+                        }
+                      }}
                       onCancel={
                         ticket.cancellable && !ticket.cancelled
                           ? () =>
-                              cancel(key, "prof_show_ticket_id", ticket.ticket_id)
+                              submitAction(key, {
+                                prof_show_ticket_id: ticket.ticket_id,
+                              })
                           : null
                       }
                     />
@@ -325,12 +403,16 @@ function YourSignings() {
                         ].filter(Boolean)}
                         price={merch.price}
                         serial={merch.id}
+                        status={merch.status}
                         cancelled={merch.cancelled}
                         cancelling={isPending(key)}
                         cancelLabel="Cancel order"
                         onCancel={
                           merch.cancellable && !merch.cancelled
-                            ? () => cancel(key, "merch_ticket_id", merch.id)
+                            ? () =>
+                                submitAction(key, {
+                                  merch_ticket_id: merch.id,
+                                })
                             : null
                         }
                       />
@@ -416,6 +498,37 @@ export async function action({ request }) {
     const nonCompTicketId = formData.get("non_comp_ticket_id");
     const profShowTicketId = formData.get("prof_show_ticket_id");
     const merchTicketId = formData.get("merch_ticket_id");
+    const pendingKind = formData.get("pending_kind");
+    const pendingTicketId = formData.get("pending_ticket_id");
+    const pendingAction = formData.get("pending_action");
+
+    if (pendingKind && pendingTicketId && pendingAction) {
+      if (
+        !["prof_show", "non_comp"].includes(pendingKind) ||
+        !["confirm", "reject"].includes(pendingAction)
+      ) {
+        return {
+          isError: true,
+          message: "Invalid pending ticket request",
+        };
+      }
+
+      await axios.post(
+        `${apiBaseURL}/api/pending-ticket/${pendingKind}/${pendingTicketId}/${pendingAction}/`,
+        {},
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `******
+          },
+        }
+      );
+
+      return {
+        isError: false,
+        message: pendingAction === "confirm" ? "Ticket confirmed" : "Ticket declined",
+      };
+    }
 
     if (nonCompTicketId) {
       await axios.post(
