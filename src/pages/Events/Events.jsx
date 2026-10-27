@@ -208,7 +208,7 @@ function Events() {
         <div className="space-y-9">
           {showCount > 0 && (
             <section>
-              <SectionLabel count={showCount}>Prof shows</SectionLabel>
+              <SectionLabel count={showCount}>Passes</SectionLabel>
               <Grid>
                 {profShowsList.map((show) => (
                   <BrowseCard
@@ -218,7 +218,7 @@ function Events() {
                     kindColor="var(--sky)"
                     title={show.name}
                     description={show.description}
-                    meta={profShowMeta(show)}
+                    // meta={profShowMeta(show)}
                   />
                 ))}
               </Grid>
