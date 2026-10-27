@@ -247,7 +247,7 @@ function YourSignings() {
               </span>
             </TabsTrigger>
             <TabsTrigger value="prof_shows">
-              Prof shows
+              Passes
               <span className="numeral text-xs opacity-60">
                 {profShowTickets.length}
               </span>
@@ -328,7 +328,7 @@ function YourSignings() {
                   return (
                     <Stub
                       key={ticket.ticket_id || index}
-                      kind="Prof show"
+                      kind="Pass"
                       kindColor="var(--sky)"
                       title={ticket.show_name}
                       lines={[stamp(ticket.timestamp) && `Booked ${stamp(ticket.timestamp)}`].filter(Boolean)}
@@ -369,11 +369,11 @@ function YourSignings() {
               </StubGrid>
             ) : (
               <EmptyState
-                title="No prof show tickets"
+                title="No pass tickets"
                 body="Headline show tickets land here."
                 action={
                   <Button asChild variant="outline" size="sm">
-                    <Link to="/events">Browse prof shows</Link>
+                    <Link to="/events">Browse passes</Link>
                   </Button>
                 }
               />

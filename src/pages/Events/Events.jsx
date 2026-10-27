@@ -172,7 +172,7 @@ function Events() {
         ? "Nothing open yet"
         : [
             showCount > 0 &&
-              `${showCount} prof show${showCount === 1 ? "" : "s"}`,
+              `${showCount} pass${showCount === 1 ? "" : "es"}`,
             eventCount > 0 && `${eventCount} event${eventCount === 1 ? "" : "s"}`,
           ]
             .filter(Boolean)
@@ -214,7 +214,7 @@ function Events() {
                   <BrowseCard
                     key={show.id}
                     to={`/EventDetails/prof-show/${show.id}`}
-                    kind="Prof show"
+                    kind="Pass"
                     kindColor="var(--sky)"
                     title={show.name}
                     description={show.description}
