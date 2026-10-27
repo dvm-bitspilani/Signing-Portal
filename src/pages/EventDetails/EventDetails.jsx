@@ -708,16 +708,6 @@ function EventDetails() {
 
         <ClaimPanel total={profShow.price}>
           <div className="divide-y divide-border">
-            <Field label="Artist" value={artist} />
-            <Field label="Date" value={formatDate(profShow.start_time)} />
-            <Field
-              label="Time"
-              value={
-                profShow.start_time
-                  ? `${formatTime(profShow.start_time)} – ${formatTime(profShow.end_time)}`
-                  : null
-              }
-            />
             {/* The old stepper here was permanently disabled. Stating the rule
                 is more useful than showing two controls that never move. */}
             <Field label="Limit" value="1 per person" />
