@@ -172,7 +172,7 @@ function Events() {
         ? "Nothing open yet"
         : [
             showCount > 0 &&
-              `${showCount} pass${showCount === 1 ? "" : "es"}`,
+              `${showCount} deal${showCount === 1 ? "" : "es"}`,
             eventCount > 0 && `${eventCount} event${eventCount === 1 ? "" : "s"}`,
           ]
             .filter(Boolean)
@@ -208,13 +208,13 @@ function Events() {
         <div className="space-y-9">
           {showCount > 0 && (
             <section>
-              <SectionLabel count={showCount}>Passes</SectionLabel>
+              <SectionLabel count={showCount}>Deals</SectionLabel>
               <Grid>
                 {profShowsList.map((show) => (
                   <BrowseCard
                     key={show.id}
                     to={`/EventDetails/prof-show/${show.id}`}
-                    kind="Pass"
+                    kind="Deal"
                     kindColor="var(--sky)"
                     title={show.name}
                     description={show.description}

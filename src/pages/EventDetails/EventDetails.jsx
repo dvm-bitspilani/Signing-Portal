@@ -212,7 +212,7 @@ function EventDetails() {
           setLoading(false);
         })
         .catch((err) => {
-          console.error("Failed to load pass details:", err);
+          console.error("Failed to load deal details:", err);
           setError("This show isn't available.");
           setLoading(false);
           handleApiErrorToast(err, "Couldn't load this show.");
@@ -700,7 +700,7 @@ function EventDetails() {
         <BackLink onClick={() => navigate(-1)} />
 
         <Title
-          kind="Pass"
+          kind="Deal"
           kindColor="var(--sky)"
           name={profShow.name}
           description={profShow.description}
