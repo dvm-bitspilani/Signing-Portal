@@ -172,7 +172,7 @@ function Events() {
         ? "Nothing open yet"
         : [
             showCount > 0 &&
-              `${showCount} deal${showCount === 1 ? "" : "es"}`,
+              `${showCount} deal${showCount === 1 ? "" : "s"}`,
             eventCount > 0 && `${eventCount} event${eventCount === 1 ? "" : "s"}`,
           ]
             .filter(Boolean)
