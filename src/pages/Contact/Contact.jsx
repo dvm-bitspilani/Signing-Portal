@@ -4,6 +4,8 @@ import { Copy, Mail, Phone } from "lucide-react";
 import { Page, PageHeader } from "@/components/Page";
 import { showSuccessToast, showErrorToast } from "../../assets/utils/toast";
 
+const CRC_EMAIL = "crc@pilani.bits-pilani.ac.in";
+
 const TEAM = [
   {
     id: 1,
@@ -76,11 +78,34 @@ function Contact() {
 
   return (
     <Page width="narrow">
-      <PageHeader title="Help" meta="DVM backend · 4 people" />
+      <PageHeader title="Help" meta="CRC · DVM backend" />
 
+      <section className="mb-10">
+        <h2 className="mb-2 text-[0.9375rem] font-semibold tracking-[-0.01em]">
+          Merch and ticket cancellations
+        </h2>
+        <p className="mb-4 max-w-prose text-sm leading-relaxed text-muted-foreground">
+          For any queries regarding merch or cancellation of tickets, please
+          contact the CRC.
+        </p>
+        <div className="rounded-xl border border-border bg-card p-2 sm:max-w-sm">
+          <ContactRow
+            icon={Mail}
+            href={`mailto:${CRC_EMAIL}`}
+            value={CRC_EMAIL}
+            copyLabel="Email"
+            onCopy={() => copy(CRC_EMAIL, "Email")}
+          />
+        </div>
+      </section>
+
+      <h2 className="mb-2 text-[0.9375rem] font-semibold tracking-[-0.01em]">
+        Technical difficulties
+      </h2>
       <p className="mb-6 max-w-prose text-sm leading-relaxed text-muted-foreground">
-        Booking stuck, ticket missing, or a slot that won't open? Reach any of
-        these four. Have your ticket ID from{" "}
+        For any technical difficulties — booking stuck, ticket missing, or a
+        slot that won't open — please contact any of these four. Have your
+        ticket ID from{" "}
         <span className="font-medium text-foreground">Your signings</span> ready
         — it's the fastest way to get it sorted.
       </p>
@@ -102,9 +127,9 @@ function Contact() {
                   {member.initials}
                 </AvatarFallback>
               </Avatar>
-              <h2 className="min-w-0 flex-1 truncate text-[0.9375rem] font-semibold tracking-[-0.01em]">
+              <h3 className="min-w-0 flex-1 truncate text-[0.9375rem] font-semibold tracking-[-0.01em]">
                 {member.name}
-              </h2>
+              </h3>
             </div>
 
             <div className="mt-3 space-y-0.5 border-t border-border pt-2">
