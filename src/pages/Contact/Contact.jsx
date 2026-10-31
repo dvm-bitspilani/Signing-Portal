@@ -85,8 +85,7 @@ function Contact() {
           Merch and ticket cancellations
         </h2>
         <p className="mb-4 max-w-prose text-sm leading-relaxed text-muted-foreground">
-          For any queries regarding merch or cancellation of tickets, please
-          contact the CRC.
+          Questions about merch or cancelling a ticket? Email the CRC.
         </p>
         <div className="rounded-xl border border-border bg-card p-2 sm:max-w-sm">
           <ContactRow
@@ -103,11 +102,9 @@ function Contact() {
         Technical difficulties
       </h2>
       <p className="mb-6 max-w-prose text-sm leading-relaxed text-muted-foreground">
-        For any technical difficulties — booking stuck, ticket missing, or a
-        slot that won't open — please contact any of these four. Have your
+        Booking stuck or ticket missing? Reach out to any of us below with your
         ticket ID from{" "}
-        <span className="font-medium text-foreground">Your signings</span> ready
-        — it's the fastest way to get it sorted.
+        <span className="font-medium text-foreground">Your signings</span>.
       </p>
 
       <ul className="grid gap-3 sm:grid-cols-2">

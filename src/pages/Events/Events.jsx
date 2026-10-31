@@ -1,7 +1,12 @@
-import { Link, useNavigate, useLoaderData } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useLoaderData,
+  useSearchParams,
+} from "react-router-dom";
 import axios from "axios";
-import { useEffect, useState } from "react";
-import { CalendarX2, ChevronRight } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { CalendarX2, ChevronRight, Search, SearchX, X } from "lucide-react";
 import { apiBaseURL } from "../../global";
 import { handleApiErrorToast } from "../../assets/utils/toast.js";
 import {
@@ -15,6 +20,20 @@ import {
 } from "../../assets/utils/auth.js";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Page, PageHeader, EmptyState, ErrorState } from "@/components/Page";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { createSearch, normalize } from "@/lib/fuzzy";
+
+const KINDS = {
+  deal: { label: "Deal", color: "var(--sky)", path: "prof-show" },
+  event: { label: "Event", color: "var(--flame)", path: "non-comp" },
+};
+
+const FILTERS = [
+  { value: "all", label: "All" },
+  { value: "deal", label: "Deals" },
+  { value: "event", label: "Events" },
+];
 
 const dateLabel = (iso) =>
   new Date(iso).toLocaleDateString("en-IN", {
@@ -95,6 +114,99 @@ const SectionLabel = ({ children, count }) => (
   </div>
 );
 
+/**
+ * "/" jumps to the field from anywhere on the page, Escape clears it. The
+ * clear button only exists while there is something to clear.
+ */
+function SearchField({ value, onChange }) {
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return;
+      const tag = document.activeElement?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      e.preventDefault();
+      inputRef.current?.focus();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  return (
+    <div className="relative min-w-0 flex-1">
+      <Search
+        aria-hidden="true"
+        className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+      />
+      <input
+        ref={inputRef}
+        type="search"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape" && value) {
+            e.preventDefault();
+            onChange("");
+          }
+        }}
+        placeholder="Search events and deals"
+        aria-label="Search events and deals"
+        autoComplete="off"
+        spellCheck={false}
+        className="h-11 w-full rounded-lg border border-border bg-transparent pl-10 pr-10 text-base outline-none transition-colors placeholder:text-muted-foreground hover:border-foreground/30 focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40 dark:bg-input/30 sm:text-sm [&::-webkit-search-cancel-button]:hidden"
+      />
+      {value && (
+        <button
+          type="button"
+          onClick={() => {
+            onChange("");
+            inputRef.current?.focus();
+          }}
+          aria-label="Clear search"
+          className="absolute right-1.5 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <X className="size-4" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+function KindFilter({ value, onChange, counts }) {
+  return (
+    <div className="flex gap-2" role="group" aria-label="Filter by kind">
+      {FILTERS.map((filter) => {
+        const active = value === filter.value;
+        return (
+          <button
+            key={filter.value}
+            type="button"
+            aria-pressed={active}
+            onClick={() => onChange(filter.value)}
+            className={cn(
+              "flex h-11 shrink-0 items-center gap-2 rounded-lg border px-4 text-sm font-semibold transition-colors",
+              active
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-border hover:border-foreground/30",
+            )}
+          >
+            {filter.label}
+            <span
+              className={cn(
+                "numeral text-xs font-medium",
+                active ? "text-primary-foreground/70" : "text-muted-foreground",
+              )}
+            >
+              {counts[filter.value]}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 function Events() {
   const [eventList, setEventList] = useState(null);
   const [profShowsList, setProfShowsList] = useState(null);
@@ -104,6 +216,33 @@ function Events() {
   const accessToken = useLoaderData();
 
   const navigate = useNavigate();
+
+  // Search and filter live in the URL so coming back from an event's page
+  // lands on the same results.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
+  const kind = KINDS[searchParams.get("kind")] ? searchParams.get("kind") : "all";
+
+  const updateParam = (key, value) =>
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (value) next.set(key, value);
+        else next.delete(key);
+        return next;
+      },
+      { replace: true, preventScrollReset: true },
+    );
+
+  // Debounced, so typing doesn't navigate on every keystroke.
+  const urlQuery = searchParams.get("q") ?? "";
+  useEffect(() => {
+    const trimmed = query.trim();
+    if (trimmed === urlQuery) return;
+    const timer = setTimeout(() => updateParam("q", trimmed), 250);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, urlQuery]);
 
   useEffect(() => {
     if (!refreshToken || !accessToken) {
@@ -164,6 +303,53 @@ function Events() {
   const showCount = profShowsList?.length ?? 0;
   const total = eventCount + showCount;
 
+  const items = useMemo(
+    () => [
+      ...(profShowsList ?? []).map((show) => ({ ...show, kind: "deal" })),
+      ...(eventList ?? []).map((event) => ({ ...event, kind: "event" })),
+    ],
+    [profShowsList, eventList],
+  );
+
+  const search = useMemo(
+    () =>
+      createSearch(items, {
+        getTitle: (item) => item.name,
+        getDescription: (item) => item.description,
+      }),
+    [items],
+  );
+
+  const searching = normalize(query) !== "";
+  const matches = useMemo(() => search(query), [search, query]);
+  const counts = {
+    all: matches.length,
+    deal: matches.filter((item) => item.kind === "deal").length,
+    event: matches.filter((item) => item.kind === "event").length,
+  };
+  const visible =
+    kind === "all" ? matches : matches.filter((item) => item.kind === kind);
+
+  const renderCard = (item) => {
+    const k = KINDS[item.kind];
+    return (
+      <BrowseCard
+        key={`${item.kind}-${item.id}`}
+        to={`/EventDetails/${k.path}/${item.id}`}
+        kind={k.label}
+        kindColor={k.color}
+        title={item.name}
+        description={item.description}
+        meta={item.kind === "event" ? "Pick a slot" : undefined}
+      />
+    );
+  };
+
+  const clearAll = () => {
+    setQuery("");
+    setSearchParams({}, { replace: true, preventScrollReset: true });
+  };
+
   const meta = loading
     ? "Loading"
     : loadError
@@ -205,45 +391,57 @@ function Events() {
           body="Signings open closer to the fest. Check back then."
         />
       ) : (
-        <div className="space-y-9">
-          {showCount > 0 && (
-            <section>
-              <SectionLabel count={showCount}>Deals</SectionLabel>
-              <Grid>
-                {profShowsList.map((show) => (
-                  <BrowseCard
-                    key={show.id}
-                    to={`/EventDetails/prof-show/${show.id}`}
-                    kind="Deal"
-                    kindColor="var(--sky)"
-                    title={show.name}
-                    description={show.description}
-                    // meta={profShowMeta(show)}
-                  />
-                ))}
-              </Grid>
-            </section>
-          )}
+        <>
+          <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <SearchField value={query} onChange={setQuery} />
+            <KindFilter
+              value={kind}
+              onChange={(value) => updateParam("kind", value === "all" ? "" : value)}
+              counts={counts}
+            />
+          </div>
 
-          {eventCount > 0 && (
+          {visible.length === 0 ? (
+            <EmptyState
+              icon={SearchX}
+              title={searching ? `Nothing matches "${query.trim()}"` : "Nothing here"}
+              body={
+                searching
+                  ? "Try a shorter word, or search across everything."
+                  : "Nothing of this kind is open yet."
+              }
+              action={
+                <Button variant="outline" size="sm" onClick={clearAll}>
+                  Clear search
+                </Button>
+              }
+            />
+          ) : searching ? (
+            // A query ranks across both kinds, so results are one list,
+            // best match first; the card's kind label still tells them apart.
             <section>
-              <SectionLabel count={eventCount}>Events</SectionLabel>
-              <Grid>
-                {eventList.map((event) => (
-                  <BrowseCard
-                    key={event.id}
-                    to={`/EventDetails/non-comp/${event.id}`}
-                    kind="Event"
-                    kindColor="var(--flame)"
-                    title={event.name}
-                    description={event.description}
-                    meta="Pick a slot"
-                  />
-                ))}
-              </Grid>
+              <SectionLabel count={visible.length}>Results</SectionLabel>
+              <Grid>{visible.map(renderCard)}</Grid>
             </section>
+          ) : (
+            <div className="space-y-9">
+              {["deal", "event"]
+                .filter((k) => kind === "all" || kind === k)
+                .map((k) => {
+                  const group = visible.filter((item) => item.kind === k);
+                  if (group.length === 0) return null;
+                  return (
+                    <section key={k}>
+                      <SectionLabel count={group.length}>
+                        {KINDS[k].label}s
+                      </SectionLabel>
+                      <Grid>{group.map(renderCard)}</Grid>
+                    </section>
+                  );
+                })}
+            </div>
           )}
-        </div>
+        </>
       )}
     </Page>
   );

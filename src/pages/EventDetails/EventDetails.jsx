@@ -895,7 +895,7 @@ function EventDetails() {
                                   value={tt.ticket_type_id}
                                 >
                                   {tt.ticket_type_name}
-                                  {tt.price > 0 ? ` — ₹${tt.price}` : " — Free"}
+                                  {tt.price > 0 ? ` · ₹${tt.price}` : " · Free"}
                                 </SelectItem>
                               ))}
                             </SelectContent>
