@@ -63,22 +63,22 @@ function BrowseCard({ to, kind, kindColor, title, description, meta }) {
       className="kind-rule pressable group flex flex-col hover:border-foreground/25"
       style={{ "--kind": kindColor }}
     >
-      <div className="flex flex-1 flex-col gap-2 p-4 pl-5 sm:p-5 sm:pl-6">
+      <div className="flex flex-1 flex-col gap-1.5 p-3.5 pl-[1.125rem] sm:gap-2 sm:p-5 sm:pl-6">
         <span className="label-mono" style={{ color: kindColor }}>
           {kind}
         </span>
 
-        <h3 className="text-[1.0625rem] font-semibold leading-snug tracking-[-0.01em]">
+        <h3 className="text-[0.9375rem] font-semibold leading-snug tracking-[-0.01em] sm:text-[1.0625rem]">
           {title}
         </h3>
 
         {description && (
-          <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+          <p className="line-clamp-2 text-[0.8125rem] leading-relaxed text-muted-foreground sm:text-sm">
             {description}
           </p>
         )}
 
-        <div className="mt-auto flex items-center justify-between gap-3 pt-3">
+        <div className="mt-auto flex items-center justify-between gap-3 pt-1.5 sm:pt-3">
           <span className="numeral truncate text-xs text-muted-foreground">
             {meta}
           </span>
@@ -91,18 +91,18 @@ function BrowseCard({ to, kind, kindColor, title, description, meta }) {
 
 function CardSkeleton() {
   return (
-    <div className="rounded-xl border border-border p-4 sm:p-5">
+    <div className="rounded-xl border border-border p-3.5 sm:p-5">
       <Skeleton className="h-3 w-16" />
       <Skeleton className="mt-3 h-5 w-3/4" />
       <Skeleton className="mt-3 h-3.5 w-full" />
       <Skeleton className="mt-1.5 h-3.5 w-2/3" />
-      <Skeleton className="mt-6 h-3 w-24" />
+      <Skeleton className="mt-4 h-3 w-24 sm:mt-6" />
     </div>
   );
 }
 
 const Grid = ({ children }) => (
-  <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+  <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
     {children}
   </div>
 );
@@ -137,7 +137,7 @@ function SearchField({ value, onChange }) {
     <div className="relative min-w-0 flex-1">
       <Search
         aria-hidden="true"
-        className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+        className="pointer-events-none absolute left-3 top-1/2 size-4 sm:left-3.5 -translate-y-1/2 text-muted-foreground"
       />
       <input
         ref={inputRef}
@@ -145,6 +145,8 @@ function SearchField({ value, onChange }) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => {
+          // On a phone the keyboard covers the results; Enter puts it away.
+          if (e.key === "Enter") e.currentTarget.blur();
           if (e.key === "Escape" && value) {
             e.preventDefault();
             onChange("");
@@ -152,9 +154,10 @@ function SearchField({ value, onChange }) {
         }}
         placeholder="Search events and deals"
         aria-label="Search events and deals"
+        enterKeyHint="search"
         autoComplete="off"
         spellCheck={false}
-        className="h-11 w-full rounded-lg border border-border bg-transparent pl-10 pr-10 text-base outline-none transition-colors placeholder:text-muted-foreground hover:border-foreground/30 focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40 dark:bg-input/30 sm:text-sm [&::-webkit-search-cancel-button]:hidden"
+        className="h-10 w-full rounded-lg border border-border bg-transparent pl-9 pr-10 text-base sm:h-11 sm:pl-10 outline-none transition-colors placeholder:text-muted-foreground hover:border-foreground/30 focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40 dark:bg-input/30 sm:text-sm [&::-webkit-search-cancel-button]:hidden"
       />
       {value && (
         <button
@@ -175,7 +178,11 @@ function SearchField({ value, onChange }) {
 
 function KindFilter({ value, onChange, counts }) {
   return (
-    <div className="flex gap-2" role="group" aria-label="Filter by kind">
+    <div
+      className="grid grid-cols-3 gap-1.5 sm:flex sm:gap-2"
+      role="group"
+      aria-label="Filter by kind"
+    >
       {FILTERS.map((filter) => {
         const active = value === filter.value;
         return (
@@ -185,7 +192,7 @@ function KindFilter({ value, onChange, counts }) {
             aria-pressed={active}
             onClick={() => onChange(filter.value)}
             className={cn(
-              "flex h-11 shrink-0 items-center gap-2 rounded-lg border px-4 text-sm font-semibold transition-colors",
+              "flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg border px-3 text-[0.8125rem] font-semibold transition-colors sm:h-11 sm:gap-2 sm:px-4 sm:text-sm",
               active
                 ? "border-primary bg-primary text-primary-foreground"
                 : "border-border hover:border-foreground/30",
@@ -392,7 +399,7 @@ function Events() {
         />
       ) : (
         <>
-          <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="mb-5 flex flex-col gap-2 sm:mb-7 sm:flex-row sm:items-center sm:gap-3">
             <SearchField value={query} onChange={setQuery} />
             <KindFilter
               value={kind}
@@ -424,7 +431,7 @@ function Events() {
               <Grid>{visible.map(renderCard)}</Grid>
             </section>
           ) : (
-            <div className="space-y-9">
+            <div className="space-y-7 sm:space-y-9">
               {["deal", "event"]
                 .filter((k) => kind === "all" || kind === k)
                 .map((k) => {

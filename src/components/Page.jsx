@@ -23,7 +23,7 @@ export function Page({ children, width = "default", className }) {
       <Navbar />
       <div
         className={cn(
-          "mx-auto w-full flex-1 px-4 pt-6 pb-10 sm:px-6 md:pt-8",
+          "mx-auto w-full flex-1 px-4 pt-5 pb-8 sm:px-6 sm:pb-10 md:pt-8",
           widths[width],
           className,
         )}
@@ -41,13 +41,13 @@ export function Page({ children, width = "default", className }) {
  */
 export function PageHeader({ title, meta, action }) {
   return (
-    <header className="mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b border-border pb-5">
+    <header className="mb-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b border-border pb-4 sm:mb-6 sm:pb-5">
       <div className="min-w-0">
-        <h1 className="display text-[1.7rem] uppercase sm:text-[2.1rem]">
+        <h1 className="display text-[1.5rem] uppercase sm:text-[2.1rem]">
           {title}
         </h1>
         {meta && (
-          <p className="label-mono mt-2 text-muted-foreground">{meta}</p>
+          <p className="label-mono mt-1.5 text-muted-foreground sm:mt-2">{meta}</p>
         )}
       </div>
       {action}
